@@ -292,12 +292,17 @@ body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--ink);
 .sdel:active { color:var(--red); }
 
 .photo-zone {
-  position:relative; height:170px;
+  position:relative;
+  width:100%; padding-top:100%;
   background:#f0ede8; overflow:hidden; cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
 }
-.photo-zone img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:none; }
-.photo-ph { display:flex; flex-direction:column; align-items:center; gap:6px; color:#bbb; font-size:12px; pointer-events:none; }
+.photo-zone img {
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover; object-position:center;
+  display:none;
+}
+.photo-ph { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:#bbb; font-size:12px; pointer-events:none; }
 .photo-ph svg { width:32px; height:32px; opacity:0.5; }
 .photo-zone input { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
 .photo-rm {
