@@ -310,6 +310,16 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 <div id="loader"><div class="spinner"></div><div class="lmsg" id="lmsg">Loading...</div></div>
 <div id="toast"></div>
 
+<!-- PDF PREVIEW OVERLAY -->
+<div id="pdf-overlay" style="position:fixed;inset:0;z-index:10003;background:#fff;display:none;flex-direction:column">
+  <div style="background:#1e1e1e;padding:14px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0">
+    <button onclick="closePdfOverlay()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif" type="button">← Back</button>
+    <span style="color:#fff;font-size:13px;font-weight:700;letter-spacing:1px;flex:1">REPORT PREVIEW</span>
+    <button onclick="printPdfOverlay()" style="background:#27ae60;border:none;color:#fff;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif" type="button">🖨 Print / Save PDF</button>
+  </div>
+  <iframe id="pdf-frame" style="flex:1;border:none;width:100%;background:#fff"></iframe>
+</div>
+
 <!-- FLOOR PLAN MODAL -->
 <div id="plan-modal" style="position:fixed;inset:0;z-index:10001;background:#000;display:none;flex-direction:column">
   <div id="plan-modal-topbar" style="background:#111;padding:16px 16px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
@@ -537,6 +547,7 @@ function adminDel(email) {
 }
 
 function goProjects() {
+  CPJ = null; CPJ_DATA = null; ITEMS = []; IC = 0; PLANS = []; // reset state
   document.getElementById('p-greeting').textContent = CUD;
   document.getElementById('np-date').value = getToday();
   // Show expiry info from localStorage
@@ -773,7 +784,7 @@ function bulkSave(pid) {
 
 
 function openProject(pid, projData) {
-  CPJ = pid; CPJ_DATA = projData;
+  CPJ = pid; CPJ_DATA = projData; PLANS = [];
   document.getElementById('iproj-name').textContent = projData.name;
   document.getElementById('iproj-sub').textContent = [projData.ref, projData.date].filter(Boolean).join(' - ') || '...';
   showTab('items'); goPage('p-items');
@@ -1130,10 +1141,22 @@ function exportPDF() {
   }
 
   var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#fff;padding:32px;}@page{margin:32px 32px 60px 32px;}@media print{footer{position:fixed;bottom:0;left:0;right:0;padding:10px 32px;background:#fff;border-top:1px solid #e4e1dc;display:flex;justify-content:space-between;align-items:center;}}</style></head><body><div style="margin-bottom:24px;"><div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;"><div style="background:#1e1e1e;border-radius:10px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;"><span style="font-size:16px;font-weight:900;color:#fff;letter-spacing:2px;">MLA</span></div><div><div style="font-size:22px;font-weight:900;letter-spacing:2px;">SITE INSPECTION REPORT</div><div style="font-size:12px;color:#888;margin-top:2px;">Generated '+ new Date().toLocaleDateString() +'</div></div></div><table style="width:100%;border-collapse:collapse;background:#1e1e1e;"><tr><td style="padding:10px 14px;color:#aaa;font-size:11px;width:15%;">PROJECT</td><td style="padding:10px 14px;color:#fff;font-weight:700;width:35%;">'+(proj.name||'...')+'</td><td style="padding:10px 14px;color:#aaa;font-size:11px;width:15%;">REF NO.</td><td style="padding:10px 14px;color:#fff;font-weight:700;">'+(proj.ref||'...')+'</td></tr><tr><td style="padding:10px 14px;color:#aaa;font-size:11px;">INSPECTOR</td><td style="padding:10px 14px;color:#fff;font-weight:700;">'+(CUD||'...')+'</td><td style="padding:10px 14px;color:#aaa;font-size:11px;">DATE</td><td style="padding:10px 14px;color:#fff;font-weight:700;">'+(proj.date||'...')+'</td></tr></table></div>' + plansHtml + rows+'<div style="margin-top:24px;border:1px solid #e4e1dc;border-radius:10px;overflow:hidden;"><div style="background:#1e1e1e;padding:10px 14px;"><span style="font-size:13px;font-weight:700;color:#fff;">SUMMARY</span></div><table style="width:50%;border-collapse:collapse;"><tr><td style="padding:8px 14px;border-bottom:1px solid #e4e1dc;">Total</td><td style="padding:8px 14px;font-weight:700;border-bottom:1px solid #e4e1dc;">'+ITEMS.length+'</td></tr><tr><td style="padding:8px 14px;color:#c0392b;border-bottom:1px solid #e4e1dc;">Open</td><td style="padding:8px 14px;font-weight:700;color:#c0392b;border-bottom:1px solid #e4e1dc;">'+oN+'</td></tr><tr><td style="padding:8px 14px;color:#27ae60;">Closed</td><td style="padding:8px 14px;font-weight:700;color:#27ae60;">'+cN+'</td></tr></table></div><footer style="margin-top:40px;padding-top:12px;border-top:1px solid #e4e1dc;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:11px;color:#aaa;">'+new Date().toLocaleDateString()+'</span><span style="font-size:12px;font-weight:900;color:#1e1e1e;letter-spacing:1px;">MLA INSPECTION</span></footer></body></html>';
-  var win = window.open('', '_blank');
-  if (!win) { showToast('Allow popups to export PDF', 'err'); return; }
-  win.document.write(html); win.document.close();
-  win.onload = function() { setTimeout(function() { win.print(); showToast('Save as PDF', 'ok'); }, 500); };
+  var overlay = document.getElementById('pdf-overlay');
+  var frame = document.getElementById('pdf-frame');
+  overlay.style.display = 'flex';
+  frame.srcdoc = html;
+  showToast('Tap Print / Save PDF to export', 'ok');
+}
+
+function closePdfOverlay() {
+  document.getElementById('pdf-overlay').style.display = 'none';
+  document.getElementById('pdf-frame').srcdoc = '';
+}
+
+function printPdfOverlay() {
+  var frame = document.getElementById('pdf-frame');
+  frame.contentWindow.focus();
+  frame.contentWindow.print();
 }
 
 // ═══════════════════════════════════════════════
@@ -1680,7 +1703,7 @@ document.getElementById('inp-pass').onkeydown = function(e) { if(e.key==='Enter'
 document.getElementById('btn-lock-back').onclick = function() { goPage('p-login'); };
 document.getElementById('btn-admin-exit').onclick = function() { goPage('p-login'); };
 document.getElementById('btn-add-user').onclick = adminAdd;
-document.getElementById('btn-logout').onclick = function() { TOKEN=null;CUD=null;localStorage.removeItem('mla_token');localStorage.removeItem('mla_cud');localStorage.removeItem('mla_expiry');goPage('p-login'); };
+document.getElementById('btn-logout').onclick = function() { TOKEN=null;CUD=null;PLANS=[];ITEMS=[];CPJ=null;CPJ_DATA=null;localStorage.removeItem('mla_token');localStorage.removeItem('mla_cud');localStorage.removeItem('mla_expiry');goPage('p-login'); };
 document.getElementById('btn-new-proj').onclick = createProject;
 document.getElementById('btn-back').onclick = function() { goProjects(); };
 document.getElementById('btn-add-item').onclick = addItem;
