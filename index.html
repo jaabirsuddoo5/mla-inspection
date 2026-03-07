@@ -1085,50 +1085,47 @@ function updateSummary() {
 }
 
 // Render a floor plan with all its pins drawn on it, return base64 jpeg
-function renderPlanWithPins(plan) {
-  if (!plan.image) return null;
-  try {
-    var img = new Image();
-    // Synchronous via canvas trick - image already loaded as base64
-    var canvas = document.createElement('canvas');
-    img.src = plan.image;
-    // Draw at fixed export size
-    var maxW = 1200, maxH = 800;
-    var scale = Math.min(maxW / img.width, maxH / img.height, 1);
-    canvas.width = img.width * scale;
-    canvas.height = img.height * scale;
-    var ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    // Draw pins
-    ITEMS.forEach(function(item) {
-      if (!item.pins) return;
-      item.pins.forEach(function(pin) {
-        if (pin.planId !== plan._id) return;
-        var sx = pin.x * canvas.width;
-        var sy = pin.y * canvas.height;
-        var color = item.status === 'closed' ? '#27ae60' : '#e74c3c';
-        var r = 16;
-        var cy = sy - r * 2 - 4;
-        // Shadow
-        ctx.shadowColor = 'rgba(0,0,0,0.35)'; ctx.shadowBlur = 8; ctx.shadowOffsetY = 3;
-        // Circle
-        ctx.beginPath(); ctx.arc(sx, cy, r, 0, Math.PI * 2);
-        ctx.fillStyle = color; ctx.fill();
-        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5; ctx.stroke();
-        ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-        // Pointer triangle down
-        ctx.beginPath();
-        ctx.moveTo(sx - 6, cy + r - 3); ctx.lineTo(sx + 6, cy + r - 3); ctx.lineTo(sx, sy);
-        ctx.closePath(); ctx.fillStyle = color; ctx.fill();
-        // Number
-        ctx.fillStyle = '#fff'; ctx.font = 'bold 12px Arial';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(String(item.seq || '?'), sx, cy);
-        ctx.textBaseline = 'alphabetic';
+function renderPlanWithPins(plan, callback) {
+  if (!plan.image) { callback(null); return; }
+  var img = new Image();
+  img.onload = function() {
+    try {
+      var canvas = document.createElement('canvas');
+      var maxW = 1200, maxH = 800;
+      var scale = Math.min(maxW / img.width, maxH / img.height, 1);
+      canvas.width = Math.floor(img.width * scale);
+      canvas.height = Math.floor(img.height * scale);
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      // Draw pins
+      ITEMS.forEach(function(item) {
+        if (!item.pins) return;
+        item.pins.forEach(function(pin) {
+          if (pin.planId !== plan._id) return;
+          var sx = pin.x * canvas.width;
+          var sy = pin.y * canvas.height;
+          var color = item.status === 'closed' ? '#27ae60' : '#e74c3c';
+          var r = 16;
+          var cy = sy - r * 2 - 4;
+          ctx.shadowColor = 'rgba(0,0,0,0.35)'; ctx.shadowBlur = 8; ctx.shadowOffsetY = 3;
+          ctx.beginPath(); ctx.arc(sx, cy, r, 0, Math.PI * 2);
+          ctx.fillStyle = color; ctx.fill();
+          ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5; ctx.stroke();
+          ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+          ctx.beginPath();
+          ctx.moveTo(sx - 6, cy + r - 3); ctx.lineTo(sx + 6, cy + r - 3); ctx.lineTo(sx, sy);
+          ctx.closePath(); ctx.fillStyle = color; ctx.fill();
+          ctx.fillStyle = '#fff'; ctx.font = 'bold 12px Arial';
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText(String(item.seq || '?'), sx, cy);
+          ctx.textBaseline = 'alphabetic';
+        });
       });
-    });
-    return canvas.toDataURL('image/jpeg', 0.9);
-  } catch(e) { return null; }
+      callback(canvas.toDataURL('image/jpeg', 0.9));
+    } catch(e) { callback(null); }
+  };
+  img.onerror = function() { callback(null); };
+  img.src = plan.image;
 }
 
 function exportWord() {
@@ -1178,29 +1175,51 @@ function exportWord() {
   var oN=ITEMS.filter(function(i){return i.status==='open';}).length;
   var cN=ITEMS.filter(function(i){return i.status==='closed';}).length;
 
-  // Floor plans section (if any plans with images exist)
+  // Floor plans section - render async then build doc
   var plansWithImages = PLANS.filter(function(p) { return p.image; });
-  if (plansWithImages.length) {
-    body += pa('', {after: 200});
-    body += pa(rn('FLOOR PLANS', {b:true, s:28, c:'1A1A1A', f:'Arial'}), {after:120});
-    plansWithImages.forEach(function(plan) {
-      // Render plan with pins to canvas
-      var planB64 = renderPlanWithPins(plan);
-      if (planB64) {
-        body += pa(rn(plan.name || 'Floor Plan', {b:true, s:22, c:'555555', f:'Arial'}), {after:80});
-        var pm = addImg(planB64);
-        if (pm) {
-          var planW = W; var planH = Math.floor(W * 0.65);
-          body += pa(ir(pm.rId, pm.id, planW / 9525 * 9525 / 9525, planH / 9525 * 9525 / 9525), {align:'center'});
-        }
-        body += pa('', {after:160});
+  if (!plansWithImages.length) {
+    buildWordDoc(body, oN, cN, proj, imgs, W);
+    return;
+  }
+  showLoader(true, 'Rendering floor plans...');
+  var renderedPlans = [];
+  var remaining = plansWithImages.length;
+  plansWithImages.forEach(function(plan, idx) {
+    renderPlanWithPins(plan, function(b64) {
+      renderedPlans[idx] = { plan: plan, b64: b64 };
+      remaining--;
+      if (remaining === 0) {
+        showLoader(false);
+        body += pa('', {after: 200});
+        body += pa(rn('FLOOR PLANS', {b:true, s:28, c:'1A1A1A', f:'Arial'}), {after:120});
+        renderedPlans.forEach(function(rp) {
+          if (!rp || !rp.b64) return;
+          body += pa(rn(rp.plan.name || 'Floor Plan', {b:true, s:22, c:'555555', f:'Arial'}), {after:80});
+          var pm = addImg(rp.b64);
+          if (pm) {
+            var planH = Math.floor(W * 0.65);
+            body += pa(ir(pm.rId, pm.id, Math.floor(W/9525), Math.floor(planH/9525)), {align:'center'});
+          }
+          body += pa('', {after:160});
+        });
+        buildWordDoc(body, oN, cN, proj, imgs, W);
       }
     });
-  }
+  });
+}
 
+function buildWordDoc(body, oN, cN, proj, imgs, W) {
+  function xe2(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function bn(){return'w:val="none" w:sz="0" w:space="0" w:color="FFFFFF"';}
+  function bs(c,z){c=c||'CCCCCC';z=z||4;return'w:color="'+c+'" w:sz="'+z+'" w:space="0" w:val="single"';}
+  function pa(runs,o){o=o||{};var sp=o.after?'<w:spacing w:after="'+o.after+'"/>':'';var jc=o.align?'<w:jc w:val="'+o.align+'"/>':'';return'<w:p>'+(sp||jc?'<w:pPr>'+sp+jc+'</w:pPr>':'')+runs+'</w:p>';}
+  function ir(rId,iid,w,h){var we=w*9525,he=h*9525;return'<w:r><w:drawing><wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"><wp:extent cx="'+we+'" cy="'+he+'"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:docPr id="'+iid+'" name="I'+iid+'"/><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="'+iid+'" name="I'+iid+'"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="'+rId+'" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="'+we+'" cy="'+he+'"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>';}
+  function cl(content,o){o=o||{};var w=o.w?'<w:tcW w:w="'+o.w+'" w:type="dxa"/>':'<w:tcW w:w="0" w:type="auto"/>';var bg=o.bg?'<w:shd w:val="clear" w:color="auto" w:fill="'+o.bg+'"/>':"";var sp=o.span?'<w:gridSpan w:val="'+o.span+'"/>':"";var bT=o.bT?'<w:top '+bs(o.bT,o.bTs)+'/>':'<w:top '+bn()+'/>';var bB=o.bB?'<w:bottom '+bs(o.bB,o.bBs)+'/>':'<w:bottom '+bn()+'/>';var bL=o.bL?'<w:left '+bs(o.bL,4)+'/>':'<w:left '+bn()+'/>';var bR=o.bR?'<w:right '+bs(o.bR,4)+'/>':'<w:right '+bn()+'/>';var va=o.va?'<w:vAlign w:val="'+o.va+'"/>':"";return'<w:tc><w:tcPr>'+w+sp+bg+bT+bB+bL+bR+va+'<w:tcMar><w:top w:w="80" w:type="dxa"/><w:left w:w="120" w:type="dxa"/><w:bottom w:w="80" w:type="dxa"/><w:right w:w="120" w:type="dxa"/></w:tcMar></w:tcPr>'+content+'</w:tc>';}
   var sw=Math.floor(W*0.5),c1=Math.floor(sw*0.6),c2=sw-c1;
-  body+=tb([rw(cl(pa(rn('SUMMARY',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{span:2,bg:'1E1E1E',bT:'1E1E1E',bTs:8,bB:'CCCCCC'})),rw(cl(pa(rn('Total Items',{s:18,f:'Arial'})),{w:c1,bB:'CCCCCC',bR:'CCCCCC'}),cl(pa(rn(String(ITEMS.length),{b:true,s:18,f:'Arial'})),{w:c2,bB:'CCCCCC'})),rw(cl(pa(rn('Open',{s:18,c:'C0392B',f:'Arial'})),{w:c1,bB:'CCCCCC',bR:'CCCCCC'}),cl(pa(rn(String(oN),{b:true,s:18,c:'C0392B',f:'Arial'})),{w:c2,bB:'CCCCCC'})),rw(cl(pa(rn('Closed',{s:18,c:'27AE60',f:'Arial'})),{w:c1,bB:'1E1E1E',bBs:8,bR:'CCCCCC'}),cl(pa(rn(String(cN),{b:true,s:18,c:'27AE60',f:'Arial'})),{w:c2,bB:'1E1E1E',bBs:8}))],sw);
-  // Footer XML
+  function tb(rows,tw){return'<w:tbl><w:tblPr><w:tblW w:w="'+(tw||W)+'" w:type="dxa"/><w:tblBorders><w:insideH '+bn()+'/><w:insideV '+bn()+'/></w:tblBorders></w:tblPr>'+rows.join('')+'</w:tbl>';}
+  function rw(){var cells=Array.prototype.slice.call(arguments);return'<w:tr>'+cells.join('')+'</w:tr>';}
+  function rn(t,o){o=o||{};var p='';if(o.b)p+='<w:b/>';if(o.s)p+='<w:sz w:val="'+o.s+'"/><w:szCs w:val="'+o.s+'"/>';if(o.c)p+='<w:color w:val="'+o.c+'"/>';if(o.f)p+='<w:rFonts w:ascii="'+o.f+'" w:hAnsi="'+o.f+'"/>';return'<w:r>'+(p?'<w:rPr>'+p+'</w:rPr>':'')+'<w:t xml:space="preserve">'+xe2(t)+'</w:t></w:r>';}
+  body += tb([rw(cl(pa(rn('SUMMARY',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{span:2,bg:'1E1E1E',bT:'1E1E1E',bTs:8,bB:'CCCCCC'})),rw(cl(pa(rn('Total Items',{s:18,f:'Arial'})),{w:c1,bB:'CCCCCC',bR:'CCCCCC'}),cl(pa(rn(String(ITEMS.length),{b:true,s:18,f:'Arial'})),{w:c2,bB:'CCCCCC'})),rw(cl(pa(rn('Open',{s:18,c:'C0392B',f:'Arial'})),{w:c1,bB:'CCCCCC',bR:'CCCCCC'}),cl(pa(rn(String(oN),{b:true,s:18,c:'C0392B',f:'Arial'})),{w:c2,bB:'CCCCCC'})),rw(cl(pa(rn('Closed',{s:18,c:'27AE60',f:'Arial'})),{w:c1,bB:'1E1E1E',bBs:8,bR:'CCCCCC'}),cl(pa(rn(String(cN),{b:true,s:18,c:'27AE60',f:'Arial'})),{w:c2,bB:'1E1E1E',bBs:8}))],sw);
   var footerXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:p><w:pPr><w:jc w:val="right"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="16"/><w:szCs w:val="16"/><w:color w:val="1E1E1E"/></w:rPr><w:t>MLA INSPECTION</w:t></w:r><w:r><w:rPr><w:sz w:val="16"/><w:color w:val="888888"/></w:rPr><w:t xml:space="preserve"> | Site Inspection Report</w:t></w:r></w:p></w:ftr>';
   var docXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><w:body>'+body+'<w:sectPr><w:footerReference w:type="default" r:id="rId200"/><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/></w:sectPr></w:body></w:document>';
   var relsXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/><Relationship Id="rId200" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/>'+imgs.map(function(m){return'<Relationship Id="'+m.rId+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/img'+m.id+'.'+m.ext+'"/>';}).join('')+'</Relationships>';
@@ -1214,15 +1233,14 @@ function exportWord() {
   function makeZip(files){var parts=[],cd=[];var off=0;for(var fi=0;fi<files.length;fi++){var f=files[fi];var nb=new TextEncoder().encode(f.name),d=f.data,crc=crc32(d);var lh=[0x50,0x4B,0x03,0x04,20,0,0,0,0,0,0,0,0,0].concat(u32(crc),u32(d.length),u32(d.length),u16(nb.length),[0,0]).concat(Array.from(nb));var ce=[0x50,0x4B,0x01,0x02,20,0,20,0,0,0,0,0,0,0,0,0].concat(u32(crc),u32(d.length),u32(d.length),u16(nb.length),[0,0,0,0,0,0,0,0,0,0]).concat(u32(off)).concat(Array.from(nb));parts.push(new Uint8Array(lh),d);cd.push(new Uint8Array(ce));off+=lh.length+d.length;}var cs=cd.reduce(function(s,c){return s+c.length;},0);var eocd=[0x50,0x4B,0x05,0x06,0,0,0,0].concat(u16(files.length),u16(files.length),u32(cs),u32(off),[0,0]);var all=parts.concat(cd,[new Uint8Array(eocd)]);var tot=all.reduce(function(s,a){return s+a.length;},0);var out=new Uint8Array(tot);var p=0;for(var i=0;i<all.length;i++){out.set(all[i],p);p+=all[i].length;}return out;}
   var zipFiles=[{name:'[Content_Types].xml',data:sb(ctXml)},{name:'_rels/.rels',data:sb(rootRels)},{name:'word/document.xml',data:sb(docXml)},{name:'word/styles.xml',data:sb(stylesXml)},{name:'word/footer1.xml',data:sb(footerXml)},{name:'word/_rels/document.xml.rels',data:sb(relsXml)}];
   imgs.forEach(function(m){zipFiles.push({name:'word/media/img'+m.id+'.'+m.ext,data:bb(m.base64)});});
-  try{
+  try {
     var zip=makeZip(zipFiles);
     var blob=new Blob([zip],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
     var url=URL.createObjectURL(blob);var a=document.createElement('a');
     a.href=url;a.download=((proj.name||'inspection').replace(/\s+/g,'_'))+'_report.docx';
     document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(url);a.remove();},1000);
     showToast('Word report downloaded!','ok');
-  }catch(e){showToast('Export failed','err');console.error(e);}
-}
+  } catch(e) { showToast('Export failed','err');console.error(e); }
 
 function exportPDF() {
   if (!ITEMS.length) { showToast('No items to export', 'err'); return; }
@@ -1254,19 +1272,35 @@ function exportPDF() {
       '</div></div>';
   }).join('');
 
-  var plansHtml = '';
   var plansWithImgs = PLANS.filter(function(p) { return p.image; });
-  if (plansWithImgs.length) {
-    plansHtml = '<div style="margin-bottom:24px;page-break-before:always;"><div style="font-size:16px;font-weight:900;letter-spacing:2px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #1e1e1e;">FLOOR PLANS</div>';
-    plansWithImgs.forEach(function(plan) {
-      var planImg = renderPlanWithPins(plan);
-      if (planImg) {
-        plansHtml += '<div style="margin-bottom:20px;"><div style="font-size:13px;font-weight:700;color:#555;margin-bottom:8px;">' + (plan.name||'Floor Plan') + '</div>';
-        plansHtml += '<img src="' + planImg + '" style="width:100%;border-radius:8px;border:1px solid #e4e1dc;"/></div>';
+  if (!plansWithImgs.length) {
+    buildPdfOverlay(aiHtml, rows, proj, oN, cN);
+    return;
+  }
+  showLoader(true, 'Rendering floor plans...');
+  var renderedPdfPlans = [];
+  var rem2 = plansWithImgs.length;
+  plansWithImgs.forEach(function(plan, idx) {
+    renderPlanWithPins(plan, function(b64) {
+      renderedPdfPlans[idx] = { plan: plan, b64: b64 };
+      rem2--;
+      if (rem2 === 0) {
+        showLoader(false);
+        var plansHtml = '<div style="margin-bottom:24px;page-break-before:always;"><div style="font-size:16px;font-weight:900;letter-spacing:2px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #1e1e1e;">FLOOR PLANS</div>';
+        renderedPdfPlans.forEach(function(rp) {
+          if (!rp || !rp.b64) return;
+          plansHtml += '<div style="margin-bottom:20px;"><div style="font-size:13px;font-weight:700;color:#555;margin-bottom:8px;">' + (rp.plan.name||'Floor Plan') + '</div>';
+          plansHtml += '<img src="' + rp.b64 + '" style="width:100%;border-radius:8px;border:1px solid #e4e1dc;"/></div>';
+        });
+        plansHtml += '</div>';
+        buildPdfOverlay(aiHtml, rows, proj, oN, cN, plansHtml);
       }
     });
-    plansHtml += '</div>';
-  }
+  });
+}
+
+function buildPdfOverlay(aiHtml, rows, proj, oN, cN, plansHtml) {
+  plansHtml = plansHtml || '';
 
   var aiHtml = aiSummary
     ? '<div style="page-break-after:always;padding-bottom:40px;"><div style="font-size:20px;font-weight:900;letter-spacing:2px;margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid #1e1e1e;">EXECUTIVE SUMMARY</div><div style="font-size:14px;line-height:1.9;color:#333;">'+aiSummary+'</div></div>'
