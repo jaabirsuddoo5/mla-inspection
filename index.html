@@ -837,25 +837,11 @@ document.getElementById('btn-export').onclick = exportWord;
 document.getElementById('btn-export-pdf').onclick = exportPDF;
 document.getElementById('btn-clear').onclick = clearAll;
 
-// Auto-login with expiry check
-if (TOKEN && CUD) {
-  var storedExpiry = localStorage.getItem('mla_expiry') || 'forever';
-  if (storedExpiry !== 'forever') {
-    var daysLeft = Math.ceil((new Date(storedExpiry) - new Date()) / 86400000);
-    if (daysLeft < 0) {
-      // Expired - force logout
-      TOKEN = null; CUD = null;
-      localStorage.removeItem('mla_token');
-      localStorage.removeItem('mla_cud');
-      localStorage.removeItem('mla_expiry');
-      goPage('p-locked');
-    } else {
-      goProjects();
-    }
-  } else {
-    goProjects();
-  }
-}
+// Always require login on app open
+TOKEN = null; CUD = null;
+localStorage.removeItem('mla_token');
+localStorage.removeItem('mla_cud');
+localStorage.removeItem('mla_expiry');
 
 // Kill old service workers
 if ('serviceWorker' in navigator) {
