@@ -481,8 +481,8 @@ body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--ink);
 <div class="screen" id="s-locked">
   <div class="locked-icon">🔒</div>
   <div class="locked-title">ACCESS LOCKED</div>
-  <div class="locked-msg">Your licence has expired or you are not yet activated.<br/>Please contact MLA to renew your access.</div>
-  <div class="locked-email">info@mla-inspection.com</div>
+  <div class="locked-msg">Sorry, you are not on the access list.<br/>Please contact MLA to activate your account.</div>
+  <div class="locked-email">jaabirsuddoo5@gmail.com</div>
   <button class="locked-logout" id="logout-btn">← Back to Login</button>
 </div>
 
@@ -1336,8 +1336,19 @@ document.addEventListener('touchend', e => {
 
 // ── Service worker ────────────────────────────────
 if('serviceWorker' in navigator) {
+  // Unregister old service workers to force fresh load
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(reg => reg.unregister());
+  });
   window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 }
+
+// ── Button bindings ───────────────────────────────
+document.getElementById('login-submit-btn').addEventListener('click', doLogin);
+document.getElementById('login-name').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doLogin();
+});
+document.querySelectorAll('#logout-btn').forEach(el => el.addEventListener('click', doLogout));
 </script>
 </body>
 </html>
