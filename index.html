@@ -7,8 +7,14 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="MLA Inspection"/>
 <meta name="theme-color" content="#1e1e1e"/>
+<meta name="mobile-web-app-capable" content="yes"/>
 <link rel="manifest" href="manifest.json"/>
-<link rel="apple-touch-icon" href="icon-192.png"/>
+<link rel="apple-touch-icon" href="apple-touch-icon.png"/>
+<!-- iPhone Splash Screens -->
+<link rel="apple-touch-startup-image" media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" href="splash-1170x2532.png"/>
+<link rel="apple-touch-startup-image" media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" href="splash-1290x2796.png"/>
+<link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" href="splash-750x1334.png"/>
+<link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" href="splash-1125x2436.png"/>
 <title>MLA Inspection</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
@@ -21,7 +27,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 }
 .page{display:none;height:100%;flex-direction:column;overflow:hidden}
 .page.active{display:flex}
-.topbar{background:var(--dark);padding:calc(var(--st)+52px) 16px 14px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.topbar{background:var(--dark);padding:calc(var(--st)+56px) 16px 14px;display:flex;align-items:center;gap:12px;flex-shrink:0}
 .tlogo{width:34px;height:34px;background:var(--dark3);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .tlogo span{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:1.5px;color:#fff}
 .ttitle{flex:1;min-width:0}
@@ -48,7 +54,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite}
 .lmsg{color:#fff;font-size:13px;font-weight:600}
 @keyframes spin{to{transform:rotate(360deg)}}
-#p-login{background:var(--dark);align-items:center;justify-content:center;padding:40px 28px;gap:28px}
+#p-login{background:var(--dark);align-items:center;justify-content:center;padding:calc(var(--st)+40px) 28px 40px;gap:28px}
 .llogin{width:88px;height:88px;background:var(--dark3);border-radius:18px;display:flex;align-items:center;justify-content:center}
 .llogin span{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:#fff}
 .lhead{text-align:center}
@@ -66,7 +72,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .lock-contact{font-size:14px;font-weight:700;color:#fff;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:12px 20px;width:100%;text-align:center}
 .lock-back{background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;padding:8px;font-family:'DM Sans',sans-serif}
 #p-admin{background:var(--bg)}
-.admin-bar{background:#111;padding:calc(var(--st)+52px) 16px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.admin-bar{background:#111;padding:calc(var(--st)+56px) 16px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0}
 .admin-bar h1{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;flex:1}
 .abadge{background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
 .admin-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;display:flex;flex-direction:column;gap:14px}
@@ -124,7 +130,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .has-photo .annotate-btn{display:block}
 #annot-modal{position:fixed;inset:0;z-index:10000;background:#000;display:none;flex-direction:column}
 #annot-modal.show{display:flex}
-#annot-canvas{width:100%;flex:1;touch-action:none;display:block}
+#annot-canvas{width:100%;flex:1;touch-action:none;display:block;object-fit:contain}
 .annot-bar{background:#111;padding:12px 16px calc(env(safe-area-inset-bottom,0px)+12px);display:flex;align-items:center;gap:10px;flex-shrink:0}
 .annot-color{width:30px;height:30px;border-radius:50%;border:3px solid transparent;cursor:pointer;flex-shrink:0}
 .annot-color.active{border-color:#fff}
@@ -890,10 +896,18 @@ function openAnnotate(id) {
   img.onload = function() {
     var sw = window.innerWidth, sh = window.innerHeight - 90;
     var scale = Math.min(sw / img.width, sh / img.height);
-    canvas.width = img.width * scale; canvas.height = img.height * scale;
-    canvas.style.width = canvas.width + 'px'; canvas.style.height = canvas.height + 'px';
+    var dw = Math.floor(img.width * scale);
+    var dh = Math.floor(img.height * scale);
+    // Set canvas internal size to match image pixels exactly
+    canvas.width = img.width;
+    canvas.height = img.height;
+    // Set display size via CSS
+    canvas.style.width = dw + 'px';
+    canvas.style.height = dh + 'px';
+    canvas.style.display = 'block';
+    canvas.style.margin = 'auto';
     var ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, img.width, img.height);
   };
   img.src = item.photo;
   canvas.ontouchstart = function(e) {
@@ -901,28 +915,32 @@ function openAnnotate(id) {
     var ctx = canvas.getContext('2d');
     ANNOT_HISTORY.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
     var t = e.touches[0], r = canvas.getBoundingClientRect();
-    ctx.beginPath(); ctx.moveTo(t.clientX - r.left, t.clientY - r.top);
+    var scaleX = canvas.width / r.width, scaleY = canvas.height / r.height;
+    ctx.beginPath(); ctx.moveTo((t.clientX - r.left) * scaleX, (t.clientY - r.top) * scaleY);
     ctx.strokeStyle = ANNOT_COLOR; ctx.lineWidth = parseInt(document.getElementById('annot-size').value);
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   };
   canvas.ontouchmove = function(e) {
     e.preventDefault(); if (!ANNOT_DRAWING) return;
     var ctx = canvas.getContext('2d'), t = e.touches[0], r = canvas.getBoundingClientRect();
-    ctx.lineTo(t.clientX - r.left, t.clientY - r.top); ctx.stroke();
+    var scaleX = canvas.width / r.width, scaleY = canvas.height / r.height;
+    ctx.lineTo((t.clientX - r.left) * scaleX, (t.clientY - r.top) * scaleY); ctx.stroke();
   };
   canvas.ontouchend = function(e) { e.preventDefault(); ANNOT_DRAWING = false; };
   canvas.onmousedown = function(e) {
     ANNOT_DRAWING = true; var ctx = canvas.getContext('2d');
     ANNOT_HISTORY.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
     var r = canvas.getBoundingClientRect();
-    ctx.beginPath(); ctx.moveTo(e.clientX - r.left, e.clientY - r.top);
+    var scaleX = canvas.width / r.width, scaleY = canvas.height / r.height;
+    ctx.beginPath(); ctx.moveTo((e.clientX - r.left) * scaleX, (e.clientY - r.top) * scaleY);
     ctx.strokeStyle = ANNOT_COLOR; ctx.lineWidth = parseInt(document.getElementById('annot-size').value);
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   };
   canvas.onmousemove = function(e) {
     if (!ANNOT_DRAWING) return;
     var ctx = canvas.getContext('2d'), r = canvas.getBoundingClientRect();
-    ctx.lineTo(e.clientX - r.left, e.clientY - r.top); ctx.stroke();
+    var scaleX = canvas.width / r.width, scaleY = canvas.height / r.height;
+    ctx.lineTo((e.clientX - r.left) * scaleX, (e.clientY - r.top) * scaleY); ctx.stroke();
   };
   canvas.onmouseup = function() { ANNOT_DRAWING = false; };
 }
