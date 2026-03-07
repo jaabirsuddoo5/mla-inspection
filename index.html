@@ -128,6 +128,9 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .has-photo .photorm{display:flex}
 .annotate-btn{position:absolute;bottom:8px;right:8px;z-index:2;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:20px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;display:none;font-family:'DM Sans',sans-serif}
 .has-photo .annotate-btn{display:block}
+.pin-badge{position:absolute;top:8px;left:8px;z-index:2;background:#1e1e1e;color:#fff;border-radius:20px;padding:4px 8px;font-size:10px;font-weight:700;display:none;align-items:center;gap:4px;pointer-events:none}
+.pin-badge svg{width:10px;height:10px;flex-shrink:0}
+.has-pins .pin-badge{display:flex}
 #annot-modal{position:fixed;inset:0;z-index:10000;background:#000;display:none;flex-direction:column}
 #annot-modal.show{display:flex}
 #annot-canvas{width:100%;flex:1;touch-action:none;display:block;object-fit:contain}
@@ -795,6 +798,22 @@ function showTab(t) {
   if (t === 'plans') loadPlans();
 }
 
+function updatePinBadges() {
+  ITEMS.forEach(function(item) {
+    var pw = document.getElementById('pw-' + item._id);
+    var badge = document.getElementById('pinbadge-' + item._id);
+    var txt = document.getElementById('pinbadge-txt-' + item._id);
+    if (!pw || !badge) return;
+    var count = item.pins ? item.pins.length : 0;
+    if (count > 0) {
+      pw.classList.add('has-pins');
+      if (txt) txt.textContent = count + ' pin' + (count !== 1 ? 's' : '');
+    } else {
+      pw.classList.remove('has-pins');
+    }
+  });
+}
+
 function renderItems() {
   var list = document.getElementById('ilist');
   var cards = list.querySelectorAll('.scard');
@@ -802,6 +821,7 @@ function renderItems() {
   document.getElementById('empty-state').style.display = ITEMS.length ? 'none' : 'block';
   ITEMS.forEach(function(item) { var el = buildCard(item); list.appendChild(el); fillCard(el, item); });
   updateBadge();
+  updatePinBadges();
 }
 
 function addItem() {
@@ -827,7 +847,9 @@ function buildCard(item) {
     '<select class="ssel ' + (item.status||'open') + '"><option value="open">Open</option><option value="closed">Closed</option></select>' +
     '<button class="sdel" type="button">x</button></div>' +
     '<div class="photowrap" id="pw-' + item._id + '"><div class="photoph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span>Tap to add photo</span></div>' +
-    '<img id="img-' + item._id + '" alt=""/><button class="photorm" type="button">x</button><button class="annotate-btn" type="button">&#9998; Annotate</button><input type="file" accept="image/*" capture="environment"/></div>' +
+    '<img id="img-' + item._id + '" alt=""/>' +
+    '<div class="pin-badge" id="pinbadge-' + item._id + '"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="10" r="5"/><path d="M12 24 L7 14 Q12 18 17 14 Z"/></svg><span id="pinbadge-txt-' + item._id + '">0 pins</span></div>' +
+    '<button class="photorm" type="button">x</button><button class="annotate-btn" type="button">&#9998; Annotate</button><input type="file" accept="image/*" capture="environment"/></div>' +
     '<div class="sdate"><span class="dlbl">Date</span><input type="date"/></div>' +
     '<div class="sdesc"><div class="desclbl">Description</div><textarea placeholder="Describe the issue..."></textarea></div>';
   var st;
@@ -977,22 +999,23 @@ function renderPlanWithPins(plan) {
         var sx = pin.x * canvas.width;
         var sy = pin.y * canvas.height;
         var color = item.status === 'closed' ? '#27ae60' : '#e74c3c';
-        // Pole
-        ctx.strokeStyle = color; ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx, sy - 36); ctx.stroke();
-        // Flag
-        ctx.fillStyle = color;
+        var r = 16;
+        // Shadow
+        ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 2;
+        // Circle
+        ctx.beginPath(); ctx.arc(sx, sy - r - 2, r, 0, Math.PI * 2);
+        ctx.fillStyle = color; ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5; ctx.stroke();
+        ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+        // Pointer
         ctx.beginPath();
-        ctx.moveTo(sx, sy - 36); ctx.lineTo(sx + 24, sy - 28); ctx.lineTo(sx, sy - 20);
-        ctx.closePath(); ctx.fill();
+        ctx.moveTo(sx - 6, sy - r + 5); ctx.lineTo(sx + 6, sy - r + 5); ctx.lineTo(sx, sy + 2);
+        ctx.closePath(); ctx.fillStyle = color; ctx.fill();
         // Number
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 11px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(String(item.seq || '?'), sx + 12, sy - 26);
-        // Base dot
-        ctx.fillStyle = color;
-        ctx.beginPath(); ctx.arc(sx, sy, 5, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 12px Arial';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(String(item.seq || '?'), sx, sy - r - 2);
+        ctx.textBaseline = 'alphabetic';
       });
     });
     return canvas.toDataURL('image/jpeg', 0.9);
@@ -1326,22 +1349,30 @@ function drawPlanCanvas() {
 
 function drawFlag(ctx, x, y, num, status) {
   var color = status === 'closed' ? '#27ae60' : '#e74c3c';
-  // Flag pole
-  ctx.strokeStyle = color; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y - 28); ctx.stroke();
-  // Flag
-  ctx.fillStyle = color;
+  var r = 14;
+  // Drop shadow
+  ctx.shadowColor = 'rgba(0,0,0,0.3)';
+  ctx.shadowBlur = 6; ctx.shadowOffsetY = 2;
+  // Circle
+  ctx.beginPath(); ctx.arc(x, y - r - 2, r, 0, Math.PI * 2);
+  ctx.fillStyle = color; ctx.fill();
+  // White border
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+  // Pointer triangle at bottom of circle
   ctx.beginPath();
-  ctx.moveTo(x, y - 28); ctx.lineTo(x + 18, y - 22); ctx.lineTo(x, y - 16);
-  ctx.closePath(); ctx.fill();
+  ctx.moveTo(x - 5, y - r + 4);
+  ctx.lineTo(x + 5, y - r + 4);
+  ctx.lineTo(x, y + 2);
+  ctx.closePath(); ctx.fillStyle = color; ctx.fill();
   // Number
   ctx.fillStyle = '#fff';
-  ctx.font = 'bold 9px DM Sans, sans-serif';
+  ctx.font = 'bold 11px Arial';
   ctx.textAlign = 'center';
-  ctx.fillText(String(num || '?'), x + 9, y - 20);
-  // Dot at base
-  ctx.fillStyle = color;
-  ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.textBaseline = 'middle';
+  ctx.fillText(String(num || '?'), x, y - r - 2);
+  ctx.textBaseline = 'alphabetic';
 }
 
 function attachPlanEvents(canvas) {
@@ -1514,7 +1545,7 @@ function placePin(itemId, x, y) {
     if (err) { showToast('Failed to save pin', 'err'); return; }
     drawPlanCanvas();
     showToast('Pin placed!', 'ok');
-    // Refresh pin count
+    updatePinBadges();
     renderPlans();
   });
 }
