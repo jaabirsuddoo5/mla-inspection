@@ -211,7 +211,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 <div class="page" id="p-projects">
   <div class="topbar">
     <div class="tlogo"><span>MLA</span></div>
-    <div class="ttitle"><h1>MLA INSPECTION</h1><p id="p-greeting">Welcome</p></div>
+    <div class="ttitle"><h1>MLA INSPECTION</h1><p id="p-greeting">Welcome</p><p id="p-expiry" style="font-size:10px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></p></div>
     <button class="tbtn" id="btn-logout" type="button">Logout</button>
   </div>
   <div class="pbody">
@@ -444,6 +444,30 @@ function adminDel(email) {
 function goProjects() {
   document.getElementById('p-greeting').textContent = CUD;
   document.getElementById('np-date').value = getToday();
+  // Show expiry info
+  callAPI('GET', '/user/expiry', null, function(err, res) {
+    var el = document.getElementById('p-expiry');
+    if (err || !res) { el.textContent = ''; return; }
+    if (res.expiry === 'forever') {
+      el.style.color = 'rgba(255,255,255,0.35)';
+      el.textContent = 'Access: Never expires';
+    } else {
+      var days = Math.ceil((new Date(res.expiry) - new Date()) / 86400000);
+      if (days < 0) {
+        el.style.color = '#e74c3c';
+        el.textContent = 'Access: EXPIRED';
+      } else if (days <= 7) {
+        el.style.color = '#e67e22';
+        el.textContent = 'Access expires in ' + days + ' day' + (days !== 1 ? 's' : '') + '!';
+      } else if (days <= 30) {
+        el.style.color = '#f1c40f';
+        el.textContent = 'Access expires in ' + days + ' days';
+      } else {
+        el.style.color = 'rgba(255,255,255,0.35)';
+        el.textContent = 'Access expires: ' + res.expiry;
+      }
+    }
+  });
   goPage('p-projects');
   showLoader(true, 'Loading projects...');
   callAPI('GET', '/projects', null, function(err, projs) {
