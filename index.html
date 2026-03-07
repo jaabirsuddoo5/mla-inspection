@@ -294,7 +294,8 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
           <div><div class="snum2 sc" id="sum-c">0</div><div class="slbl2">Closed</div></div>
         </div>
       </div>
-      <button class="btn" id="btn-export">📄 Export to Word</button>
+      <button class="btn" id="btn-export">📄 Export to Word (.docx)</button>
+      <button class="btn" id="btn-export-pdf" style="background:#c0392b">📋 Export to PDF</button>
       <button class="btn-out" id="btn-clear">🗑 Clear All Items</button>
     </div>
   </div>
@@ -675,6 +676,100 @@ async function exportWord(){
   }catch(e){toast('Export failed','err');console.error(e);}
 }
 
+
+// ─── EXPORT TO PDF ─────────────────────────────
+async function exportPDF(){
+  const items=getItems(CPJ);
+  if(!items.length){toast('No items to export','err');return;}
+  toast('Building PDF…');
+  const proj=getProjects().find(p=>p.id===CPJ)||{};
+
+  // Build HTML content that looks like a professional report
+  const rows = await Promise.all(items.map(async (it,i)=>{
+    const sc = it.status==='open'?'#c0392b':'#27ae60';
+    const photoHtml = it.photo
+      ? `<img src="${it.photo}" style="width:100%;height:160px;object-fit:cover;border-radius:6px;display:block;"/>`
+      : `<div style="width:100%;height:160px;background:#f0ede8;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:13px;">No Photo</div>`;
+    return `
+      <div style="margin-bottom:18px;border:1px solid #e4e1dc;border-radius:10px;overflow:hidden;page-break-inside:avoid;">
+        <div style="background:#f8f6f3;padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #e4e1dc;">
+          <span style="font-family:Arial;font-size:18px;font-weight:900;color:#1e1e1e;min-width:36px;">#${String(it.seq||i+1).padStart(2,'0')}</span>
+          <span style="font-family:Arial;font-size:14px;font-weight:700;color:#1a1a1a;flex:1;">${it.location||'No location'}</span>
+          <span style="font-size:11px;color:#888;">${it.date||''}</span>
+          <span style="background:${sc}22;color:${sc};font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;">${it.status}</span>
+        </div>
+        <div style="display:flex;gap:0;">
+          <div style="width:38%;padding:12px;background:#fafaf8;border-right:1px solid #e4e1dc;">${photoHtml}</div>
+          <div style="flex:1;padding:12px;">
+            <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#aaa;margin-bottom:6px;">DESCRIPTION</div>
+            <div style="font-family:Arial;font-size:13px;color:#1a1a1a;line-height:1.6;">${it.description||'—'}</div>
+          </div>
+        </div>
+      </div>`;
+  }));
+
+  const oN=items.filter(i=>i.status==='open').length;
+  const cN=items.filter(i=>i.status==='closed').length;
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:Arial,sans-serif;background:#fff;color:#1a1a1a;padding:32px;}
+    @media print{body{padding:0;} .no-print{display:none;}}
+  </style></head><body>
+  <div style="margin-bottom:24px;">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+      <div style="background:#1e1e1e;border-radius:10px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;">
+        <span style="font-family:Arial;font-size:16px;font-weight:900;color:#fff;letter-spacing:2px;">MLA</span>
+      </div>
+      <div>
+        <div style="font-family:Arial;font-size:22px;font-weight:900;letter-spacing:2px;color:#1e1e1e;">SITE INSPECTION REPORT</div>
+        <div style="font-size:12px;color:#888;margin-top:2px;">Generated ${new Date().toLocaleDateString()}</div>
+      </div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;background:#1e1e1e;border-radius:10px;overflow:hidden;">
+      <tr>
+        <td style="padding:10px 14px;color:#aaa;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;width:15%;">PROJECT</td>
+        <td style="padding:10px 14px;color:#fff;font-size:13px;font-weight:700;width:35%;">${proj.name||'—'}</td>
+        <td style="padding:10px 14px;color:#aaa;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;width:15%;">REF NO.</td>
+        <td style="padding:10px 14px;color:#fff;font-size:13px;font-weight:700;width:35%;">${proj.ref||'—'}</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 14px;color:#aaa;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">INSPECTOR</td>
+        <td style="padding:10px 14px;color:#fff;font-size:13px;font-weight:700;">${CUD||'—'}</td>
+        <td style="padding:10px 14px;color:#aaa;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">DATE</td>
+        <td style="padding:10px 14px;color:#fff;font-size:13px;font-weight:700;">${proj.date||'—'}</td>
+      </tr>
+    </table>
+  </div>
+
+  ${rows.join('')}
+
+  <div style="margin-top:24px;border:1px solid #e4e1dc;border-radius:10px;overflow:hidden;page-break-inside:avoid;">
+    <div style="background:#1e1e1e;padding:10px 14px;">
+      <span style="font-family:Arial;font-size:13px;font-weight:700;letter-spacing:1px;color:#fff;">SUMMARY</span>
+    </div>
+    <table style="width:50%;border-collapse:collapse;">
+      <tr><td style="padding:8px 14px;font-size:13px;border-bottom:1px solid #e4e1dc;">Total Items</td><td style="padding:8px 14px;font-weight:700;font-size:13px;border-bottom:1px solid #e4e1dc;">${items.length}</td></tr>
+      <tr><td style="padding:8px 14px;font-size:13px;color:#c0392b;border-bottom:1px solid #e4e1dc;">Open</td><td style="padding:8px 14px;font-weight:700;font-size:13px;color:#c0392b;border-bottom:1px solid #e4e1dc;">${oN}</td></tr>
+      <tr><td style="padding:8px 14px;font-size:13px;color:#27ae60;">Closed</td><td style="padding:8px 14px;font-weight:700;font-size:13px;color:#27ae60;">${cN}</td></tr>
+    </table>
+  </div>
+  </body></html>`;
+
+  // Open in new window and trigger print (saves as PDF)
+  const win = window.open('','_blank');
+  if(!win){toast('Allow popups to export PDF','err');return;}
+  win.document.write(html);
+  win.document.close();
+  win.onload = ()=>{
+    setTimeout(()=>{
+      win.print();
+      toast('✓ PDF ready — tap Save as PDF','ok');
+    },500);
+  };
+}
+
 // ─── BIND ALL BUTTONS ON LOAD ──────────────────
 window.addEventListener('DOMContentLoaded',()=>{
   // Login
@@ -695,6 +790,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('itab-items').addEventListener('click',()=>showTab('items'));
   document.getElementById('itab-export').addEventListener('click',()=>showTab('export'));
   document.getElementById('btn-export').addEventListener('click',exportWord);
+  document.getElementById('btn-export-pdf').addEventListener('click',exportPDF);
   document.getElementById('btn-clear').addEventListener('click',clearAll);
 
   // Auto-login returning user
