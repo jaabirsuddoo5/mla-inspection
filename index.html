@@ -167,7 +167,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
   <div class="lock-icon">🔒</div>
   <div class="lock-h">ACCESS LOCKED</div>
   <div class="lock-msg">You are not on the access list.<br/>Contact MLA to activate your account.</div>
-  <div class="lock-email">jaabirsuddoo5@gmail.com</div>
+  <div class="lock-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="214b4040434853525445454e4e1461464c40484d0f424e4c">[email&#160;protected]</a></div>
   <button class="lock-back" id="btn-lock-back" type="button">← Back to Login</button>
 </div>
 
@@ -197,8 +197,10 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
       <div class="frow">
         <div class="fgrp"><label class="flabel">Duration</label>
           <select class="fi" id="au-dur">
-            <option value="1y">1 Year</option><option value="6m">6 Months</option>
-            <option value="3m">3 Months</option><option value="forever">Forever</option>
+            <option value="1d">1 Day</option><option value="3d">3 Days</option>
+            <option value="6d">6 Days</option><option value="1m">1 Month</option>
+            <option value="3m">3 Months</option><option value="6m">6 Months</option>
+            <option value="1y">1 Year</option><option value="forever">Forever</option>
           </select>
         </div>
         <div class="fgrp" style="justify-content:flex-end">
@@ -277,7 +279,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 <div id="loader"><div class="spinner"></div><div class="lmsg" id="lmsg">Loading...</div></div>
 <div id="toast"></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const API = 'https://mla-backends.onrender.com/api';
 let TOKEN = localStorage.getItem('mla_token') || null;
 let CUD   = localStorage.getItem('mla_cud')   || null;
@@ -361,7 +363,15 @@ async function adminAdd(){
   const dur=document.getElementById('au-dur').value;
   if(!name||!email||!pass){toast('Fill in all fields','err');return;}
   let expiry='forever';
-  if(dur!=='forever'){const d=new Date();if(dur==='1y')d.setFullYear(d.getFullYear()+1);else if(dur==='6m')d.setMonth(d.getMonth()+6);else d.setMonth(d.getMonth()+3);expiry=d.toISOString().split('T')[0];}
+  if(dur!=='forever'){const d=new Date();
+    if(dur==='1d')d.setDate(d.getDate()+1);
+    else if(dur==='3d')d.setDate(d.getDate()+3);
+    else if(dur==='6d')d.setDate(d.getDate()+6);
+    else if(dur==='1m')d.setMonth(d.getMonth()+1);
+    else if(dur==='3m')d.setMonth(d.getMonth()+3);
+    else if(dur==='6m')d.setMonth(d.getMonth()+6);
+    else if(dur==='1y')d.setFullYear(d.getFullYear()+1);
+    expiry=d.toISOString().split('T')[0];}
   loader(true,'Saving user...');
   try{
     await api('POST','/admin/users',{name,email,password:pass,expiry});
@@ -666,13 +676,4 @@ document.getElementById('itab-items').addEventListener('click', () => showTab('i
 document.getElementById('itab-export').addEventListener('click', () => showTab('export'));
 document.getElementById('btn-export').addEventListener('click', exportWord);
 document.getElementById('btn-export-pdf').addEventListener('click', exportPDF);
-document.getElementById('btn-clear').addEventListener('click', clearAll);
-
-// Auto-login
-if(TOKEN && CUD) goProjects();
-
-// Kill old service workers
-if('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister()));
-</script>
-</body>
-</html>
+document.getElementById('btn-clear').addEventListener('cli
