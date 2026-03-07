@@ -472,7 +472,7 @@ body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--ink);
   <div class="login-sub">Site Inspection & Snag List</div>
   <div class="login-form">
     <input class="login-input" id="login-name" type="text" placeholder="Enter your name" autocomplete="off" autocapitalize="words"/>
-    <button class="login-btn" onclick="doLogin()">Continue →</button>
+    <button class="login-btn" id="login-submit-btn">Continue →</button>
   </div>
 </div>
 
@@ -483,7 +483,7 @@ body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--ink);
   <div class="locked-title">ACCESS LOCKED</div>
   <div class="locked-msg">Your licence has expired or you are not yet activated.<br/>Please contact MLA to renew your access.</div>
   <div class="locked-email">info@mla-inspection.com</div>
-  <button class="locked-logout" onclick="doLogout()">← Back to Login</button>
+  <button class="locked-logout" id="logout-btn">← Back to Login</button>
 </div>
 
 <!-- ══ ADMIN ═══════════════════════════════════════ -->
@@ -518,7 +518,7 @@ body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--ink);
   <div class="topbar">
     <div class="topbar-logo"><span class="topbar-logo-text">MLA</span></div>
     <div class="topbar-title">MLA INSPECTION<span id="user-greeting">Hello</span></div>
-    <button class="topbar-btn" onclick="doLogout()">← Logout</button>
+    <button class="topbar-btn" id="logout-btn">← Logout</button>
   </div>
   <div class="proj-scroll">
     <div class="section-label">NEW PROJECT</div>
@@ -538,7 +538,7 @@ body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--ink);
 <!-- ══ ITEMS ═══════════════════════════════════════ -->
 <div class="screen" id="s-items">
   <div class="items-topbar">
-    <div class="back-btn" onclick="goProjects()">‹</div>
+    <div class="back-btn" id="go-projects-btn">‹</div>
     <div class="items-title-area">
       <div class="items-title" id="items-proj-name">Project</div>
       <div class="items-sub" id="items-proj-sub">—</div>
@@ -610,10 +610,18 @@ function saveItems(pid, items) { save(`mla_items_${currentUser}_${pid}`, items);
 function doLogin() {
   const name = document.getElementById('login-name').value.trim();
   if (!name) { showToast('Please enter your name','err'); return; }
+
+  // Secret admin code typed in name field
+  if (name === 'mla2024admin') {
+    document.getElementById('login-name').value = '';
+    show('s-admin');
+    renderAdminUsers();
+    return;
+  }
+
   currentUser = name.toLowerCase().replace(/\s+/g,'_');
   save('mla_current_user', currentUser);
   save('mla_user_display', name);
-  // Check licence
   const status = checkLicence(currentUser);
   if (status === 'ok') {
     goProjects();
@@ -743,9 +751,7 @@ function doLogout() {
   show('s-login');
 }
 
-document.getElementById('login-name').addEventListener('keydown', e => {
-  if (e.key==='Enter') doLogin();
-});
+// keydown handled above
 
 // ═══════════════════════════════════════════════════
 // PROJECTS
@@ -1312,13 +1318,7 @@ async function exportWord() {
 }
 
 // ── Logo tap → secret admin ──────────────────────
-// Use touchend for iPhone, click for desktop
-const logoEl = document.getElementById('login-logo-tap');
-logoEl.addEventListener('touchend', function(e) {
-  e.preventDefault();
-  handleLogoTap();
-});
-logoEl.addEventListener('click', handleLogoTap);
+// Logo tap no longer used for admin access
 
 // ── Prevent zoom ─────────────────────────────────
 document.addEventListener('gesturestart', e => e.preventDefault());
