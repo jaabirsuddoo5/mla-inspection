@@ -363,13 +363,104 @@ body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--ink);
 .toast.on { transform:translateX(-50%) translateY(0); }
 .toast.ok  { background:var(--green); }
 .toast.err { background:var(--red); }
+
+/* ══════════════════════════════════════════════
+   LICENCE LOCKED SCREEN
+══════════════════════════════════════════════ */
+#s-locked {
+  background:var(--steel);
+  align-items:center; justify-content:center;
+  padding:40px 32px; gap:24px; text-align:center;
+}
+.locked-icon { font-size:64px; }
+.locked-title {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:26px; letter-spacing:3px; color:white;
+}
+.locked-msg { font-size:14px; color:rgba(255,255,255,0.5); line-height:1.6; }
+.locked-email {
+  color:white; font-weight:700; font-size:15px;
+  border:1.5px solid rgba(255,255,255,0.3);
+  border-radius:10px; padding:12px 20px;
+  width:100%;
+}
+.locked-logout {
+  background:none; border:none; color:rgba(255,255,255,0.35);
+  font-family:'DM Sans',sans-serif; font-size:13px; cursor:pointer;
+  margin-top:8px;
+}
+
+/* ══════════════════════════════════════════════
+   ADMIN PANEL SCREEN
+══════════════════════════════════════════════ */
+#s-admin {
+  background:var(--bg);
+  flex-direction:column;
+}
+.admin-bar {
+  background:#1a1a1a;
+  padding:calc(var(--safe-t) + 12px) 16px 12px;
+  display:flex; align-items:center; gap:10px; flex-shrink:0;
+}
+.admin-title {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:18px; letter-spacing:2px; color:white; flex:1;
+}
+.admin-badge {
+  background:var(--red); color:white;
+  font-size:10px; font-weight:700;
+  padding:3px 8px; border-radius:20px; letter-spacing:1px;
+}
+.admin-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:16px; }
+
+.admin-add-form {
+  background:white; border-radius:12px; padding:16px;
+  margin-bottom:20px; box-shadow:0 1px 6px rgba(0,0,0,0.07);
+  display:flex; flex-direction:column; gap:10px;
+}
+.admin-add-form .field-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+.user-card {
+  background:white; border-radius:10px;
+  margin-bottom:10px; padding:14px 16px;
+  box-shadow:0 1px 6px rgba(0,0,0,0.07);
+  display:flex; align-items:center; gap:12px;
+  animation:fadeUp 0.2s ease;
+}
+.user-card-info { flex:1; min-width:0; }
+.user-card-name { font-weight:700; font-size:14px; }
+.user-card-email { font-size:12px; color:#888; margin-top:2px; }
+.user-card-expiry {
+  font-size:11px; font-weight:700;
+  padding:3px 8px; border-radius:20px;
+  margin-top:5px; display:inline-block;
+}
+.expiry-ok      { background:#e6f9ed; color:var(--green); }
+.expiry-warn    { background:#fff3cd; color:#856404; }
+.expiry-expired { background:#fde8e6; color:var(--red); }
+.expiry-forever { background:#f0f0f0; color:#555; }
+.user-del-btn {
+  background:none; border:none; color:#ddd;
+  font-size:20px; cursor:pointer; padding:4px;
+}
+.user-del-btn:active { color:var(--red); }
+
+/* bulk save button on project card */
+.proj-save-btn {
+  background:none; border:none;
+  color:#aaa; font-size:18px;
+  padding:14px 8px; cursor:pointer;
+  display:flex; align-items:center;
+}
+.proj-save-btn:active { color:var(--green); }
+
 </style>
 </head>
 <body>
 
 <!-- ══ LOGIN ══════════════════════════════════════ -->
 <div class="screen on" id="s-login">
-  <div class="login-logo">
+  <div class="login-logo" id="login-logo-tap">
     <img src="data:image/jpeg;base64,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" alt="MLA"/>
   </div>
   <div class="login-title">MLA INSPECTION</div>
@@ -377,6 +468,43 @@ body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--ink);
   <div class="login-form">
     <input class="login-input" id="login-name" type="text" placeholder="Enter your name" autocomplete="off" autocapitalize="words"/>
     <button class="login-btn" onclick="doLogin()">Continue →</button>
+  </div>
+</div>
+
+
+<!-- ══ LOCKED ══════════════════════════════════════ -->
+<div class="screen" id="s-locked">
+  <div class="locked-icon">🔒</div>
+  <div class="locked-title">ACCESS LOCKED</div>
+  <div class="locked-msg">Your licence has expired or you are not yet activated.<br/>Please contact MLA to renew your access.</div>
+  <div class="locked-email">info@mla-inspection.com</div>
+  <button class="locked-logout" onclick="doLogout()">← Back to Login</button>
+</div>
+
+<!-- ══ ADMIN ═══════════════════════════════════════ -->
+<div class="screen" id="s-admin">
+  <div class="admin-bar">
+    <div class="admin-title">⚙️ ADMIN PANEL</div>
+    <span class="admin-badge">MLA ONLY</span>
+    <button class="topbar-btn" onclick="show('s-login')">← Exit</button>
+  </div>
+  <div class="admin-scroll">
+    <div class="section-label">ADD / UPDATE USER</div>
+    <div class="admin-add-form">
+      <input class="fi fi-full" id="au-name"  type="text"  placeholder="Full name" autocomplete="off"/>
+      <input class="fi fi-full" id="au-email" type="text"  placeholder="Email or username" autocomplete="off"/>
+      <div class="admin-add-form field-row">
+        <select class="fi" id="au-duration">
+          <option value="1y">1 Year</option>
+          <option value="6m">6 Months</option>
+          <option value="3m">3 Months</option>
+          <option value="forever">Forever (you)</option>
+        </select>
+        <button class="btn-create" onclick="adminAddUser()">＋ Add User</button>
+      </div>
+    </div>
+    <div class="section-label">ACTIVE USERS <span id="user-count-badge" style="background:var(--steel);color:white;padding:1px 7px;border-radius:20px;font-size:10px;margin-left:4px;">0</span></div>
+    <div id="admin-user-list"></div>
   </div>
 </div>
 
@@ -480,7 +608,123 @@ function doLogin() {
   currentUser = name.toLowerCase().replace(/\s+/g,'_');
   save('mla_current_user', currentUser);
   save('mla_user_display', name);
-  goProjects();
+  // Check licence
+  const status = checkLicence(currentUser);
+  if (status === 'ok') {
+    goProjects();
+  } else {
+    show('s-locked');
+  }
+}
+
+// ── Licence system ────────────────────────────────
+const ADMIN_PASS = 'mla2024admin'; // secret admin password
+
+function checkLicence(username) {
+  // Admin always gets in
+  if (username === 'mla_admin') return 'ok';
+  const users = load('mla_licence_users', []);
+  const u = users.find(u => u.username === username || u.email.toLowerCase() === username.toLowerCase());
+  if (!u) return 'locked';
+  if (u.expiry === 'forever') return 'ok';
+  const now = new Date();
+  const exp = new Date(u.expiry);
+  if (exp < now) return 'expired';
+  return 'ok';
+}
+
+// ── Admin access — tap logo 5 times ──────────────
+let logoTaps = 0, logoTimer = null;
+function handleLogoTap() {
+  logoTaps++;
+  clearTimeout(logoTimer);
+  logoTimer = setTimeout(() => { logoTaps = 0; }, 2000);
+  if (logoTaps >= 5) {
+    logoTaps = 0;
+    const pass = prompt('Admin password:');
+    if (pass === ADMIN_PASS) {
+      show('s-admin');
+      renderAdminUsers();
+    } else if (pass !== null) {
+      showToast('Wrong password','err');
+    }
+  }
+}
+
+// ── Admin functions ───────────────────────────────
+function adminAddUser() {
+  const name     = document.getElementById('au-name').value.trim();
+  const email    = document.getElementById('au-email').value.trim();
+  const duration = document.getElementById('au-duration').value;
+  if (!name || !email) { showToast('Fill in name and email','err'); return; }
+
+  let expiry;
+  if (duration === 'forever') {
+    expiry = 'forever';
+  } else {
+    const d = new Date();
+    if (duration === '1y') d.setFullYear(d.getFullYear() + 1);
+    if (duration === '6m') d.setMonth(d.getMonth() + 6);
+    if (duration === '3m') d.setMonth(d.getMonth() + 3);
+    expiry = d.toISOString().split('T')[0];
+  }
+
+  const users = load('mla_licence_users', []);
+  const existing = users.findIndex(u => u.email.toLowerCase() === email.toLowerCase());
+  const user = { name, email, username: email.toLowerCase().replace(/\s+/g,'_'), expiry, added: new Date().toISOString().split('T')[0] };
+
+  if (existing >= 0) {
+    users[existing] = user;
+    showToast('User updated ✓','ok');
+  } else {
+    users.push(user);
+    showToast('User added ✓','ok');
+  }
+
+  save('mla_licence_users', users);
+  document.getElementById('au-name').value  = '';
+  document.getElementById('au-email').value = '';
+  renderAdminUsers();
+}
+
+function adminDeleteUser(email) {
+  if (!confirm('Remove this user?')) return;
+  const users = load('mla_licence_users', []).filter(u => u.email !== email);
+  save('mla_licence_users', users);
+  renderAdminUsers();
+  showToast('User removed');
+}
+
+function renderAdminUsers() {
+  const users = load('mla_licence_users', []);
+  document.getElementById('user-count-badge').textContent = users.length;
+  const list = document.getElementById('admin-user-list');
+  if (!users.length) {
+    list.innerHTML = '<div class="empty"><div class="ei">👥</div><p>No users yet.<br/>Add one above.</p></div>';
+    return;
+  }
+  const now = new Date();
+  list.innerHTML = users.map(u => {
+    let expiryClass, expiryText;
+    if (u.expiry === 'forever') {
+      expiryClass = 'expiry-forever'; expiryText = '∞ Forever';
+    } else {
+      const exp = new Date(u.expiry);
+      const days = Math.ceil((exp - now) / (1000*60*60*24));
+      if (days < 0)  { expiryClass = 'expiry-expired'; expiryText = 'EXPIRED'; }
+      else if (days <= 30) { expiryClass = 'expiry-warn'; expiryText = `${days} days left`; }
+      else { expiryClass = 'expiry-ok'; expiryText = `Until ${u.expiry}`; }
+    }
+    return \`
+      <div class="user-card">
+        <div class="user-card-info">
+          <div class="user-card-name">\${esc(u.name)}</div>
+          <div class="user-card-email">\${esc(u.email)}</div>
+          <span class="user-card-expiry \${expiryClass}">\${expiryText}</span>
+        </div>
+        <button class="user-del-btn" onclick="adminDeleteUser('\${u.email}')">×</button>
+      </div>\`;
+  }).join('');
 }
 
 function doLogout() {
@@ -546,6 +790,7 @@ function renderProjects() {
             ${closed ? `<span class="pill pill-closed">${closed} closed</span>` : ''}
           </div>
         </div>
+        <button class="proj-save-btn" onclick="bulkSavePhotos(event,'${p.id}')" title="Save all photos to gallery">⬇️</button>
         <button class="proj-del" onclick="deleteProject(event,'${p.id}')">×</button>
         <div class="proj-card-arrow">›</div>
       </div>`;
@@ -778,7 +1023,12 @@ function show(id) {
   const saved = load('mla_current_user', null);
   if (saved) {
     currentUser = saved;
-    goProjects();
+    const status = checkLicence(currentUser);
+    if (status === 'ok') {
+      goProjects();
+    } else {
+      show('s-locked');
+    }
   }
 })();
 
@@ -793,6 +1043,38 @@ function showToast(msg, type='') {
 
 function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+
+// ── Bulk save all photos to gallery ──────────────
+async function bulkSavePhotos(e, pid) {
+  e.stopPropagation();
+  const items = getItems(pid);
+  const photos = items.filter(i => i.photo);
+  if (!photos.length) { showToast('No photos in this project','err'); return; }
+
+  showToast(`Saving ${photos.length} photos…`);
+  let saved = 0;
+
+  for (const item of photos) {
+    try {
+      // Convert dataURL to blob and trigger download/save
+      const res  = await fetch(item.photo);
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = `photo_${item.seq||saved+1}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      saved++;
+      // Small delay between saves
+      await new Promise(r => setTimeout(r, 400));
+    } catch(err) { console.error(err); }
+  }
+  showToast(`✓ ${saved} photos saved!`,'ok');
 }
 
 // ═══════════════════════════════════════════════════
@@ -1017,6 +1299,9 @@ async function exportWord() {
     console.error(e);
   }
 }
+
+// ── Logo tap → secret admin ──────────────────────
+document.getElementById('login-logo-tap').addEventListener('click', handleLogoTap);
 
 // ── Prevent zoom ─────────────────────────────────
 document.addEventListener('gesturestart', e => e.preventDefault());
