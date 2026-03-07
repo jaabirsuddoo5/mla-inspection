@@ -21,7 +21,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 }
 .page{display:none;height:100%;flex-direction:column;overflow:hidden}
 .page.active{display:flex}
-.topbar{background:var(--dark);padding:calc(var(--st)+12px) 16px 12px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.topbar{background:var(--dark);padding:calc(var(--st)+52px) 16px 14px;display:flex;align-items:center;gap:12px;flex-shrink:0}
 .tlogo{width:34px;height:34px;background:var(--dark3);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .tlogo span{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:1.5px;color:#fff}
 .ttitle{flex:1;min-width:0}
@@ -66,7 +66,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .lock-contact{font-size:14px;font-weight:700;color:#fff;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:12px 20px;width:100%;text-align:center}
 .lock-back{background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;padding:8px;font-family:'DM Sans',sans-serif}
 #p-admin{background:var(--bg)}
-.admin-bar{background:#111;padding:calc(var(--st)+12px) 16px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.admin-bar{background:#111;padding:calc(var(--st)+52px) 16px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0}
 .admin-bar h1{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;flex:1}
 .abadge{background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
 .admin-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;display:flex;flex-direction:column;gap:14px}
@@ -545,21 +545,47 @@ function bulkSave(pid) {
     if (err) { showToast('Failed', 'err'); return; }
     var photos = items.filter(function(i) { return i.photo; });
     if (!photos.length) { showToast('No photos in this project', 'err'); return; }
-    showToast('Saving ' + photos.length + ' photos...');
-    var n = 0;
-    function saveNext() {
-      if (n >= photos.length) { showToast(n + ' photos saved!', 'ok'); return; }
-      var it = photos[n];
-      fetch(it.photo).then(function(r) { return r.blob(); }).then(function(blob) {
-        var url = URL.createObjectURL(blob);
-        var a = document.createElement('a');
-        a.href = url; a.download = 'photo_' + (it.seq || n+1) + '.jpg';
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        URL.revokeObjectURL(url); n++;
-        setTimeout(saveNext, 400);
-      });
+    showToast('Building zip of ' + photos.length + ' photos...');
+
+    // Build zip file with all photos
+    function bb(b) { var bin = atob(b.split(',')[1] || b), a = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i); return a; }
+    function crc32(d) { var c = 0xFFFFFFFF; var t = crc32.t || (crc32.t = (function() { var x = new Uint32Array(256); for (var i = 0; i < 256; i++) { var v = i; for (var j = 0; j < 8; j++) v = (v & 1) ? (0xEDB88320 ^ (v >>> 1)) : (v >>> 1); x[i] = v; } return x; })()); for (var i = 0; i < d.length; i++) c = t[(c ^ d[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+    function u16(n) { return [n & 0xFF, (n >> 8) & 0xFF]; }
+    function u32(n) { return [n & 0xFF, (n >> 8) & 0xFF, (n >> 16) & 0xFF, (n >> 24) & 0xFF]; }
+    function makeZip(files) {
+      var parts = [], cd = [], off = 0;
+      for (var fi = 0; fi < files.length; fi++) {
+        var f = files[fi], nb = new TextEncoder().encode(f.name), d = f.data, crc = crc32(d);
+        var lh = [0x50,0x4B,0x03,0x04,20,0,0,0,0,0,0,0,0,0].concat(u32(crc),u32(d.length),u32(d.length),u16(nb.length),[0,0]).concat(Array.from(nb));
+        var ce = [0x50,0x4B,0x01,0x02,20,0,20,0,0,0,0,0,0,0,0,0].concat(u32(crc),u32(d.length),u32(d.length),u16(nb.length),[0,0,0,0,0,0,0,0,0,0]).concat(u32(off)).concat(Array.from(nb));
+        parts.push(new Uint8Array(lh), d); cd.push(new Uint8Array(ce)); off += lh.length + d.length;
+      }
+      var cs = cd.reduce(function(s,c){return s+c.length;},0);
+      var eocd = [0x50,0x4B,0x05,0x06,0,0,0,0].concat(u16(files.length),u16(files.length),u32(cs),u32(off),[0,0]);
+      var all = parts.concat(cd,[new Uint8Array(eocd)]);
+      var tot = all.reduce(function(s,a){return s+a.length;},0);
+      var out = new Uint8Array(tot); var p = 0;
+      for (var i = 0; i < all.length; i++) { out.set(all[i], p); p += all[i].length; }
+      return out;
     }
-    saveNext();
+
+    var zipFiles = [];
+    for (var i = 0; i < photos.length; i++) {
+      var it = photos[i];
+      zipFiles.push({ name: 'photo_' + (it.seq || i+1) + '.jpg', data: bb(it.photo) });
+    }
+
+    try {
+      var zip = makeZip(zipFiles);
+      var blob = new Blob([zip], { type: 'application/zip' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      var projName = (CPJ_DATA && CPJ_DATA.name) ? CPJ_DATA.name.replace(/\s+/g,'_') : 'photos';
+      a.href = url; a.download = projName + '_photos.zip';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+      showToast(photos.length + ' photos saved as zip!', 'ok');
+    } catch(e) { showToast('Failed to create zip', 'err'); console.error(e); }
   });
 }
 
