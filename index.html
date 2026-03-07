@@ -33,23 +33,16 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .tbtn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:8px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer}
 
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
-
-/* BUTTONS */
 .btn{background:var(--dark);color:#fff;border:none;border-radius:10px;padding:14px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:8px}
 .btn:active{opacity:0.8}
+.btn-red{background:var(--red)}
 .btn-out{background:transparent;color:var(--red);border:1.5px solid var(--red);border-radius:10px;padding:14px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;width:100%}
-
-/* FIELDS */
 .fi{background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:11px 13px;font-family:'DM Sans',sans-serif;font-size:14px;color:#1a1a1a;outline:none;width:100%;-webkit-appearance:none}
 .fi:focus{border-color:#888}
 .flabel{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;display:block}
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .fgrp{display:flex;flex-direction:column}
-
-/* SECTION LABEL */
 .slbl{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
-
-/* CARD */
 .card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.07)}
 
 /* TOAST */
@@ -58,7 +51,13 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 #toast.ok{background:var(--green)}
 #toast.err{background:var(--red)}
 
-/* ── LOGIN ── */
+/* LOADER */
+#loader{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:9998}
+#loader.show{display:flex}
+.spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* LOGIN */
 #p-login{background:var(--dark);align-items:center;justify-content:center;padding:40px 28px;gap:28px}
 .llogin{width:88px;height:88px;background:var(--dark3);border-radius:18px;display:flex;align-items:center;justify-content:center}
 .llogin span{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:#fff}
@@ -72,7 +71,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .lbtn{width:100%;padding:15px;background:#fff;color:var(--dark);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer}
 .lbtn:active{opacity:0.85}
 
-/* ── LOCKED ── */
+/* LOCKED */
 #p-locked{background:var(--dark);align-items:center;justify-content:center;padding:40px 28px;gap:20px;text-align:center}
 .lock-icon{font-size:60px}
 .lock-h{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:#fff}
@@ -80,29 +79,24 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .lock-email{font-size:14px;font-weight:700;color:#fff;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:12px 20px;width:100%;text-align:center}
 .lock-back{background:none;border:none;color:rgba(255,255,255,0.4);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;padding:8px}
 
-/* ── ADMIN ── */
+/* ADMIN */
 #p-admin{background:var(--bg)}
 .admin-bar{background:#111;padding:calc(var(--st)+12px) 16px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0}
 .admin-bar h1{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;flex:1}
 .abadge{background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;letter-spacing:1px}
 .admin-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;display:flex;flex-direction:column;gap:16px}
-
 .urow{background:#fff;border-radius:10px;padding:13px 14px;box-shadow:0 1px 5px rgba(0,0,0,0.07);display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .uinfo{flex:1;min-width:0}
 .uname{font-weight:700;font-size:14px}
 .uemail{font-size:12px;color:var(--muted);margin-top:1px}
 .utag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:5px}
-.tok{background:#e6f9ed;color:var(--green)}
-.twarn{background:#fff3cd;color:var(--yellow)}
-.texp{background:#fde8e6;color:var(--red)}
-.tfore{background:#f0f0f0;color:#555}
+.tok{background:#e6f9ed;color:var(--green)}.twarn{background:#fff3cd;color:var(--yellow)}.texp{background:#fde8e6;color:var(--red)}.tfore{background:#f0f0f0;color:#555}
 .udel{background:none;border:none;color:#ddd;font-size:22px;cursor:pointer;padding:4px;flex-shrink:0;line-height:1}
 .udel:active{color:var(--red)}
 
-/* ── PROJECTS ── */
+/* PROJECTS */
 #p-projects{background:var(--bg)}
 .pbody{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;display:flex;flex-direction:column;gap:16px}
-
 .pcard{background:#fff;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.07);display:flex;align-items:stretch;overflow:hidden;cursor:pointer}
 .pcard:active{box-shadow:0 3px 16px rgba(0,0,0,0.12)}
 .pbar{width:5px;background:var(--dark);flex-shrink:0}
@@ -111,26 +105,22 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .pmeta{font-size:12px;color:var(--muted);margin-top:2px}
 .ppills{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
 .pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
-.pn{background:#f0f0f0;color:#555}
-.po{background:#fde8e6;color:var(--red)}
-.pc{background:#e6f9ed;color:var(--green)}
+.pn{background:#f0f0f0;color:#555}.po{background:#fde8e6;color:var(--red)}.pc{background:#e6f9ed;color:var(--green)}
 .pacts{display:flex;align-items:center;padding:0 4px;gap:2px;flex-shrink:0}
 .psave{background:none;border:none;font-size:16px;padding:10px 8px;cursor:pointer;color:var(--muted)}
 .psave:active{color:var(--green)}
 .pdel{background:none;border:none;font-size:20px;padding:10px 6px;cursor:pointer;color:#ddd;line-height:1}
 .pdel:active{color:var(--red)}
 .parrow{color:#ccc;font-size:20px;padding:10px 12px 10px 4px;line-height:1}
-
 .empty{text-align:center;padding:50px 20px;color:#bbb}
 .empty-i{font-size:44px;margin-bottom:10px}
 .empty p{font-size:14px;line-height:1.6}
 
-/* ── ITEMS ── */
+/* ITEMS */
 #p-items{background:var(--bg)}
 .tabs{display:flex;background:#222;flex-shrink:0}
 .itab{flex:1;padding:10px;text-align:center;font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.4);cursor:pointer;border-bottom:2px solid transparent}
 .itab.on{color:#fff;border-bottom-color:#fff}
-
 .isticky{position:sticky;top:0;z-index:9;background:var(--bg);padding:10px 16px 8px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
 .icount{font-size:11px;font-weight:700;color:var(--muted)}
 .iadd{background:var(--dark);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
@@ -150,7 +140,6 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .ssel.closed{background:#e6f9ed;color:var(--green)}
 .sdel{background:none;border:none;color:#ddd;font-size:19px;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0}
 .sdel:active{color:var(--red)}
-
 .photowrap{position:relative;width:100%;padding-top:100%;background:#f0ede8;overflow:hidden;cursor:pointer}
 .photowrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:none}
 .photoph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#bbb;font-size:12px;pointer-events:none}
@@ -158,7 +147,6 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .photowrap input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
 .photorm{position:absolute;top:8px;right:8px;z-index:2;background:rgba(0,0,0,0.5);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;display:none;align-items:center;justify-content:center;line-height:1}
 .has-photo .photorm{display:flex}
-
 .sdate{padding:7px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
 .dlbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#bbb;flex-shrink:0}
 .sdate input{border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;color:#1a1a1a;outline:none;-webkit-appearance:none;flex:1}
@@ -167,7 +155,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .sdesc textarea{width:100%;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.6;color:#1a1a1a;outline:none;resize:none;min-height:65px}
 .sdesc textarea::placeholder{color:#ccc}
 
-/* EXPORT TAB */
+/* EXPORT */
 .expbody{padding:16px;display:flex;flex-direction:column;gap:12px}
 .sumcard{background:#fff;border-radius:12px;padding:18px;box-shadow:0 1px 6px rgba(0,0,0,0.07)}
 .sumtitle{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1.5px;color:var(--dark);margin-bottom:14px}
@@ -175,6 +163,12 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .snum2{font-family:'Bebas Neue',sans-serif;font-size:36px;line-height:1}
 .st{color:var(--dark)}.so{color:var(--red)}.sc{color:var(--green)}
 .slbl2{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin-top:2px}
+
+/* SYNC indicator */
+.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;margin-left:6px}
+.sync-dot.syncing{background:var(--yellow);animation:pulse 1s infinite}
+.sync-dot.err{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .scard,.pcard,.urow{animation:fadeUp 0.2s ease}
@@ -217,7 +211,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
     <div class="card" style="display:flex;flex-direction:column;gap:12px">
       <div class="fgrp"><label class="flabel">Full Name</label><input class="fi" id="au-name" type="text" placeholder="e.g. John Smith" autocomplete="off"/></div>
       <div class="fgrp"><label class="flabel">Email or Username</label><input class="fi" id="au-email" type="text" placeholder="e.g. john@company.com" autocomplete="off"/></div>
-      <div class="fgrp"><label class="flabel">Password</label><input class="fi" id="au-pass" type="text" placeholder="Set a password for this user" autocomplete="off"/></div>
+      <div class="fgrp"><label class="flabel">Password</label><input class="fi" id="au-pass" type="text" placeholder="Set a password" autocomplete="off"/></div>
       <div class="frow">
         <div class="fgrp">
           <label class="flabel">Duration</label>
@@ -295,93 +289,88 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
         </div>
       </div>
       <button class="btn" id="btn-export">📄 Export to Word (.docx)</button>
-      <button class="btn" id="btn-export-pdf" style="background:#c0392b">📋 Export to PDF</button>
+      <button class="btn btn-red" id="btn-export-pdf">📋 Export to PDF</button>
       <button class="btn-out" id="btn-clear">🗑 Clear All Items</button>
     </div>
   </div>
 </div>
 
+<div id="loader"><div class="spinner"></div></div>
 <div id="toast"></div>
 
 <script>
-// ─── STORAGE ───────────────────────────────────
-const S={
-  get:(k,d)=>{try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d}catch(e){return d}},
-  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},
-  del:(k)=>{try{localStorage.removeItem(k)}catch(e){}}
-};
+// ─── CONFIG ────────────────────────────────────
+const API = 'https://mla-backends.onrender.com/api';
 
 // ─── STATE ─────────────────────────────────────
-let CU=null, CUD=null, CPJ=null, IC=0;
+let TOKEN = localStorage.getItem('mla_token') || null;
+let CUD   = localStorage.getItem('mla_cud')   || null;
+let CPJ   = null;
+let CPJ_DATA = null;
+let ITEMS = [];
+let IC    = 0;
 
 // ─── UTILS ─────────────────────────────────────
 function goPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');}
 function toast(msg,type=''){const el=document.getElementById('toast');el.textContent=msg;el.className='show '+(type||'');clearTimeout(el._t);el._t=setTimeout(()=>el.className='',2800);}
+function loader(show){document.getElementById('loader').className=show?'show':'';}
 function today(){return new Date().toISOString().split('T')[0];}
 function xe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-// ─── LICENCE ───────────────────────────────────
-const ADMIN = 'mla2024admin';
-function getUsers(){return S.get('mla_users',[]);}
-function saveUsers(u){S.set('mla_users',u);}
-function checkAccess(val, pass){
-  const v=val.trim().toLowerCase();
-  if(v===ADMIN) return 'admin';
-  const u=getUsers().find(u=>u.email.toLowerCase()===v||u.name.toLowerCase()===v);
-  if(!u) return 'locked';
-  // Check password
-  if(u.password && u.password !== (pass||'')) return 'wrongpass';
-  if(u.expiry==='forever') return 'ok';
-  return new Date(u.expiry)>=new Date()?'ok':'expired';
+// ─── API CALLS ─────────────────────────────────
+async function api(method, path, body){
+  const opts = {
+    method,
+    headers: {'Content-Type':'application/json', ...(TOKEN?{Authorization:'Bearer '+TOKEN}:{})},
+  };
+  if(body) opts.body = JSON.stringify(body);
+  const res = await fetch(API+path, opts);
+  const data = await res.json();
+  if(!res.ok) throw data;
+  return data;
 }
 
 // ─── LOGIN ─────────────────────────────────────
-function doLogin(){
-  const val=document.getElementById('inp-name').value.trim();
-  const pass=document.getElementById('inp-pass').value.trim();
-  if(!val){toast('Please enter your name','err');return;}
-  const acc=checkAccess(val,pass);
-  if(acc==='admin'){
-    document.getElementById('inp-name').value='';
-    document.getElementById('inp-pass').value='';
-    renderAdminUsers();goPage('p-admin');return;
+async function doLogin(){
+  const nameOrEmail = document.getElementById('inp-name').value.trim();
+  const password    = document.getElementById('inp-pass').value.trim();
+  if(!nameOrEmail){toast('Please enter your name','err');return;}
+  if(!password){toast('Please enter password','err');return;}
+  loader(true);
+  try{
+    const res = await api('POST','/login',{nameOrEmail,password});
+    if(res.role==='admin'){
+      TOKEN = res.token;
+      loader(false);
+      document.getElementById('inp-name').value='';
+      document.getElementById('inp-pass').value='';
+      await loadAdminUsers();
+      goPage('p-admin');
+      return;
+    }
+    TOKEN = res.token;
+    CUD   = res.name;
+    localStorage.setItem('mla_token', TOKEN);
+    localStorage.setItem('mla_cud', CUD);
+    loader(false);
+    goProjects();
+  }catch(e){
+    loader(false);
+    if(e.error==='locked'||e.error==='expired') goPage('p-locked');
+    else if(e.error==='wrongpass') toast('Wrong password','err');
+    else toast('Cannot connect to server — check internet','err');
   }
-  if(acc==='wrongpass'){toast('Wrong password','err');return;}
-  if(acc==='ok'){
-    CU=val.toLowerCase().replace(/\s+/g,'_');CUD=val;
-    S.set('mla_cu',CU);S.set('mla_cud',CUD);
-    goProjects();return;
-  }
-  goPage('p-locked');
 }
 
 // ─── ADMIN ─────────────────────────────────────
-function adminAdd(){
-  const name=document.getElementById('au-name').value.trim();
-  const email=document.getElementById('au-email').value.trim().toLowerCase();
-  const pass=document.getElementById('au-pass').value.trim();
-  const dur=document.getElementById('au-dur').value;
-  if(!name||!email){toast('Fill in name and email','err');return;}
-  if(!pass){toast('Please set a password','err');return;}
-  let expiry='forever';
-  if(dur!=='forever'){const d=new Date();if(dur==='1y')d.setFullYear(d.getFullYear()+1);else if(dur==='6m')d.setMonth(d.getMonth()+6);else if(dur==='3m')d.setMonth(d.getMonth()+3);expiry=d.toISOString().split('T')[0];}
-  const users=getUsers();
-  const idx=users.findIndex(u=>u.email===email);
-  const user={name,email,password:pass,expiry,added:today()};
-  if(idx>=0){users[idx]=user;toast('User updated ✓','ok');}else{users.push(user);toast('User added ✓','ok');}
-  saveUsers(users);
-  document.getElementById('au-name').value='';
-  document.getElementById('au-email').value='';
-  document.getElementById('au-pass').value='';
-  renderAdminUsers();
+async function loadAdminUsers(){
+  try{
+    const users = await api('GET','/admin/users');
+    renderAdminUsers(users);
+  }catch(e){toast('Failed to load users','err');}
 }
-function adminDel(email){
-  if(!confirm('Remove this user?'))return;
-  saveUsers(getUsers().filter(u=>u.email!==email));
-  renderAdminUsers();toast('Removed');
-}
-function renderAdminUsers(){
-  const users=getUsers();
+
+function renderAdminUsers(users){
   document.getElementById('ucount').textContent=users.length;
   const list=document.getElementById('ulist');
   if(!users.length){list.innerHTML='<div class="empty"><div class="empty-i">👥</div><p>No users yet.</p></div>';return;}
@@ -390,39 +379,61 @@ function renderAdminUsers(){
     let cls,txt;
     if(u.expiry==='forever'){cls='tfore';txt='∞ Forever';}
     else{const days=Math.ceil((new Date(u.expiry)-now)/86400000);if(days<0){cls='texp';txt='EXPIRED';}else if(days<=30){cls='twarn';txt=days+' days left';}else{cls='tok';txt='Until '+u.expiry;}}
-    return`<div class="urow"><div class="uinfo"><div class="uname">${xe(u.name)}</div><div class="uemail">${xe(u.email)} · 🔑 ${xe(u.password||'no password')}</div><span class="utag ${cls}">${txt}</span></div><button class="udel" data-e="${xe(u.email)}">×</button></div>`;
+    return`<div class="urow"><div class="uinfo"><div class="uname">${xe(u.name)}</div><div class="uemail">${xe(u.email)}</div><span class="utag ${cls}">${txt}</span></div><button class="udel" data-e="${xe(u.email)}">×</button></div>`;
   }).join('');
   list.querySelectorAll('.udel').forEach(b=>b.addEventListener('click',()=>adminDel(b.dataset.e)));
 }
 
-// ─── PROJECTS ──────────────────────────────────
-function getProjects(){return S.get('mla_p_'+CU,[]);}
-function saveProjects(p){S.set('mla_p_'+CU,p);}
-function getItems(pid){return S.get('mla_i_'+CU+'_'+pid,[]);}
-function saveItems(pid,items){S.set('mla_i_'+CU+'_'+pid,items);}
+async function adminAdd(){
+  const name  = document.getElementById('au-name').value.trim();
+  const email = document.getElementById('au-email').value.trim();
+  const pass  = document.getElementById('au-pass').value.trim();
+  const dur   = document.getElementById('au-dur').value;
+  if(!name||!email||!pass){toast('Fill in all fields','err');return;}
+  let expiry='forever';
+  if(dur!=='forever'){const d=new Date();if(dur==='1y')d.setFullYear(d.getFullYear()+1);else if(dur==='6m')d.setMonth(d.getMonth()+6);else if(dur==='3m')d.setMonth(d.getMonth()+3);expiry=d.toISOString().split('T')[0];}
+  loader(true);
+  try{
+    await api('POST','/admin/users',{name,email,password:pass,expiry});
+    document.getElementById('au-name').value='';
+    document.getElementById('au-email').value='';
+    document.getElementById('au-pass').value='';
+    await loadAdminUsers();
+    toast('User saved ✓','ok');
+  }catch(e){toast('Failed: '+(e.error||'error'),'err');}
+  loader(false);
+}
 
-function goProjects(){
-  document.getElementById('p-greeting').textContent=CUD;
-  document.getElementById('np-date').value=today();
-  renderProjects();goPage('p-projects');
+async function adminDel(email){
+  if(!confirm('Remove this user?'))return;
+  loader(true);
+  try{
+    await api('DELETE','/admin/users/'+encodeURIComponent(email));
+    await loadAdminUsers();
+    toast('User removed');
+  }catch(e){toast('Failed','err');}
+  loader(false);
 }
-function createProject(){
-  const name=document.getElementById('np-name').value.trim();
-  if(!name){toast('Enter a project name','err');return;}
-  const p={id:'p'+Date.now(),name,ref:document.getElementById('np-ref').value.trim(),date:document.getElementById('np-date').value};
-  const ps=getProjects();ps.unshift(p);saveProjects(ps);
-  document.getElementById('np-name').value='';
-  document.getElementById('np-ref').value='';
-  renderProjects();toast('Project created ✓','ok');
+
+// ─── PROJECTS ──────────────────────────────────
+async function goProjects(){
+  document.getElementById('p-greeting').textContent = CUD;
+  document.getElementById('np-date').value = today();
+  goPage('p-projects');
+  loader(true);
+  try{
+    const projs = await api('GET','/projects');
+    renderProjects(projs);
+  }catch(e){toast('Failed to load projects','err');}
+  loader(false);
 }
-function renderProjects(){
-  const ps=getProjects();
+
+function renderProjects(projs){
   const list=document.getElementById('plist');
-  if(!ps.length){list.innerHTML='<div class="empty"><div class="empty-i">🏗</div><p>No projects yet.<br/>Create one above.</p></div>';return;}
-  list.innerHTML=ps.map(p=>{
-    const its=getItems(p.id);
-    const tot=its.length,op=its.filter(i=>i.status==='open').length,cl=its.filter(i=>i.status==='closed').length;
-    return`<div class="pcard" data-pid="${p.id}">
+  if(!projs.length){list.innerHTML='<div class="empty"><div class="empty-i">🏗</div><p>No projects yet.<br/>Create one above.</p></div>';return;}
+  list.innerHTML=projs.map(p=>{
+    const tot=p.total||0,op=p.open||0,cl=p.closed||0;
+    return`<div class="pcard" data-pid="${p._id}" data-pname="${xe(p.name)}" data-pref="${xe(p.ref||'')}" data-pdate="${xe(p.date||'')}">
       <div class="pbar"></div>
       <div class="pinfo">
         <div class="pname">${xe(p.name)}</div>
@@ -434,50 +445,85 @@ function renderProjects(){
         </div>
       </div>
       <div class="pacts">
-        <button class="psave" data-pid="${p.id}" title="Save all photos">⬇️</button>
-        <button class="pdel" data-pid="${p.id}">×</button>
+        <button class="psave" data-pid="${p._id}">⬇️</button>
+        <button class="pdel" data-pid="${p._id}">×</button>
         <span class="parrow">›</span>
       </div>
     </div>`;
   }).join('');
   list.querySelectorAll('.pcard').forEach(card=>{
-    card.addEventListener('click',e=>{if(e.target.closest('.pacts'))return;openProject(card.dataset.pid);});
+    card.addEventListener('click',e=>{if(e.target.closest('.pacts'))return;
+      openProject(card.dataset.pid,{name:card.dataset.pname,ref:card.dataset.pref,date:card.dataset.pdate});
+    });
   });
   list.querySelectorAll('.pdel').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();deleteProject(b.dataset.pid);}));
   list.querySelectorAll('.psave').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();bulkSave(b.dataset.pid);}));
 }
-function deleteProject(pid){
-  const p=getProjects().find(p=>p.id===pid);
-  if(!confirm('Delete "'+p?.name+'"? All items will be lost.'))return;
-  saveProjects(getProjects().filter(p=>p.id!==pid));
-  S.del('mla_i_'+CU+'_'+pid);
-  renderProjects();toast('Project deleted');
+
+async function createProject(){
+  const name=document.getElementById('np-name').value.trim();
+  if(!name){toast('Enter a project name','err');return;}
+  loader(true);
+  try{
+    await api('POST','/projects',{name,ref:document.getElementById('np-ref').value.trim(),date:document.getElementById('np-date').value});
+    document.getElementById('np-name').value='';
+    document.getElementById('np-ref').value='';
+    toast('Project created ✓','ok');
+    const projs=await api('GET','/projects');
+    renderProjects(projs);
+  }catch(e){toast('Failed to create project','err');}
+  loader(false);
 }
+
+async function deleteProject(pid){
+  if(!confirm('Delete this project? All items will be lost.'))return;
+  loader(true);
+  try{
+    await api('DELETE','/projects/'+pid);
+    toast('Project deleted');
+    const projs=await api('GET','/projects');
+    renderProjects(projs);
+  }catch(e){toast('Failed','err');}
+  loader(false);
+}
+
 async function bulkSave(pid){
-  const its=getItems(pid).filter(i=>i.photo);
-  if(!its.length){toast('No photos in this project','err');return;}
-  toast('Saving '+its.length+' photos…');
-  let n=0;
-  for(const it of its){
-    try{
+  loader(true);
+  try{
+    const items=await api('GET','/projects/'+pid+'/items');
+    const photos=items.filter(i=>i.photo);
+    if(!photos.length){toast('No photos in this project','err');loader(false);return;}
+    toast('Saving '+photos.length+' photos…');
+    let n=0;
+    for(const it of photos){
       const res=await fetch(it.photo);const blob=await res.blob();
       const url=URL.createObjectURL(blob);const a=document.createElement('a');
       a.href=url;a.download='photo_'+(it.seq||n+1)+'.jpg';
       document.body.appendChild(a);a.click();document.body.removeChild(a);
       URL.revokeObjectURL(url);n++;await new Promise(r=>setTimeout(r,400));
-    }catch(e){}
-  }
-  toast('✓ '+n+' photos saved!','ok');
+    }
+    toast('✓ '+n+' photos saved!','ok');
+  }catch(e){toast('Failed','err');}
+  loader(false);
 }
 
 // ─── ITEMS ─────────────────────────────────────
-function openProject(pid){
-  CPJ=pid;
-  const p=getProjects().find(p=>p.id===pid);
-  document.getElementById('iproj-name').textContent=p?.name||'Project';
-  document.getElementById('iproj-sub').textContent=[p?.ref,p?.date].filter(Boolean).join(' · ')||'—';
-  showTab('items');renderItems();goPage('p-items');
+async function openProject(pid, projData){
+  CPJ = pid;
+  CPJ_DATA = projData;
+  document.getElementById('iproj-name').textContent = projData.name;
+  document.getElementById('iproj-sub').textContent  = [projData.ref,projData.date].filter(Boolean).join(' · ')||'—';
+  showTab('items');
+  goPage('p-items');
+  loader(true);
+  try{
+    ITEMS = await api('GET','/projects/'+pid+'/items');
+    IC = ITEMS.length ? Math.max(...ITEMS.map(i=>i.seq||0)) : 0;
+    renderItems();
+  }catch(e){toast('Failed to load items','err');}
+  loader(false);
 }
+
 function showTab(t){
   document.getElementById('itab-items').classList.toggle('on',t==='items');
   document.getElementById('itab-export').classList.toggle('on',t==='export');
@@ -485,29 +531,35 @@ function showTab(t){
   document.getElementById('tab-export').style.display=t==='export'?'block':'none';
   if(t==='export')updateSummary();
 }
+
 function renderItems(){
-  const items=getItems(CPJ);
-  IC=items.length?Math.max(...items.map(i=>i.seq||0)):0;
   const list=document.getElementById('ilist');
   list.querySelectorAll('.scard').forEach(c=>c.remove());
-  document.getElementById('empty-state').style.display=items.length?'none':'block';
-  items.forEach(item=>{const el=buildCard(item);list.appendChild(el);fillCard(el,item);});
+  document.getElementById('empty-state').style.display=ITEMS.length?'none':'block';
+  ITEMS.forEach(item=>{const el=buildCard(item);list.appendChild(el);fillCard(el,item);});
   updateBadge();
 }
-function addItem(){
+
+async function addItem(){
   IC++;
-  const item={id:'i'+Date.now(),seq:IC,photo:null,location:'',date:today(),description:'',status:'open'};
-  const items=getItems(CPJ);items.push(item);saveItems(CPJ,items);
-  document.getElementById('empty-state').style.display='none';
-  const el=buildCard(item);document.getElementById('ilist').appendChild(el);
-  el.scrollIntoView({behavior:'smooth',block:'start'});
-  setTimeout(()=>el.querySelector('.sloc').focus(),300);
-  updateBadge();
+  loader(true);
+  try{
+    const item = await api('POST','/projects/'+CPJ+'/items',{seq:IC,location:'',date:today(),description:'',status:'open',photo:null});
+    ITEMS.push(item);
+    document.getElementById('empty-state').style.display='none';
+    const el=buildCard(item);
+    document.getElementById('ilist').appendChild(el);
+    el.scrollIntoView({behavior:'smooth',block:'start'});
+    setTimeout(()=>el.querySelector('.sloc').focus(),300);
+    updateBadge();
+  }catch(e){toast('Failed to add item','err');IC--;}
+  loader(false);
 }
+
 function buildCard(item){
   const el=document.createElement('div');
   el.className='scard '+(item.status||'open');
-  el.id='card-'+item.id;
+  el.id='card-'+item._id;
   el.innerHTML=`
     <div class="shead">
       <span class="snum">#${String(item.seq).padStart(2,'0')}</span>
@@ -518,109 +570,147 @@ function buildCard(item){
       </select>
       <button class="sdel">×</button>
     </div>
-    <div class="photowrap" id="pw-${item.id}">
+    <div class="photowrap" id="pw-${item._id}">
       <div class="photoph">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
         <span>Tap to add photo</span>
       </div>
-      <img id="img-${item.id}" alt=""/>
+      <img id="img-${item._id}" alt=""/>
       <button class="photorm">×</button>
       <input type="file" accept="image/*" capture="environment"/>
     </div>
     <div class="sdate"><span class="dlbl">Date</span><input type="date"/></div>
     <div class="sdesc"><div class="desclbl">Description</div><textarea placeholder="Describe the issue..."></textarea></div>`;
-  el.querySelector('.sloc').addEventListener('input',e=>updateF(item.id,'location',e.target.value));
-  el.querySelector('[type="date"]').addEventListener('change',e=>updateF(item.id,'date',e.target.value));
-  el.querySelector('textarea').addEventListener('input',e=>updateF(item.id,'description',e.target.value));
-  el.querySelector('.ssel').addEventListener('change',e=>updateStatus(item.id,e.target));
-  el.querySelector('.sdel').addEventListener('click',()=>removeItem(item.id));
-  el.querySelector('[type="file"]').addEventListener('change',e=>handlePhoto(item.id,e.target));
-  el.querySelector('.photorm').addEventListener('click',e=>{e.stopPropagation();removePhoto(item.id);});
+
+  // Debounced save
+  let saveTimer;
+  const debounceSave = (field, val) => {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(()=>updateF(item._id, field, val), 800);
+  };
+
+  el.querySelector('.sloc').addEventListener('input',e=>debounceSave('location',e.target.value));
+  el.querySelector('[type="date"]').addEventListener('change',e=>updateF(item._id,'date',e.target.value));
+  el.querySelector('textarea').addEventListener('input',e=>debounceSave('description',e.target.value));
+  el.querySelector('.ssel').addEventListener('change',e=>updateStatus(item._id,e.target));
+  el.querySelector('.sdel').addEventListener('click',()=>removeItem(item._id));
+  el.querySelector('[type="file"]').addEventListener('change',e=>handlePhoto(item._id,e.target));
+  el.querySelector('.photorm').addEventListener('click',e=>{e.stopPropagation();removePhoto(item._id);});
   return el;
 }
+
 function fillCard(el,item){
   el.querySelector('.sloc').value=item.location||'';
   const sel=el.querySelector('.ssel');sel.value=item.status||'open';sel.className='ssel '+(item.status||'open');
   el.querySelector('[type="date"]').value=item.date||'';
   el.querySelector('textarea').value=item.description||'';
   if(item.photo){
-    const img=document.getElementById('img-'+item.id);img.src=item.photo;img.style.display='block';
+    const img=document.getElementById('img-'+item._id);img.src=item.photo;img.style.display='block';
     el.querySelector('.photoph').style.display='none';
-    document.getElementById('pw-'+item.id).classList.add('has-photo');
+    document.getElementById('pw-'+item._id).classList.add('has-photo');
   }
 }
-function updateF(id,field,val){
-  const items=getItems(CPJ);const item=items.find(i=>i.id===id);
-  if(item){item[field]=val;saveItems(CPJ,items);}
+
+async function updateF(id,field,val){
+  const item=ITEMS.find(i=>i._id===id);
+  if(item) item[field]=val;
+  try{ await api('PUT','/items/'+id,{[field]:val}); }
+  catch(e){ toast('Save failed — check internet','err'); }
 }
-function updateStatus(id,sel){
-  const items=getItems(CPJ);const item=items.find(i=>i.id===id);
-  if(!item)return;item.status=sel.value;saveItems(CPJ,items);
+
+async function updateStatus(id,sel){
+  const item=ITEMS.find(i=>i._id===id);
+  if(!item)return;
+  item.status=sel.value;
   const card=document.getElementById('card-'+id);
-  card.className='scard '+sel.value;sel.className='ssel '+sel.value;
-  updateBadge();renderProjects();
+  card.className='scard '+sel.value;
+  sel.className='ssel '+sel.value;
+  updateBadge();
+  try{ await api('PUT','/items/'+id,{status:sel.value}); }
+  catch(e){ toast('Save failed','err'); }
 }
+
 function handlePhoto(id,input){
   const file=input.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=e=>{
     const img2=new Image();
-    img2.onload=()=>{
+    img2.onload=async()=>{
       const canvas=document.createElement('canvas');
       const SIZE=800;const min=Math.min(img2.width,img2.height);
       const sx=(img2.width-min)/2,sy=(img2.height-min)/2;
       canvas.width=SIZE;canvas.height=SIZE;
       canvas.getContext('2d').drawImage(img2,sx,sy,min,min,0,0,SIZE,SIZE);
       const compressed=canvas.toDataURL('image/jpeg',0.75);
-      const items=getItems(CPJ);const item=items.find(i=>i.id===id);
-      if(item){item.photo=compressed;saveItems(CPJ,items);}
+      // Show immediately
       const imgEl=document.getElementById('img-'+id);
       imgEl.src=compressed;imgEl.style.display='block';
-      el_pw(id).querySelector('.photoph').style.display='none';
-      el_pw(id).classList.add('has-photo');
+      document.querySelector('#pw-'+id+' .photoph').style.display='none';
+      document.getElementById('pw-'+id).classList.add('has-photo');
+      // Save to server
+      try{
+        await api('PUT','/items/'+id,{photo:compressed});
+        const item=ITEMS.find(i=>i._id===id);
+        if(item) item.photo=compressed;
+        toast('Photo saved ✓','ok');
+      }catch(e){ toast('Photo save failed — check internet','err'); }
     };
     img2.src=e.target.result;
   };
   reader.readAsDataURL(file);
 }
-function el_pw(id){return document.getElementById('pw-'+id);}
-function removePhoto(id){
-  const items=getItems(CPJ);const item=items.find(i=>i.id===id);
-  if(item){item.photo=null;saveItems(CPJ,items);}
-  const imgEl=document.getElementById('img-'+id);imgEl.src='';imgEl.style.display='none';
-  el_pw(id).querySelector('.photoph').style.display='flex';
-  el_pw(id).classList.remove('has-photo');
-}
-function removeItem(id){
-  if(!confirm('Remove this item?'))return;
-  saveItems(CPJ,getItems(CPJ).filter(i=>i.id!==id));
-  document.getElementById('card-'+id)?.remove();
-  const remaining=getItems(CPJ);
-  document.getElementById('empty-state').style.display=remaining.length?'none':'block';
-  updateBadge();renderProjects();
-}
-function clearAll(){
-  if(!getItems(CPJ).length)return;
-  if(!confirm('Clear all items?'))return;
-  saveItems(CPJ,[]);IC=0;
-  document.getElementById('ilist').querySelectorAll('.scard').forEach(c=>c.remove());
-  document.getElementById('empty-state').style.display='block';
-  updateBadge();updateSummary();renderProjects();toast('All items cleared');
-}
-function updateBadge(){const n=getItems(CPJ).length;document.getElementById('icount-lbl').textContent=n+' item'+(n!==1?'s':'');}
-function updateSummary(){
-  const items=getItems(CPJ);
-  document.getElementById('sum-t').textContent=items.length;
-  document.getElementById('sum-o').textContent=items.filter(i=>i.status==='open').length;
-  document.getElementById('sum-c').textContent=items.filter(i=>i.status==='closed').length;
+
+async function removePhoto(id){
+  try{
+    await api('PUT','/items/'+id,{photo:null});
+    const item=ITEMS.find(i=>i._id===id);
+    if(item) item.photo=null;
+    const imgEl=document.getElementById('img-'+id);imgEl.src='';imgEl.style.display='none';
+    document.querySelector('#pw-'+id+' .photoph').style.display='flex';
+    document.getElementById('pw-'+id).classList.remove('has-photo');
+  }catch(e){toast('Failed','err');}
 }
 
-// ─── EXPORT TO WORD ────────────────────────────
+async function removeItem(id){
+  if(!confirm('Remove this item?'))return;
+  loader(true);
+  try{
+    await api('DELETE','/items/'+id);
+    ITEMS=ITEMS.filter(i=>i._id!==id);
+    document.getElementById('card-'+id)?.remove();
+    document.getElementById('empty-state').style.display=ITEMS.length?'none':'block';
+    updateBadge();
+  }catch(e){toast('Failed','err');}
+  loader(false);
+}
+
+async function clearAll(){
+  if(!ITEMS.length)return;
+  if(!confirm('Clear all items?'))return;
+  loader(true);
+  try{
+    await Promise.all(ITEMS.map(i=>api('DELETE','/items/'+i._id)));
+    ITEMS=[];IC=0;
+    document.getElementById('ilist').querySelectorAll('.scard').forEach(c=>c.remove());
+    document.getElementById('empty-state').style.display='block';
+    updateBadge();updateSummary();
+    toast('All items cleared');
+  }catch(e){toast('Failed','err');}
+  loader(false);
+}
+
+function updateBadge(){const n=ITEMS.length;document.getElementById('icount-lbl').textContent=n+' item'+(n!==1?'s':'');}
+function updateSummary(){
+  document.getElementById('sum-t').textContent=ITEMS.length;
+  document.getElementById('sum-o').textContent=ITEMS.filter(i=>i.status==='open').length;
+  document.getElementById('sum-c').textContent=ITEMS.filter(i=>i.status==='closed').length;
+}
+
+// ─── EXPORT WORD ───────────────────────────────
 async function exportWord(){
-  const items=getItems(CPJ);
-  if(!items.length){toast('No items to export','err');return;}
+  if(!ITEMS.length){toast('No items to export','err');return;}
   toast('Building report…');
-  const proj=getProjects().find(p=>p.id===CPJ)||{};
+  const proj=CPJ_DATA||{};
   function xe2(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
   function parseImg(d){const m=d?.match(/^data:image\/(png|jpe?g|gif|webp);base64,(.+)$/i);return m?{data:m[2],ext:m[1].replace('jpeg','jpg')}:null;}
   const W=9360,imgs=[];
@@ -639,8 +729,8 @@ async function exportWord(){
   body+=tb([rw(cl(pa(rn('Project',{s:16,c:'AAAAAA',f:'Arial'})),{bg:'1E1E1E',w:hw,bT:'1E1E1E',bTs:8}),cl(pa(rn(proj.name||'',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{bg:'1E1E1E',w:hw,bT:'1E1E1E',bTs:8}),cl(pa(rn('Ref No.',{s:16,c:'AAAAAA',f:'Arial'})),{bg:'1E1E1E',w:hw,bT:'1E1E1E',bTs:8}),cl(pa(rn(proj.ref||'',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{bg:'1E1E1E',w:hw,bT:'1E1E1E',bTs:8})),rw(cl(pa(rn('Inspector',{s:16,c:'AAAAAA',f:'Arial'})),{bg:'1E1E1E',w:hw,bB:'1E1E1E',bBs:8}),cl(pa(rn(CUD||'',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{bg:'1E1E1E',w:hw,bB:'1E1E1E',bBs:8}),cl(pa(rn('Date',{s:16,c:'AAAAAA',f:'Arial'})),{bg:'1E1E1E',w:hw,bB:'1E1E1E',bBs:8}),cl(pa(rn(proj.date||'',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{bg:'1E1E1E',w:hw,bB:'1E1E1E',bBs:8}))]);
   body+=pa('',{after:200});
   const pW=Math.floor(W*0.36),dW=W-pW;
-  for(let i=0;i<items.length;i++){
-    const it=items[i];const sc=it.status==='open'?'C0392B':'27AE60';
+  for(let i=0;i<ITEMS.length;i++){
+    const it=ITEMS[i];const sc=it.status==='open'?'C0392B':'27AE60';
     const hdr=rn('#'+String(it.seq||i+1).padStart(2,'0')+'  ',{b:true,s:24,c:'1E1E1E',f:'Arial'})+rn((it.location||'No location')+'  ',{b:true,s:22,c:'1A1A1A',f:'Arial'})+rn((it.date||'')+'  ',{s:18,c:'888888',f:'Arial'})+rn('● '+it.status.toUpperCase(),{b:true,s:18,c:sc,f:'Arial'});
     let pCell;
     if(it.photo){const im=addImg(it.photo);pCell=im?cl(pa(ir(im.rId,im.id,190,145),{align:'center'}),{w:pW,bg:'F5F2ED',bB:'CCCCCC',bR:'CCCCCC',va:'center'}):cl(pa(rn('[Photo]',{s:18,c:'AAAAAA',f:'Arial'}),{align:'center'}),{w:pW,bg:'F5F2ED',bB:'CCCCCC',bR:'CCCCCC'});}
@@ -649,10 +739,10 @@ async function exportWord(){
     body+=tb([rw(cl(pa(hdr),{span:2,bg:'F8F6F3',bT:'1E1E1E',bTs:8,bB:'CCCCCC'})),rw(pCell,dCell)]);
     body+=pa('',{after:180});
   }
-  const oN=items.filter(i=>i.status==='open').length,cN=items.filter(i=>i.status==='closed').length;
+  const oN=ITEMS.filter(i=>i.status==='open').length,cN=ITEMS.filter(i=>i.status==='closed').length;
   const sw=Math.floor(W*0.5),c1=Math.floor(sw*0.6),c2=sw-c1;
   body+=pa('',{after:160});
-  body+=tb([rw(cl(pa(rn('SUMMARY',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{span:2,bg:'1E1E1E',bT:'1E1E1E',bTs:8,bB:'CCCCCC'})),rw(cl(pa(rn('Total Items',{s:18,f:'Arial'})),{w:c1,bB:'CCCCCC',bR:'CCCCCC'}),cl(pa(rn(String(items.length),{b:true,s:18,f:'Arial'})),{w:c2,bB:'CCCCCC'})),rw(cl(pa(rn('Open',{s:18,c:'C0392B',f:'Arial'})),{w:c1,bB:'CCCCCC',bR:'CCCCCC'}),cl(pa(rn(String(oN),{b:true,s:18,c:'C0392B',f:'Arial'})),{w:c2,bB:'CCCCCC'})),rw(cl(pa(rn('Closed',{s:18,c:'27AE60',f:'Arial'})),{w:c1,bB:'1E1E1E',bBs:8,bR:'CCCCCC'}),cl(pa(rn(String(cN),{b:true,s:18,c:'27AE60',f:'Arial'})),{w:c2,bB:'1E1E1E',bBs:8}))],sw);
+  body+=tb([rw(cl(pa(rn('SUMMARY',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{span:2,bg:'1E1E1E',bT:'1E1E1E',bTs:8,bB:'CCCCCC'})),rw(cl(pa(rn('Total Items',{s:18,f:'Arial'})),{w:c1,bB:'CCCCCC',bR:'CCCCCC'}),cl(pa(rn(String(ITEMS.length),{b:true,s:18,f:'Arial'})),{w:c2,bB:'CCCCCC'})),rw(cl(pa(rn('Open',{s:18,c:'C0392B',f:'Arial'})),{w:c1,bB:'CCCCCC',bR:'CCCCCC'}),cl(pa(rn(String(oN),{b:true,s:18,c:'C0392B',f:'Arial'})),{w:c2,bB:'CCCCCC'})),rw(cl(pa(rn('Closed',{s:18,c:'27AE60',f:'Arial'})),{w:c1,bB:'1E1E1E',bBs:8,bR:'CCCCCC'}),cl(pa(rn(String(cN),{b:true,s:18,c:'27AE60',f:'Arial'})),{w:c2,bB:'1E1E1E',bBs:8}))],sw);
   const docXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><w:body>${body}<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/></w:sectPr></w:body></w:document>`;
   const relsXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>${imgs.map(m=>`<Relationship Id="${m.rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/img${m.id}.${m.ext}"/>`).join('')}</Relationships>`;
   const stylesXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr></w:rPrDefault></w:docDefaults></w:styles>`;
@@ -661,8 +751,7 @@ async function exportWord(){
   function sb(s){return new TextEncoder().encode(s);}
   function bb(b){const bin=atob(b),a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a;}
   function crc32(d){let c=0xFFFFFFFF;const t=crc32.t||(crc32.t=(()=>{const x=new Uint32Array(256);for(let i=0;i<256;i++){let v=i;for(let j=0;j<8;j++)v=(v&1)?(0xEDB88320^(v>>>1)):(v>>>1);x[i]=v;}return x;})());for(let i=0;i<d.length;i++)c=t[(c^d[i])&0xFF]^(c>>>8);return(c^0xFFFFFFFF)>>>0;}
-  const u16=n=>[n&0xFF,(n>>8)&0xFF];
-  const u32=n=>[n&0xFF,(n>>8)&0xFF,(n>>16)&0xFF,(n>>24)&0xFF];
+  const u16=n=>[n&0xFF,(n>>8)&0xFF];const u32=n=>[n&0xFF,(n>>8)&0xFF,(n>>16)&0xFF,(n>>24)&0xFF];
   function makeZip(files){const parts=[],cd=[];let off=0;for(const f of files){const nb=new TextEncoder().encode(f.name),d=f.data,crc=crc32(d);const lh=[0x50,0x4B,0x03,0x04,20,0,0,0,0,0,0,0,0,0,...u32(crc),...u32(d.length),...u32(d.length),...u16(nb.length),0,0,...nb];const ce=[0x50,0x4B,0x01,0x02,20,0,20,0,0,0,0,0,0,0,0,0,...u32(crc),...u32(d.length),...u32(d.length),...u16(nb.length),0,0,0,0,0,0,0,0,0,0,...u32(off),...nb];parts.push(new Uint8Array(lh),d);cd.push(new Uint8Array(ce));off+=lh.length+d.length;}const cs=cd.reduce((s,c)=>s+c.length,0);const eocd=[0x50,0x4B,0x05,0x06,0,0,0,0,...u16(files.length),...u16(files.length),...u32(cs),...u32(off),0,0];const all=[...parts,...cd,new Uint8Array(eocd)];const tot=all.reduce((s,a)=>s+a.length,0);const out=new Uint8Array(tot);let p=0;for(const a of all){out.set(a,p);p+=a.length;}return out;}
   const zipFiles=[{name:'[Content_Types].xml',data:sb(ctXml)},{name:'_rels/.rels',data:sb(rootRels)},{name:'word/document.xml',data:sb(docXml)},{name:'word/styles.xml',data:sb(stylesXml)},{name:'word/_rels/document.xml.rels',data:sb(relsXml)}];
   for(const m of imgs)zipFiles.push({name:`word/media/img${m.id}.${m.ext}`,data:bb(m.base64)});
@@ -676,116 +765,36 @@ async function exportWord(){
   }catch(e){toast('Export failed','err');console.error(e);}
 }
 
-
-// ─── EXPORT TO PDF ─────────────────────────────
+// ─── EXPORT PDF ────────────────────────────────
 async function exportPDF(){
-  const items=getItems(CPJ);
-  if(!items.length){toast('No items to export','err');return;}
+  if(!ITEMS.length){toast('No items to export','err');return;}
   toast('Building PDF…');
-  const proj=getProjects().find(p=>p.id===CPJ)||{};
-
-  // Build HTML content that looks like a professional report
-  const rows = await Promise.all(items.map(async (it,i)=>{
-    const sc = it.status==='open'?'#c0392b':'#27ae60';
-    const photoHtml = it.photo
-      ? `<img src="${it.photo}" style="width:100%;height:160px;object-fit:cover;border-radius:6px;display:block;"/>`
-      : `<div style="width:100%;height:160px;background:#f0ede8;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:13px;">No Photo</div>`;
-    return `
-      <div style="margin-bottom:18px;border:1px solid #e4e1dc;border-radius:10px;overflow:hidden;page-break-inside:avoid;">
-        <div style="background:#f8f6f3;padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #e4e1dc;">
-          <span style="font-family:Arial;font-size:18px;font-weight:900;color:#1e1e1e;min-width:36px;">#${String(it.seq||i+1).padStart(2,'0')}</span>
-          <span style="font-family:Arial;font-size:14px;font-weight:700;color:#1a1a1a;flex:1;">${it.location||'No location'}</span>
-          <span style="font-size:11px;color:#888;">${it.date||''}</span>
-          <span style="background:${sc}22;color:${sc};font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;">${it.status}</span>
-        </div>
-        <div style="display:flex;gap:0;">
-          <div style="width:38%;padding:12px;background:#fafaf8;border-right:1px solid #e4e1dc;">${photoHtml}</div>
-          <div style="flex:1;padding:12px;">
-            <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#aaa;margin-bottom:6px;">DESCRIPTION</div>
-            <div style="font-family:Arial;font-size:13px;color:#1a1a1a;line-height:1.6;">${it.description||'—'}</div>
-          </div>
-        </div>
-      </div>`;
-  }));
-
-  const oN=items.filter(i=>i.status==='open').length;
-  const cN=items.filter(i=>i.status==='closed').length;
-
-  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:Arial,sans-serif;background:#fff;color:#1a1a1a;padding:32px;}
-    @media print{body{padding:0;} .no-print{display:none;}}
-  </style></head><body>
-  <div style="margin-bottom:24px;">
-    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
-      <div style="background:#1e1e1e;border-radius:10px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;">
-        <span style="font-family:Arial;font-size:16px;font-weight:900;color:#fff;letter-spacing:2px;">MLA</span>
-      </div>
-      <div>
-        <div style="font-family:Arial;font-size:22px;font-weight:900;letter-spacing:2px;color:#1e1e1e;">SITE INSPECTION REPORT</div>
-        <div style="font-size:12px;color:#888;margin-top:2px;">Generated ${new Date().toLocaleDateString()}</div>
-      </div>
-    </div>
-    <table style="width:100%;border-collapse:collapse;background:#1e1e1e;border-radius:10px;overflow:hidden;">
-      <tr>
-        <td style="padding:10px 14px;color:#aaa;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;width:15%;">PROJECT</td>
-        <td style="padding:10px 14px;color:#fff;font-size:13px;font-weight:700;width:35%;">${proj.name||'—'}</td>
-        <td style="padding:10px 14px;color:#aaa;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;width:15%;">REF NO.</td>
-        <td style="padding:10px 14px;color:#fff;font-size:13px;font-weight:700;width:35%;">${proj.ref||'—'}</td>
-      </tr>
-      <tr>
-        <td style="padding:10px 14px;color:#aaa;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">INSPECTOR</td>
-        <td style="padding:10px 14px;color:#fff;font-size:13px;font-weight:700;">${CUD||'—'}</td>
-        <td style="padding:10px 14px;color:#aaa;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">DATE</td>
-        <td style="padding:10px 14px;color:#fff;font-size:13px;font-weight:700;">${proj.date||'—'}</td>
-      </tr>
-    </table>
-  </div>
-
-  ${rows.join('')}
-
-  <div style="margin-top:24px;border:1px solid #e4e1dc;border-radius:10px;overflow:hidden;page-break-inside:avoid;">
-    <div style="background:#1e1e1e;padding:10px 14px;">
-      <span style="font-family:Arial;font-size:13px;font-weight:700;letter-spacing:1px;color:#fff;">SUMMARY</span>
-    </div>
-    <table style="width:50%;border-collapse:collapse;">
-      <tr><td style="padding:8px 14px;font-size:13px;border-bottom:1px solid #e4e1dc;">Total Items</td><td style="padding:8px 14px;font-weight:700;font-size:13px;border-bottom:1px solid #e4e1dc;">${items.length}</td></tr>
-      <tr><td style="padding:8px 14px;font-size:13px;color:#c0392b;border-bottom:1px solid #e4e1dc;">Open</td><td style="padding:8px 14px;font-weight:700;font-size:13px;color:#c0392b;border-bottom:1px solid #e4e1dc;">${oN}</td></tr>
-      <tr><td style="padding:8px 14px;font-size:13px;color:#27ae60;">Closed</td><td style="padding:8px 14px;font-weight:700;font-size:13px;color:#27ae60;">${cN}</td></tr>
-    </table>
-  </div>
-  </body></html>`;
-
-  // Open in new window and trigger print (saves as PDF)
-  const win = window.open('','_blank');
+  const proj=CPJ_DATA||{};
+  const oN=ITEMS.filter(i=>i.status==='open').length;
+  const cN=ITEMS.filter(i=>i.status==='closed').length;
+  const rows=ITEMS.map((it,i)=>{
+    const sc=it.status==='open'?'#c0392b':'#27ae60';
+    const photoHtml=it.photo?`<img src="${it.photo}" style="width:100%;height:160px;object-fit:cover;border-radius:6px;display:block;"/>`:`<div style="width:100%;height:160px;background:#f0ede8;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:13px;">No Photo</div>`;
+    return`<div style="margin-bottom:18px;border:1px solid #e4e1dc;border-radius:10px;overflow:hidden;page-break-inside:avoid;"><div style="background:#f8f6f3;padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #e4e1dc;"><span style="font-family:Arial;font-size:18px;font-weight:900;color:#1e1e1e;min-width:36px;">#${String(it.seq||i+1).padStart(2,'0')}</span><span style="font-family:Arial;font-size:14px;font-weight:700;color:#1a1a1a;flex:1;">${it.location||'No location'}</span><span style="font-size:11px;color:#888;">${it.date||''}</span><span style="background:${sc}22;color:${sc};font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;">${it.status}</span></div><div style="display:flex;gap:0;"><div style="width:38%;padding:12px;background:#fafaf8;border-right:1px solid #e4e1dc;">${photoHtml}</div><div style="flex:1;padding:12px;"><div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#aaa;margin-bottom:6px;">DESCRIPTION</div><div style="font-family:Arial;font-size:13px;color:#1a1a1a;line-height:1.6;">${it.description||'—'}</div></div></div></div>`;
+  }).join('');
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#fff;color:#1a1a1a;padding:32px;}</style></head><body><div style="margin-bottom:24px;"><div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;"><div style="background:#1e1e1e;border-radius:10px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial;font-size:16px;font-weight:900;color:#fff;letter-spacing:2px;">MLA</span></div><div><div style="font-family:Arial;font-size:22px;font-weight:900;letter-spacing:2px;color:#1e1e1e;">SITE INSPECTION REPORT</div><div style="font-size:12px;color:#888;margin-top:2px;">Generated ${new Date().toLocaleDateString()}</div></div></div><table style="width:100%;border-collapse:collapse;background:#1e1e1e;border-radius:10px;overflow:hidden;"><tr><td style="padding:10px 14px;color:#aaa;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;width:15%;">PROJECT</td><td style="padding:10px 14px;color:#fff;font-size:13px;font-weight:700;width:35%;">${proj.name||'—'}</td><td style="padding:10px 14px;color:#aaa;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;width:15%;">REF NO.</td><td style="padding:10px 14px;color:#fff;font-size:13px;font-weight:700;width:35%;">${proj.ref||'—'}</td></tr><tr><td style="padding:10px 14px;color:#aaa;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">INSPECTOR</td><td style="padding:10px 14px;color:#fff;font-size:13px;font-weight:700;">${CUD||'—'}</td><td style="padding:10px 14px;color:#aaa;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">DATE</td><td style="padding:10px 14px;color:#fff;font-size:13px;font-weight:700;">${proj.date||'—'}</td></tr></table></div>${rows}<div style="margin-top:24px;border:1px solid #e4e1dc;border-radius:10px;overflow:hidden;page-break-inside:avoid;"><div style="background:#1e1e1e;padding:10px 14px;"><span style="font-family:Arial;font-size:13px;font-weight:700;letter-spacing:1px;color:#fff;">SUMMARY</span></div><table style="width:50%;border-collapse:collapse;"><tr><td style="padding:8px 14px;font-size:13px;border-bottom:1px solid #e4e1dc;">Total Items</td><td style="padding:8px 14px;font-weight:700;font-size:13px;border-bottom:1px solid #e4e1dc;">${ITEMS.length}</td></tr><tr><td style="padding:8px 14px;font-size:13px;color:#c0392b;border-bottom:1px solid #e4e1dc;">Open</td><td style="padding:8px 14px;font-weight:700;font-size:13px;color:#c0392b;border-bottom:1px solid #e4e1dc;">${oN}</td></tr><tr><td style="padding:8px 14px;font-size:13px;color:#27ae60;">Closed</td><td style="padding:8px 14px;font-weight:700;font-size:13px;color:#27ae60;">${cN}</td></tr></table></div></body></html>`;
+  const win=window.open('','_blank');
   if(!win){toast('Allow popups to export PDF','err');return;}
-  win.document.write(html);
-  win.document.close();
-  win.onload = ()=>{
-    setTimeout(()=>{
-      win.print();
-      toast('✓ PDF ready — tap Save as PDF','ok');
-    },500);
-  };
+  win.document.write(html);win.document.close();
+  win.onload=()=>setTimeout(()=>{win.print();toast('✓ PDF ready — tap Save as PDF','ok');},500);
 }
 
-// ─── BIND ALL BUTTONS ON LOAD ──────────────────
+// ─── INIT ──────────────────────────────────────
 window.addEventListener('DOMContentLoaded',()=>{
-  // Login
   document.getElementById('btn-login').addEventListener('click',doLogin);
   document.getElementById('inp-name').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('inp-pass').focus();});
   document.getElementById('inp-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
-  // Locked
   document.getElementById('btn-lock-back').addEventListener('click',()=>goPage('p-login'));
-  // Admin
   document.getElementById('btn-admin-exit').addEventListener('click',()=>goPage('p-login'));
   document.getElementById('btn-add-user').addEventListener('click',adminAdd);
-  // Projects
-  document.getElementById('btn-logout').addEventListener('click',()=>{CU=null;CUD=null;S.del('mla_cu');S.del('mla_cud');goPage('p-login');});
+  document.getElementById('btn-logout').addEventListener('click',()=>{TOKEN=null;CUD=null;localStorage.removeItem('mla_token');localStorage.removeItem('mla_cud');goPage('p-login');});
   document.getElementById('btn-new-proj').addEventListener('click',createProject);
-  // Items
-  document.getElementById('btn-back').addEventListener('click',()=>{renderProjects();goPage('p-projects');});
+  document.getElementById('btn-back').addEventListener('click',()=>goProjects());
   document.getElementById('btn-add-item').addEventListener('click',addItem);
   document.getElementById('itab-items').addEventListener('click',()=>showTab('items'));
   document.getElementById('itab-export').addEventListener('click',()=>showTab('export'));
@@ -793,12 +802,9 @@ window.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('btn-export-pdf').addEventListener('click',exportPDF);
   document.getElementById('btn-clear').addEventListener('click',clearAll);
 
-  // Auto-login returning user
-  const cu=S.get('mla_cu',null),cud=S.get('mla_cud',null);
-  if(cu&&cud){
-    const acc=checkAccess(cud);
-    if(acc==='ok'){CU=cu;CUD=cud;goProjects();}
-    else{goPage('p-locked');}
+  // Auto-login if token exists
+  if(TOKEN && CUD){
+    goProjects();
   }
 });
 
@@ -810,10 +816,8 @@ document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault
 let _lt=0;
 document.addEventListener('touchend',e=>{const now=Date.now();if(now-_lt<300)e.preventDefault();_lt=now;},{passive:false});
 
-// Service worker
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister()));
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 }
 </script>
 </body>
