@@ -1259,7 +1259,6 @@ function buildAndDownloadWord(proj, renderedPlans) {
     showToast('Word report downloaded!','ok');
   } catch(e) { showToast('Export failed','err'); console.error(e); }
 }
-}
 
 function exportPDF() {
   if (!ITEMS.length) { showToast('No items to export', 'err'); return; }
