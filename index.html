@@ -120,6 +120,18 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .photowrap input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
 .photorm{position:absolute;top:8px;right:8px;z-index:2;background:rgba(0,0,0,0.5);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;display:none;align-items:center;justify-content:center;line-height:1}
 .has-photo .photorm{display:flex}
+.annotate-btn{position:absolute;bottom:8px;right:8px;z-index:2;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:20px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;display:none;font-family:'DM Sans',sans-serif}
+.has-photo .annotate-btn{display:block}
+#annot-modal{position:fixed;inset:0;z-index:10000;background:#000;display:none;flex-direction:column}
+#annot-modal.show{display:flex}
+#annot-canvas{width:100%;flex:1;touch-action:none;display:block}
+.annot-bar{background:#111;padding:12px 16px calc(env(safe-area-inset-bottom,0px)+12px);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.annot-color{width:30px;height:30px;border-radius:50%;border:3px solid transparent;cursor:pointer;flex-shrink:0}
+.annot-color.active{border-color:#fff}
+.annot-size{flex:1;accent-color:#fff;cursor:pointer}
+.annot-undo{background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.annot-save{background:#fff;border:none;color:#111;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+.annot-cancel{background:rgba(255,255,255,0.1);border:none;color:#fff;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
 .sdate{padding:7px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
 .dlbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#bbb;flex-shrink:0}
 .sdate input{border:none;background:transparent;font-size:13px;color:#1a1a1a;outline:none;-webkit-appearance:none;flex:1;font-family:'DM Sans',sans-serif}
@@ -271,6 +283,20 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 
 <div id="loader"><div class="spinner"></div><div class="lmsg" id="lmsg">Loading...</div></div>
 <div id="toast"></div>
+
+<!-- ANNOTATION MODAL -->
+<div id="annot-modal">
+  <canvas id="annot-canvas"></canvas>
+  <div class="annot-bar">
+    <div class="annot-color active" id="ac-red" style="background:#e74c3c" onclick="setAnnotColor('#e74c3c',this)"></div>
+    <div class="annot-color" id="ac-yellow" style="background:#f1c40f" onclick="setAnnotColor('#f1c40f',this)"></div>
+    <div class="annot-color" id="ac-blue" style="background:#3498db" onclick="setAnnotColor('#3498db',this)"></div>
+    <input class="annot-size" id="annot-size" type="range" min="2" max="20" value="5"/>
+    <button class="annot-undo" onclick="annotUndo()">Undo</button>
+    <button class="annot-cancel" onclick="closeAnnotate()">Cancel</button>
+    <button class="annot-save" onclick="saveAnnotate()">Save</button>
+  </div>
+</div>
 
 <script>
 var API = 'https://mla-backends.onrender.com/api';
@@ -644,7 +670,7 @@ function buildCard(item) {
     '<select class="ssel ' + (item.status||'open') + '"><option value="open">Open</option><option value="closed">Closed</option></select>' +
     '<button class="sdel" type="button">x</button></div>' +
     '<div class="photowrap" id="pw-' + item._id + '"><div class="photoph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span>Tap to add photo</span></div>' +
-    '<img id="img-' + item._id + '" alt=""/><button class="photorm" type="button">x</button><input type="file" accept="image/*" capture="environment"/></div>' +
+    '<img id="img-' + item._id + '" alt=""/><button class="photorm" type="button">x</button><button class="annotate-btn" type="button">&#9998; Annotate</button><input type="file" accept="image/*" capture="environment"/></div>' +
     '<div class="sdate"><span class="dlbl">Date</span><input type="date"/></div>' +
     '<div class="sdesc"><div class="desclbl">Description</div><textarea placeholder="Describe the issue..."></textarea></div>';
   var st;
@@ -655,6 +681,7 @@ function buildCard(item) {
   el.querySelector('.sdel').addEventListener('click', function() { removeItem(item._id); });
   el.querySelector('[type="file"]').addEventListener('change', function(e) { handlePhoto(item._id, e.target); });
   el.querySelector('.photorm').addEventListener('click', function(e) { e.stopPropagation(); removePhoto(item._id); });
+  el.querySelector('.annotate-btn').addEventListener('click', function(e) { e.stopPropagation(); openAnnotate(item._id); });
   return el;
 }
 
@@ -806,17 +833,19 @@ function exportWord() {
   var cN=ITEMS.filter(function(i){return i.status==='closed';}).length;
   var sw=Math.floor(W*0.5),c1=Math.floor(sw*0.6),c2=sw-c1;
   body+=tb([rw(cl(pa(rn('SUMMARY',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{span:2,bg:'1E1E1E',bT:'1E1E1E',bTs:8,bB:'CCCCCC'})),rw(cl(pa(rn('Total Items',{s:18,f:'Arial'})),{w:c1,bB:'CCCCCC',bR:'CCCCCC'}),cl(pa(rn(String(ITEMS.length),{b:true,s:18,f:'Arial'})),{w:c2,bB:'CCCCCC'})),rw(cl(pa(rn('Open',{s:18,c:'C0392B',f:'Arial'})),{w:c1,bB:'CCCCCC',bR:'CCCCCC'}),cl(pa(rn(String(oN),{b:true,s:18,c:'C0392B',f:'Arial'})),{w:c2,bB:'CCCCCC'})),rw(cl(pa(rn('Closed',{s:18,c:'27AE60',f:'Arial'})),{w:c1,bB:'1E1E1E',bBs:8,bR:'CCCCCC'}),cl(pa(rn(String(cN),{b:true,s:18,c:'27AE60',f:'Arial'})),{w:c2,bB:'1E1E1E',bBs:8}))],sw);
-  var docXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><w:body>'+body+'<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/></w:sectPr></w:body></w:document>';
-  var relsXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'+imgs.map(function(m){return'<Relationship Id="'+m.rId+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/img'+m.id+'.'+m.ext+'"/>';}).join('')+'</Relationships>';
+  // Footer XML
+  var footerXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:p><w:pPr><w:jc w:val="right"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="16"/><w:szCs w:val="16"/><w:color w:val="1E1E1E"/></w:rPr><w:t>MLA INSPECTION</w:t></w:r><w:r><w:rPr><w:sz w:val="16"/><w:color w:val="888888"/></w:rPr><w:t xml:space="preserve"> | Site Inspection Report</w:t></w:r></w:p></w:ftr>';
+  var docXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><w:body>'+body+'<w:sectPr><w:footerReference w:type="default" r:id="rId200"/><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/></w:sectPr></w:body></w:document>';
+  var relsXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/><Relationship Id="rId200" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/>'+imgs.map(function(m){return'<Relationship Id="'+m.rId+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/img'+m.id+'.'+m.ext+'"/>';}).join('')+'</Relationships>';
   var stylesXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr></w:rPrDefault></w:docDefaults></w:styles>';
-  var ctXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Default Extension="jpg" ContentType="image/jpeg"/><Default Extension="jpeg" ContentType="image/jpeg"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>';
+  var ctXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Default Extension="jpg" ContentType="image/jpeg"/><Default Extension="jpeg" ContentType="image/jpeg"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/></Types>';
   var rootRels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>';
   function sb(s){return new TextEncoder().encode(s);}
   function bb(b){var bin=atob(b),a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a;}
   function crc32(d){var c=0xFFFFFFFF;var t=crc32.t||(crc32.t=(function(){var x=new Uint32Array(256);for(var i=0;i<256;i++){var v=i;for(var j=0;j<8;j++)v=(v&1)?(0xEDB88320^(v>>>1)):(v>>>1);x[i]=v;}return x;})());for(var i=0;i<d.length;i++)c=t[(c^d[i])&0xFF]^(c>>>8);return(c^0xFFFFFFFF)>>>0;}
   function u16(n){return[n&0xFF,(n>>8)&0xFF];}function u32(n){return[n&0xFF,(n>>8)&0xFF,(n>>16)&0xFF,(n>>24)&0xFF];}
   function makeZip(files){var parts=[],cd=[];var off=0;for(var fi=0;fi<files.length;fi++){var f=files[fi];var nb=new TextEncoder().encode(f.name),d=f.data,crc=crc32(d);var lh=[0x50,0x4B,0x03,0x04,20,0,0,0,0,0,0,0,0,0].concat(u32(crc),u32(d.length),u32(d.length),u16(nb.length),[0,0]).concat(Array.from(nb));var ce=[0x50,0x4B,0x01,0x02,20,0,20,0,0,0,0,0,0,0,0,0].concat(u32(crc),u32(d.length),u32(d.length),u16(nb.length),[0,0,0,0,0,0,0,0,0,0]).concat(u32(off)).concat(Array.from(nb));parts.push(new Uint8Array(lh),d);cd.push(new Uint8Array(ce));off+=lh.length+d.length;}var cs=cd.reduce(function(s,c){return s+c.length;},0);var eocd=[0x50,0x4B,0x05,0x06,0,0,0,0].concat(u16(files.length),u16(files.length),u32(cs),u32(off),[0,0]);var all=parts.concat(cd,[new Uint8Array(eocd)]);var tot=all.reduce(function(s,a){return s+a.length;},0);var out=new Uint8Array(tot);var p=0;for(var i=0;i<all.length;i++){out.set(all[i],p);p+=all[i].length;}return out;}
-  var zipFiles=[{name:'[Content_Types].xml',data:sb(ctXml)},{name:'_rels/.rels',data:sb(rootRels)},{name:'word/document.xml',data:sb(docXml)},{name:'word/styles.xml',data:sb(stylesXml)},{name:'word/_rels/document.xml.rels',data:sb(relsXml)}];
+  var zipFiles=[{name:'[Content_Types].xml',data:sb(ctXml)},{name:'_rels/.rels',data:sb(rootRels)},{name:'word/document.xml',data:sb(docXml)},{name:'word/styles.xml',data:sb(stylesXml)},{name:'word/footer1.xml',data:sb(footerXml)},{name:'word/_rels/document.xml.rels',data:sb(relsXml)}];
   imgs.forEach(function(m){zipFiles.push({name:'word/media/img'+m.id+'.'+m.ext,data:bb(m.base64)});});
   try{
     var zip=makeZip(zipFiles);
@@ -839,11 +868,97 @@ function exportPDF() {
     var ph = it.photo ? '<img src="'+it.photo+'" style="width:100%;height:160px;object-fit:cover;border-radius:6px;display:block;"/>' : '<div style="width:100%;height:160px;background:#f0ede8;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:13px;">No Photo</div>';
     return '<div style="margin-bottom:18px;border:1px solid #e4e1dc;border-radius:10px;overflow:hidden;page-break-inside:avoid;"><div style="background:#f8f6f3;padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #e4e1dc;"><span style="font-size:18px;font-weight:900;min-width:36px;">#'+String(it.seq||i+1).padStart(2,'0')+'</span><span style="font-size:14px;font-weight:700;flex:1;">'+(it.location||'No location')+'</span><span style="font-size:11px;color:#888;">'+(it.date||'')+'</span><span style="background:'+sc+'22;color:'+sc+';font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;">'+it.status+'</span></div><div style="display:flex;"><div style="width:38%;padding:12px;background:#fafaf8;border-right:1px solid #e4e1dc;">'+ph+'</div><div style="flex:1;padding:12px;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:#aaa;margin-bottom:6px;">DESCRIPTION</div><div style="font-size:13px;line-height:1.6;">'+(it.description||'...')+'</div></div></div></div>';
   }).join('');
-  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#fff;padding:32px;}</style></head><body><div style="margin-bottom:24px;"><div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;"><div style="background:#1e1e1e;border-radius:10px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;"><span style="font-size:16px;font-weight:900;color:#fff;letter-spacing:2px;">MLA</span></div><div><div style="font-size:22px;font-weight:900;letter-spacing:2px;">SITE INSPECTION REPORT</div><div style="font-size:12px;color:#888;margin-top:2px;">Generated '+new Date().toLocaleDateString()+'</div></div></div><table style="width:100%;border-collapse:collapse;background:#1e1e1e;"><tr><td style="padding:10px 14px;color:#aaa;font-size:11px;width:15%;">PROJECT</td><td style="padding:10px 14px;color:#fff;font-weight:700;width:35%;">'+(proj.name||'...')+'</td><td style="padding:10px 14px;color:#aaa;font-size:11px;width:15%;">REF NO.</td><td style="padding:10px 14px;color:#fff;font-weight:700;">'+(proj.ref||'...')+'</td></tr><tr><td style="padding:10px 14px;color:#aaa;font-size:11px;">INSPECTOR</td><td style="padding:10px 14px;color:#fff;font-weight:700;">'+(CUD||'...')+'</td><td style="padding:10px 14px;color:#aaa;font-size:11px;">DATE</td><td style="padding:10px 14px;color:#fff;font-weight:700;">'+(proj.date||'...')+'</td></tr></table></div>'+rows+'<div style="margin-top:24px;border:1px solid #e4e1dc;border-radius:10px;overflow:hidden;"><div style="background:#1e1e1e;padding:10px 14px;"><span style="font-size:13px;font-weight:700;color:#fff;">SUMMARY</span></div><table style="width:50%;border-collapse:collapse;"><tr><td style="padding:8px 14px;border-bottom:1px solid #e4e1dc;">Total</td><td style="padding:8px 14px;font-weight:700;border-bottom:1px solid #e4e1dc;">'+ITEMS.length+'</td></tr><tr><td style="padding:8px 14px;color:#c0392b;border-bottom:1px solid #e4e1dc;">Open</td><td style="padding:8px 14px;font-weight:700;color:#c0392b;border-bottom:1px solid #e4e1dc;">'+oN+'</td></tr><tr><td style="padding:8px 14px;color:#27ae60;">Closed</td><td style="padding:8px 14px;font-weight:700;color:#27ae60;">'+cN+'</td></tr></table></div></body></html>';
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#fff;padding:32px;}@page{margin:32px 32px 60px 32px;}@media print{footer{position:fixed;bottom:0;left:0;right:0;padding:10px 32px;background:#fff;border-top:1px solid #e4e1dc;display:flex;justify-content:space-between;align-items:center;}}</style></head><body><div style="margin-bottom:24px;"><div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;"><div style="background:#1e1e1e;border-radius:10px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;"><span style="font-size:16px;font-weight:900;color:#fff;letter-spacing:2px;">MLA</span></div><div><div style="font-size:22px;font-weight:900;letter-spacing:2px;">SITE INSPECTION REPORT</div><div style="font-size:12px;color:#888;margin-top:2px;">Generated '+ new Date().toLocaleDateString() +'</div></div></div><table style="width:100%;border-collapse:collapse;background:#1e1e1e;"><tr><td style="padding:10px 14px;color:#aaa;font-size:11px;width:15%;">PROJECT</td><td style="padding:10px 14px;color:#fff;font-weight:700;width:35%;">'+(proj.name||'...')+'</td><td style="padding:10px 14px;color:#aaa;font-size:11px;width:15%;">REF NO.</td><td style="padding:10px 14px;color:#fff;font-weight:700;">'+(proj.ref||'...')+'</td></tr><tr><td style="padding:10px 14px;color:#aaa;font-size:11px;">INSPECTOR</td><td style="padding:10px 14px;color:#fff;font-weight:700;">'+(CUD||'...')+'</td><td style="padding:10px 14px;color:#aaa;font-size:11px;">DATE</td><td style="padding:10px 14px;color:#fff;font-weight:700;">'+(proj.date||'...')+'</td></tr></table></div>'+rows+'<div style="margin-top:24px;border:1px solid #e4e1dc;border-radius:10px;overflow:hidden;"><div style="background:#1e1e1e;padding:10px 14px;"><span style="font-size:13px;font-weight:700;color:#fff;">SUMMARY</span></div><table style="width:50%;border-collapse:collapse;"><tr><td style="padding:8px 14px;border-bottom:1px solid #e4e1dc;">Total</td><td style="padding:8px 14px;font-weight:700;border-bottom:1px solid #e4e1dc;">'+ITEMS.length+'</td></tr><tr><td style="padding:8px 14px;color:#c0392b;border-bottom:1px solid #e4e1dc;">Open</td><td style="padding:8px 14px;font-weight:700;color:#c0392b;border-bottom:1px solid #e4e1dc;">'+oN+'</td></tr><tr><td style="padding:8px 14px;color:#27ae60;">Closed</td><td style="padding:8px 14px;font-weight:700;color:#27ae60;">'+cN+'</td></tr></table></div><footer style="margin-top:40px;padding-top:12px;border-top:1px solid #e4e1dc;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:11px;color:#aaa;">'+new Date().toLocaleDateString()+'</span><span style="font-size:12px;font-weight:900;color:#1e1e1e;letter-spacing:1px;">MLA INSPECTION</span></footer></body></html>';
   var win = window.open('', '_blank');
   if (!win) { showToast('Allow popups to export PDF', 'err'); return; }
   win.document.write(html); win.document.close();
   win.onload = function() { setTimeout(function() { win.print(); showToast('Save as PDF', 'ok'); }, 500); };
+}
+
+// ANNOTATION
+var ANNOT_ID = null, ANNOT_COLOR = '#e74c3c', ANNOT_DRAWING = false;
+var ANNOT_HISTORY = [];
+
+function openAnnotate(id) {
+  var item = ITEMS.find(function(i) { return i._id === id; });
+  if (!item || !item.photo) { showToast('Take a photo first', 'err'); return; }
+  ANNOT_ID = id; ANNOT_HISTORY = [];
+  var modal = document.getElementById('annot-modal');
+  var canvas = document.getElementById('annot-canvas');
+  modal.className = 'show';
+  var img = new Image();
+  img.onload = function() {
+    var sw = window.innerWidth, sh = window.innerHeight - 90;
+    var scale = Math.min(sw / img.width, sh / img.height);
+    canvas.width = img.width * scale; canvas.height = img.height * scale;
+    canvas.style.width = canvas.width + 'px'; canvas.style.height = canvas.height + 'px';
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  };
+  img.src = item.photo;
+  canvas.ontouchstart = function(e) {
+    e.preventDefault(); ANNOT_DRAWING = true;
+    var ctx = canvas.getContext('2d');
+    ANNOT_HISTORY.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+    var t = e.touches[0], r = canvas.getBoundingClientRect();
+    ctx.beginPath(); ctx.moveTo(t.clientX - r.left, t.clientY - r.top);
+    ctx.strokeStyle = ANNOT_COLOR; ctx.lineWidth = parseInt(document.getElementById('annot-size').value);
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  };
+  canvas.ontouchmove = function(e) {
+    e.preventDefault(); if (!ANNOT_DRAWING) return;
+    var ctx = canvas.getContext('2d'), t = e.touches[0], r = canvas.getBoundingClientRect();
+    ctx.lineTo(t.clientX - r.left, t.clientY - r.top); ctx.stroke();
+  };
+  canvas.ontouchend = function(e) { e.preventDefault(); ANNOT_DRAWING = false; };
+  canvas.onmousedown = function(e) {
+    ANNOT_DRAWING = true; var ctx = canvas.getContext('2d');
+    ANNOT_HISTORY.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+    var r = canvas.getBoundingClientRect();
+    ctx.beginPath(); ctx.moveTo(e.clientX - r.left, e.clientY - r.top);
+    ctx.strokeStyle = ANNOT_COLOR; ctx.lineWidth = parseInt(document.getElementById('annot-size').value);
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  };
+  canvas.onmousemove = function(e) {
+    if (!ANNOT_DRAWING) return;
+    var ctx = canvas.getContext('2d'), r = canvas.getBoundingClientRect();
+    ctx.lineTo(e.clientX - r.left, e.clientY - r.top); ctx.stroke();
+  };
+  canvas.onmouseup = function() { ANNOT_DRAWING = false; };
+}
+
+function setAnnotColor(color, el) {
+  ANNOT_COLOR = color;
+  var cols = document.querySelectorAll('.annot-color');
+  for (var i = 0; i < cols.length; i++) cols[i].classList.remove('active');
+  el.classList.add('active');
+}
+
+function annotUndo() {
+  if (!ANNOT_HISTORY.length) return;
+  var canvas = document.getElementById('annot-canvas');
+  canvas.getContext('2d').putImageData(ANNOT_HISTORY.pop(), 0, 0);
+}
+
+function closeAnnotate() {
+  document.getElementById('annot-modal').className = '';
+  ANNOT_ID = null; ANNOT_HISTORY = [];
+}
+
+function saveAnnotate() {
+  var canvas = document.getElementById('annot-canvas');
+  var annotated = canvas.toDataURL('image/jpeg', 0.85);
+  var id = ANNOT_ID; closeAnnotate();
+  showLoader(true, 'Saving annotation...');
+  callAPI('PUT', '/items/' + id, { photo: annotated }, function(err) {
+    showLoader(false);
+    if (err) { showToast('Save failed', 'err'); return; }
+    var item = ITEMS.find(function(i) { return i._id === id; });
+    if (item) item.photo = annotated;
+    var imgEl = document.getElementById('img-' + id);
+    if (imgEl) imgEl.src = annotated;
+    showToast('Annotation saved!', 'ok');
+  });
 }
 
 // WIRE UP ALL BUTTONS
