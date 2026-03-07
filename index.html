@@ -276,6 +276,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 var API = 'https://mla-backends.onrender.com/api';
 var TOKEN = localStorage.getItem('mla_token') || null;
 var CUD = localStorage.getItem('mla_cud') || null;
+var EXPIRY = localStorage.getItem('mla_expiry') || null;
 var CPJ = null, CPJ_DATA = null, ITEMS = [], IC = 0;
 
 function goPage(id) {
@@ -353,6 +354,7 @@ function doLogin() {
     CUD = res.name;
     localStorage.setItem('mla_token', TOKEN);
     localStorage.setItem('mla_cud', CUD);
+    localStorage.setItem('mla_expiry', res.expiry || 'forever');
     goProjects();
   });
 }
@@ -444,30 +446,28 @@ function adminDel(email) {
 function goProjects() {
   document.getElementById('p-greeting').textContent = CUD;
   document.getElementById('np-date').value = getToday();
-  // Show expiry info
-  callAPI('GET', '/user/expiry', null, function(err, res) {
-    var el = document.getElementById('p-expiry');
-    if (err || !res) { el.textContent = ''; return; }
-    if (res.expiry === 'forever') {
-      el.style.color = 'rgba(255,255,255,0.35)';
-      el.textContent = 'Access: Never expires';
+  // Show expiry info from localStorage
+  var el = document.getElementById('p-expiry');
+  var expiry = localStorage.getItem('mla_expiry') || 'forever';
+  if (expiry === 'forever') {
+    el.style.color = 'rgba(255,255,255,0.35)';
+    el.textContent = 'Access: Never expires';
+  } else {
+    var days = Math.ceil((new Date(expiry) - new Date()) / 86400000);
+    if (days < 0) {
+      el.style.color = '#e74c3c';
+      el.textContent = 'Access: EXPIRED';
+    } else if (days <= 7) {
+      el.style.color = '#e67e22';
+      el.textContent = 'You have ' + days + ' day' + (days !== 1 ? 's' : '') + ' left!';
+    } else if (days <= 30) {
+      el.style.color = '#f1c40f';
+      el.textContent = 'You have ' + days + ' days left';
     } else {
-      var days = Math.ceil((new Date(res.expiry) - new Date()) / 86400000);
-      if (days < 0) {
-        el.style.color = '#e74c3c';
-        el.textContent = 'Access: EXPIRED';
-      } else if (days <= 7) {
-        el.style.color = '#e67e22';
-        el.textContent = 'Access expires in ' + days + ' day' + (days !== 1 ? 's' : '') + '!';
-      } else if (days <= 30) {
-        el.style.color = '#f1c40f';
-        el.textContent = 'Access expires in ' + days + ' days';
-      } else {
-        el.style.color = 'rgba(255,255,255,0.35)';
-        el.textContent = 'Access expires: ' + res.expiry;
-      }
+      el.style.color = 'rgba(255,255,255,0.35)';
+      el.textContent = 'Access until: ' + expiry;
     }
-  });
+  }
   goPage('p-projects');
   showLoader(true, 'Loading projects...');
   callAPI('GET', '/projects', null, function(err, projs) {
@@ -827,7 +827,7 @@ document.getElementById('inp-pass').onkeydown = function(e) { if(e.key==='Enter'
 document.getElementById('btn-lock-back').onclick = function() { goPage('p-login'); };
 document.getElementById('btn-admin-exit').onclick = function() { goPage('p-login'); };
 document.getElementById('btn-add-user').onclick = adminAdd;
-document.getElementById('btn-logout').onclick = function() { TOKEN=null;CUD=null;localStorage.removeItem('mla_token');localStorage.removeItem('mla_cud');goPage('p-login'); };
+document.getElementById('btn-logout').onclick = function() { TOKEN=null;CUD=null;localStorage.removeItem('mla_token');localStorage.removeItem('mla_cud');localStorage.removeItem('mla_expiry');goPage('p-login'); };
 document.getElementById('btn-new-proj').onclick = createProject;
 document.getElementById('btn-back').onclick = function() { goProjects(); };
 document.getElementById('btn-add-item').onclick = addItem;
@@ -837,8 +837,25 @@ document.getElementById('btn-export').onclick = exportWord;
 document.getElementById('btn-export-pdf').onclick = exportPDF;
 document.getElementById('btn-clear').onclick = clearAll;
 
-// Auto-login
-if (TOKEN && CUD) goProjects();
+// Auto-login with expiry check
+if (TOKEN && CUD) {
+  var storedExpiry = localStorage.getItem('mla_expiry') || 'forever';
+  if (storedExpiry !== 'forever') {
+    var daysLeft = Math.ceil((new Date(storedExpiry) - new Date()) / 86400000);
+    if (daysLeft < 0) {
+      // Expired - force logout
+      TOKEN = null; CUD = null;
+      localStorage.removeItem('mla_token');
+      localStorage.removeItem('mla_cud');
+      localStorage.removeItem('mla_expiry');
+      goPage('p-locked');
+    } else {
+      goProjects();
+    }
+  } else {
+    goProjects();
+  }
+}
 
 // Kill old service workers
 if ('serviceWorker' in navigator) {
