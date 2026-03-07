@@ -27,7 +27,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 }
 .page{display:none;height:100%;flex-direction:column;overflow:hidden}
 .page.active{display:flex}
-.topbar{background:var(--dark);padding:calc(var(--st)+56px) 16px 14px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.topbar{background:var(--dark);padding:calc(env(safe-area-inset-top,59px)+12px) 16px 14px;display:flex;align-items:center;gap:12px;flex-shrink:0}
 .tlogo{width:34px;height:34px;background:var(--dark3);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .tlogo span{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:1.5px;color:#fff}
 .ttitle{flex:1;min-width:0}
@@ -54,7 +54,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite}
 .lmsg{color:#fff;font-size:13px;font-weight:600}
 @keyframes spin{to{transform:rotate(360deg)}}
-#p-login{background:var(--dark);align-items:center;justify-content:center;padding:calc(var(--st)+40px) 28px 40px;gap:28px}
+#p-login{background:var(--dark);align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top,59px)+40px) 28px 40px;gap:28px}
 .llogin{width:88px;height:88px;background:var(--dark3);border-radius:18px;display:flex;align-items:center;justify-content:center}
 .llogin span{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:#fff}
 .lhead{text-align:center}
@@ -72,7 +72,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .lock-contact{font-size:14px;font-weight:700;color:#fff;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:12px 20px;width:100%;text-align:center}
 .lock-back{background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;padding:8px;font-family:'DM Sans',sans-serif}
 #p-admin{background:var(--bg)}
-.admin-bar{background:#111;padding:calc(var(--st)+56px) 16px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.admin-bar{background:#111;padding:calc(env(safe-area-inset-top,59px)+12px) 16px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0}
 .admin-bar h1{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;flex:1}
 .abadge{background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
 .admin-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;display:flex;flex-direction:column;gap:14px}
@@ -131,13 +131,13 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 #annot-modal{position:fixed;inset:0;z-index:10000;background:#000;display:none;flex-direction:column}
 #annot-modal.show{display:flex}
 #annot-canvas{width:100%;flex:1;touch-action:none;display:block;object-fit:contain}
-.annot-bar{background:#111;padding:12px 16px calc(env(safe-area-inset-bottom,0px)+12px);display:flex;align-items:center;gap:10px;flex-shrink:0}
-.annot-color{width:30px;height:30px;border-radius:50%;border:3px solid transparent;cursor:pointer;flex-shrink:0}
+.annot-bar{background:#111;padding:12px 16px calc(env(safe-area-inset-bottom,0px)+16px);display:flex;align-items:center;gap:8px;flex-shrink:0}
+.annot-color{width:32px;height:32px;border-radius:50%;border:3px solid transparent;cursor:pointer;flex-shrink:0}
 .annot-color.active{border-color:#fff}
 .annot-size{flex:1;accent-color:#fff;cursor:pointer}
-.annot-undo{background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
-.annot-save{background:#fff;border:none;color:#111;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
-.annot-cancel{background:rgba(255,255,255,0.1);border:none;color:#fff;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.annot-undo{background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.annot-save{background:#27ae60;border:none;color:#fff;border-radius:8px;padding:10px 0;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;flex:1;text-align:center}
+.annot-cancel{background:rgba(255,255,255,0.1);border:none;color:#fff;border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
 .sdate{padding:7px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
 .dlbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#bbb;flex-shrink:0}
 .sdate input{border:none;background:transparent;font-size:13px;color:#1a1a1a;outline:none;-webkit-appearance:none;flex:1;font-family:'DM Sans',sans-serif}
@@ -292,15 +292,18 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 
 <!-- ANNOTATION MODAL -->
 <div id="annot-modal">
+  <div style="background:#111;padding:calc(env(safe-area-inset-top,59px)+12px) 16px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+    <button class="annot-cancel" onclick="closeAnnotate()" type="button">✕ Cancel</button>
+    <span style="color:#fff;font-size:13px;font-weight:700;letter-spacing:1px;">ANNOTATE</span>
+    <button class="annot-undo" onclick="annotUndo()" type="button">↩ Undo</button>
+  </div>
   <canvas id="annot-canvas"></canvas>
   <div class="annot-bar">
     <div class="annot-color active" id="ac-red" style="background:#e74c3c" onclick="setAnnotColor('#e74c3c',this)"></div>
     <div class="annot-color" id="ac-yellow" style="background:#f1c40f" onclick="setAnnotColor('#f1c40f',this)"></div>
     <div class="annot-color" id="ac-blue" style="background:#3498db" onclick="setAnnotColor('#3498db',this)"></div>
     <input class="annot-size" id="annot-size" type="range" min="2" max="20" value="5"/>
-    <button class="annot-undo" onclick="annotUndo()">Undo</button>
-    <button class="annot-cancel" onclick="closeAnnotate()">Cancel</button>
-    <button class="annot-save" onclick="saveAnnotate()">Save</button>
+    <button class="annot-save" onclick="saveAnnotate()" type="button">✓ Done</button>
   </div>
 </div>
 
@@ -577,49 +580,139 @@ function bulkSave(pid) {
     if (err) { showToast('Failed', 'err'); return; }
     var photos = items.filter(function(i) { return i.photo; });
     if (!photos.length) { showToast('No photos in this project', 'err'); return; }
-    showToast('Building zip of ' + photos.length + ' photos...');
+    showLoader(true, 'Zipping ' + photos.length + ' photos...');
 
-    // Build zip file with all photos
-    function bb(b) { var bin = atob(b.split(',')[1] || b), a = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i); return a; }
-    function crc32(d) { var c = 0xFFFFFFFF; var t = crc32.t || (crc32.t = (function() { var x = new Uint32Array(256); for (var i = 0; i < 256; i++) { var v = i; for (var j = 0; j < 8; j++) v = (v & 1) ? (0xEDB88320 ^ (v >>> 1)) : (v >>> 1); x[i] = v; } return x; })()); for (var i = 0; i < d.length; i++) c = t[(c ^ d[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
-    function u16(n) { return [n & 0xFF, (n >> 8) & 0xFF]; }
-    function u32(n) { return [n & 0xFF, (n >> 8) & 0xFF, (n >> 16) & 0xFF, (n >> 24) & 0xFF]; }
-    function makeZip(files) {
-      var parts = [], cd = [], off = 0;
-      for (var fi = 0; fi < files.length; fi++) {
-        var f = files[fi], nb = new TextEncoder().encode(f.name), d = f.data, crc = crc32(d);
-        var lh = [0x50,0x4B,0x03,0x04,20,0,0,0,0,0,0,0,0,0].concat(u32(crc),u32(d.length),u32(d.length),u16(nb.length),[0,0]).concat(Array.from(nb));
-        var ce = [0x50,0x4B,0x01,0x02,20,0,20,0,0,0,0,0,0,0,0,0].concat(u32(crc),u32(d.length),u32(d.length),u16(nb.length),[0,0,0,0,0,0,0,0,0,0]).concat(u32(off)).concat(Array.from(nb));
-        parts.push(new Uint8Array(lh), d); cd.push(new Uint8Array(ce)); off += lh.length + d.length;
+    setTimeout(function() {
+      try {
+        // Convert base64 to bytes
+        function b64toBytes(b64) {
+          var s = b64.indexOf(',') >= 0 ? b64.split(',')[1] : b64;
+          var bin = atob(s);
+          var a = new Uint8Array(bin.length);
+          for (var i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+          return a;
+        }
+
+        // CRC32
+        var crcTable = (function() {
+          var t = new Uint32Array(256);
+          for (var i = 0; i < 256; i++) {
+            var c = i;
+            for (var j = 0; j < 8; j++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+            t[i] = c;
+          }
+          return t;
+        })();
+        function crc32(buf) {
+          var c = 0xFFFFFFFF;
+          for (var i = 0; i < buf.length; i++) c = crcTable[(c ^ buf[i]) & 0xFF] ^ (c >>> 8);
+          return (c ^ 0xFFFFFFFF) >>> 0;
+        }
+
+        // Build zip parts
+        var localParts = [];
+        var centralParts = [];
+        var offset = 0;
+
+        for (var i = 0; i < photos.length; i++) {
+          var fname = 'photo_' + (photos[i].seq || i + 1) + '.jpg';
+          var fnameBytes = new TextEncoder().encode(fname);
+          var data = b64toBytes(photos[i].photo);
+          var crc = crc32(data);
+          var size = data.length;
+
+          // Local file header
+          var lh = new Uint8Array(30 + fnameBytes.length);
+          var lv = new DataView(lh.buffer);
+          lv.setUint32(0, 0x04034b50, true);
+          lv.setUint16(4, 20, true);
+          lv.setUint16(6, 0, true);
+          lv.setUint16(8, 0, true);
+          lv.setUint16(10, 0, true);
+          lv.setUint16(12, 0, true);
+          lv.setUint32(14, crc, true);
+          lv.setUint32(18, size, true);
+          lv.setUint32(22, size, true);
+          lv.setUint16(26, fnameBytes.length, true);
+          lv.setUint16(28, 0, true);
+          lh.set(fnameBytes, 30);
+
+          localParts.push(lh);
+          localParts.push(data);
+
+          // Central directory entry
+          var cd = new Uint8Array(46 + fnameBytes.length);
+          var cv = new DataView(cd.buffer);
+          cv.setUint32(0, 0x02014b50, true);
+          cv.setUint16(4, 20, true);
+          cv.setUint16(6, 20, true);
+          cv.setUint16(8, 0, true);
+          cv.setUint16(10, 0, true);
+          cv.setUint16(12, 0, true);
+          cv.setUint16(14, 0, true);
+          cv.setUint32(16, crc, true);
+          cv.setUint32(20, size, true);
+          cv.setUint32(24, size, true);
+          cv.setUint16(28, fnameBytes.length, true);
+          cv.setUint16(30, 0, true);
+          cv.setUint16(32, 0, true);
+          cv.setUint16(34, 0, true);
+          cv.setUint16(36, 0, true);
+          cv.setUint32(38, 0, true);
+          cv.setUint32(42, offset, true);
+          cd.set(fnameBytes, 46);
+          centralParts.push(cd);
+
+          offset += lh.length + data.length;
+        }
+
+        // Calculate sizes
+        var cdOffset = offset;
+        var cdSize = centralParts.reduce(function(s, p) { return s + p.length; }, 0);
+
+        // EOCD
+        var eocd = new Uint8Array(22);
+        var ev = new DataView(eocd.buffer);
+        ev.setUint32(0, 0x06054b50, true);
+        ev.setUint16(4, 0, true);
+        ev.setUint16(6, 0, true);
+        ev.setUint16(8, photos.length, true);
+        ev.setUint16(10, photos.length, true);
+        ev.setUint32(12, cdSize, true);
+        ev.setUint32(16, cdOffset, true);
+        ev.setUint16(20, 0, true);
+
+        // Combine all parts
+        var allParts = localParts.concat(centralParts).concat([eocd]);
+        var totalSize = allParts.reduce(function(s, p) { return s + p.length; }, 0);
+        var out = new Uint8Array(totalSize);
+        var pos = 0;
+        for (var j = 0; j < allParts.length; j++) {
+          out.set(allParts[j], pos);
+          pos += allParts[j].length;
+        }
+
+        showLoader(false);
+        var blob = new Blob([out], { type: 'application/zip' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        var projName = (CPJ_DATA && CPJ_DATA.name) ? CPJ_DATA.name.replace(/[^a-zA-Z0-9]/g, '_') : 'photos';
+        a.href = url;
+        a.download = projName + '_photos.zip';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function() { URL.revokeObjectURL(url); }, 3000);
+        showToast(photos.length + ' photos saved as ZIP!', 'ok');
+      } catch(e) {
+        showLoader(false);
+        showToast('ZIP failed: ' + e.message, 'err');
+        console.error(e);
       }
-      var cs = cd.reduce(function(s,c){return s+c.length;},0);
-      var eocd = [0x50,0x4B,0x05,0x06,0,0,0,0].concat(u16(files.length),u16(files.length),u32(cs),u32(off),[0,0]);
-      var all = parts.concat(cd,[new Uint8Array(eocd)]);
-      var tot = all.reduce(function(s,a){return s+a.length;},0);
-      var out = new Uint8Array(tot); var p = 0;
-      for (var i = 0; i < all.length; i++) { out.set(all[i], p); p += all[i].length; }
-      return out;
-    }
-
-    var zipFiles = [];
-    for (var i = 0; i < photos.length; i++) {
-      var it = photos[i];
-      zipFiles.push({ name: 'photo_' + (it.seq || i+1) + '.jpg', data: bb(it.photo) });
-    }
-
-    try {
-      var zip = makeZip(zipFiles);
-      var blob = new Blob([zip], { type: 'application/zip' });
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
-      var projName = (CPJ_DATA && CPJ_DATA.name) ? CPJ_DATA.name.replace(/\s+/g,'_') : 'photos';
-      a.href = url; a.download = projName + '_photos.zip';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
-      showToast(photos.length + ' photos saved as zip!', 'ok');
-    } catch(e) { showToast('Failed to create zip', 'err'); console.error(e); }
+    }, 100);
   });
 }
+
 
 function openProject(pid, projData) {
   CPJ = pid; CPJ_DATA = projData;
