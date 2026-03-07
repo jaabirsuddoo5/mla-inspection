@@ -6,1349 +6,719 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="MLA Inspection"/>
-<meta name="theme-color" content="#2a2a2a"/>
+<meta name="theme-color" content="#1e1e1e"/>
 <link rel="manifest" href="manifest.json"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
 <title>MLA Inspection</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-:root {
-  --bg:      #f4f3f1;
-  --ink:     #1a1a1a;
-  --mid:     #3a3a3a;
-  --steel:   #2a2a2a;
-  --line:    #e0ddd8;
-  --mist:    #ebebeb;
-  --accent:  #3a3a3a;
-  --white:   #ffffff;
-  --red:     #c0392b;
-  --green:   #27ae60;
-  --safe-t:  env(safe-area-inset-top,    0px);
-  --safe-b:  env(safe-area-inset-bottom, 0px);
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:#f4f3f1;color:#1a1a1a}
+:root{
+  --dark:#1e1e1e;--dark2:#2d2d2d;--dark3:#3a3a3a;
+  --bg:#f4f3f1;--card:#fff;--line:#e4e1dc;--muted:#999;
+  --red:#c0392b;--green:#27ae60;--yellow:#e67e22;
+  --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);
 }
-* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-html,body { height:100%; overflow:hidden; }
-body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--ink); display:flex; flex-direction:column; }
+.page{display:none;height:100%;flex-direction:column;overflow:hidden}
+.page.active{display:flex}
 
-/* ── SCREENS ──────────────────────────────────── */
-.screen { display:none; flex:1; flex-direction:column; overflow:hidden; }
-.screen.on { display:flex; }
+/* TOPBAR */
+.topbar{background:var(--dark);padding:calc(var(--st) + 12px) 16px 12px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.tlogo{width:34px;height:34px;background:var(--dark3);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tlogo span{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:1.5px;color:#fff}
+.ttitle{flex:1;min-width:0}
+.ttitle h1{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;line-height:1}
+.ttitle p{font-size:11px;color:rgba(255,255,255,0.4);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tbtn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:8px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer}
 
-/* ══════════════════════════════════════════════
-   LOGIN SCREEN
-══════════════════════════════════════════════ */
-#s-login {
-  background: var(--steel);
-  align-items:center; justify-content:center;
-  padding:40px 32px;
-  gap:32px;
-}
-.login-logo {
-  width:100px; height:100px;
-  background:#3a3a3a;
-  border-radius:20px;
-  display:flex; align-items:center; justify-content:center;
-  cursor:pointer; user-select:none; -webkit-user-select:none;
-}
-.login-logo-text {
-  font-family:'Bebas Neue',sans-serif;
-  font-size:32px; letter-spacing:4px;
-  color:white; pointer-events:none;
-}
-.login-title {
-  font-family:'Bebas Neue',sans-serif;
-  font-size:28px; letter-spacing:3px;
-  color:white; text-align:center;
-}
-.login-sub { font-size:13px; color:rgba(255,255,255,0.4); text-align:center; margin-top:-20px; }
-.login-form { width:100%; display:flex; flex-direction:column; gap:14px; }
-.login-input {
-  width:100%; padding:14px 18px;
-  background:rgba(255,255,255,0.08);
-  border:1.5px solid rgba(255,255,255,0.15);
-  border-radius:10px;
-  font-family:'DM Sans',sans-serif;
-  font-size:16px; color:white;
-  outline:none;
-}
-.login-input::placeholder { color:rgba(255,255,255,0.3); }
-.login-input:focus { border-color:rgba(255,255,255,0.5); }
-.login-btn {
-  width:100%; padding:15px;
-  background:white; color:var(--steel);
-  border:none; border-radius:10px;
-  font-family:'DM Sans',sans-serif;
-  font-size:15px; font-weight:700;
-  cursor:pointer; letter-spacing:0.5px;
-}
-.login-btn:active { opacity:0.85; }
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 
-/* ══════════════════════════════════════════════
-   PROJECTS SCREEN
-══════════════════════════════════════════════ */
-#s-projects { background:var(--bg); }
+/* BUTTONS */
+.btn{background:var(--dark);color:#fff;border:none;border-radius:10px;padding:14px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn:active{opacity:0.8}
+.btn-out{background:transparent;color:var(--red);border:1.5px solid var(--red);border-radius:10px;padding:14px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;width:100%}
 
-.topbar {
-  background:var(--steel);
-  padding:calc(var(--safe-t) + 12px) 16px 12px;
-  display:flex; align-items:center; gap:12px;
-  flex-shrink:0;
-}
-.topbar-logo {
-  width:36px; height:36px;
-  background:#3a3a3a; border-radius:8px;
-  display:flex; align-items:center; justify-content:center;
-  flex-shrink:0;
-}
-.topbar-logo-text {
-  font-family:'Bebas Neue',sans-serif;
-  font-size:13px; letter-spacing:2px; color:white;
-}
-.topbar-title {
-  font-family:'Bebas Neue',sans-serif;
-  font-size:19px; letter-spacing:2px; color:white; flex:1;
-}
-.topbar-title span { color:rgba(255,255,255,0.45); font-size:12px; letter-spacing:0; font-family:'DM Sans',sans-serif; font-weight:400; display:block; margin-top:-2px; }
-.topbar-btn {
-  background:rgba(255,255,255,0.1);
-  border:1px solid rgba(255,255,255,0.2);
-  color:white; border-radius:8px;
-  padding:7px 12px; font-size:12px;
-  font-family:'DM Sans',sans-serif; font-weight:600;
-  cursor:pointer;
-}
-.topbar-btn:active { background:rgba(255,255,255,0.2); }
+/* FIELDS */
+.fi{background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:11px 13px;font-family:'DM Sans',sans-serif;font-size:14px;color:#1a1a1a;outline:none;width:100%;-webkit-appearance:none}
+.fi:focus{border-color:#888}
+.flabel{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;display:block}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fgrp{display:flex;flex-direction:column}
 
-.proj-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:16px; }
+/* SECTION LABEL */
+.slbl{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
 
-.section-label {
-  font-size:10px; font-weight:700;
-  letter-spacing:1.5px; text-transform:uppercase;
-  color:#999; margin-bottom:10px; margin-top:4px;
-}
+/* CARD */
+.card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.07)}
 
-/* new project form */
-.new-proj-form {
-  background:white; border-radius:12px;
-  padding:16px; margin-bottom:20px;
-  box-shadow:0 1px 6px rgba(0,0,0,0.07);
-  display:flex; flex-direction:column; gap:10px;
-}
-.field-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.fi {
-  border:1.5px solid var(--line); border-radius:8px;
-  padding:10px 12px; font-family:'DM Sans',sans-serif;
-  font-size:14px; color:var(--ink); outline:none;
-  background:white; width:100%; -webkit-appearance:none;
-}
-.fi:focus { border-color:#888; }
-.fi::placeholder { color:#bbb; }
-.fi-full { grid-column:1/-1; }
+/* TOAST */
+#toast{position:fixed;bottom:calc(var(--sb) + 20px);left:50%;transform:translateX(-50%) translateY(60px);background:var(--dark);color:#fff;padding:11px 22px;border-radius:24px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,0.25);transition:transform 0.3s;z-index:9999;white-space:nowrap;pointer-events:none}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.ok{background:var(--green)}
+#toast.err{background:var(--red)}
 
-.btn-create {
-  background:var(--steel); color:white;
-  border:none; border-radius:8px; padding:12px;
-  font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600;
-  cursor:pointer; width:100%;
-}
-.btn-create:active { background:#111; }
+/* ── LOGIN ── */
+#p-login{background:var(--dark);align-items:center;justify-content:center;padding:40px 28px;gap:28px}
+.llogin{width:88px;height:88px;background:var(--dark3);border-radius:18px;display:flex;align-items:center;justify-content:center}
+.llogin span{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:#fff}
+.lhead{text-align:center}
+.lhead h1{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px;color:#fff}
+.lhead p{font-size:13px;color:rgba(255,255,255,0.4);margin-top:4px}
+.lform{width:100%;display:flex;flex-direction:column;gap:12px}
+.linput{width:100%;padding:14px 16px;background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:16px;color:#fff;outline:none;-webkit-appearance:none}
+.linput::placeholder{color:rgba(255,255,255,0.3)}
+.linput:focus{border-color:rgba(255,255,255,0.5)}
+.lbtn{width:100%;padding:15px;background:#fff;color:var(--dark);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer}
+.lbtn:active{opacity:0.85}
 
-/* project cards */
-.proj-card {
-  background:white; border-radius:12px;
-  margin-bottom:12px;
-  box-shadow:0 1px 6px rgba(0,0,0,0.07);
-  display:flex; align-items:center;
-  cursor:pointer; overflow:hidden;
-  transition:box-shadow 0.15s;
-  animation:fadeUp 0.2s ease;
-}
-.proj-card:active { box-shadow:0 4px 16px rgba(0,0,0,0.12); }
-@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+/* ── LOCKED ── */
+#p-locked{background:var(--dark);align-items:center;justify-content:center;padding:40px 28px;gap:20px;text-align:center}
+.lock-icon{font-size:60px}
+.lock-h{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:#fff}
+.lock-msg{font-size:14px;color:rgba(255,255,255,0.5);line-height:1.7}
+.lock-email{font-size:14px;font-weight:700;color:#fff;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:12px 20px;width:100%;text-align:center}
+.lock-back{background:none;border:none;color:rgba(255,255,255,0.4);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;padding:8px}
 
-.proj-card-bar { width:5px; align-self:stretch; background:var(--steel); flex-shrink:0; }
-.proj-card-body { flex:1; padding:14px 14px; min-width:0; }
-.proj-card-name {
-  font-weight:700; font-size:15px;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-}
-.proj-card-meta { font-size:12px; color:#999; margin-top:3px; }
-.proj-card-counts {
-  display:flex; gap:8px; margin-top:8px;
-}
-.pill {
-  font-size:11px; font-weight:700;
-  padding:2px 8px; border-radius:20px;
-}
-.pill-total  { background:#f0f0f0; color:#555; }
-.pill-open   { background:#fde8e6; color:var(--red); }
-.pill-closed { background:#e6f9ed; color:var(--green); }
+/* ── ADMIN ── */
+#p-admin{background:var(--bg)}
+.admin-bar{background:#111;padding:calc(var(--st)+12px) 16px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.admin-bar h1{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;flex:1}
+.abadge{background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;letter-spacing:1px}
+.admin-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;display:flex;flex-direction:column;gap:16px}
 
-.proj-card-arrow { padding:14px 16px; color:#ccc; font-size:18px; }
-.proj-del {
-  padding:14px 14px; color:#ddd; font-size:18px;
-  background:none; border:none; cursor:pointer;
-  font-family:'DM Sans',sans-serif;
-}
-.proj-del:active { color:var(--red); }
+.urow{background:#fff;border-radius:10px;padding:13px 14px;box-shadow:0 1px 5px rgba(0,0,0,0.07);display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.uinfo{flex:1;min-width:0}
+.uname{font-weight:700;font-size:14px}
+.uemail{font-size:12px;color:var(--muted);margin-top:1px}
+.utag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:5px}
+.tok{background:#e6f9ed;color:var(--green)}
+.twarn{background:#fff3cd;color:var(--yellow)}
+.texp{background:#fde8e6;color:var(--red)}
+.tfore{background:#f0f0f0;color:#555}
+.udel{background:none;border:none;color:#ddd;font-size:22px;cursor:pointer;padding:4px;flex-shrink:0;line-height:1}
+.udel:active{color:var(--red)}
 
-/* ══════════════════════════════════════════════
-   ITEMS SCREEN
-══════════════════════════════════════════════ */
-#s-items { background:var(--bg); }
+/* ── PROJECTS ── */
+#p-projects{background:var(--bg)}
+.pbody{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;display:flex;flex-direction:column;gap:16px}
 
-.items-topbar {
-  background:var(--steel);
-  padding:calc(var(--safe-t) + 12px) 16px 12px;
-  display:flex; align-items:center; gap:10px;
-  flex-shrink:0;
-}
-.back-btn {
-  background:rgba(255,255,255,0.1);
-  border:1px solid rgba(255,255,255,0.2);
-  color:white; border-radius:8px;
-  width:34px; height:34px; font-size:16px;
-  display:flex; align-items:center; justify-content:center;
-  cursor:pointer; flex-shrink:0;
-}
-.back-btn:active { background:rgba(255,255,255,0.2); }
-.items-title-area { flex:1; min-width:0; }
-.items-title {
-  font-family:'Bebas Neue',sans-serif;
-  font-size:17px; letter-spacing:1.5px; color:white;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-}
-.items-sub { font-size:11px; color:rgba(255,255,255,0.4); margin-top:1px; }
+.pcard{background:#fff;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.07);display:flex;align-items:stretch;overflow:hidden;cursor:pointer}
+.pcard:active{box-shadow:0 3px 16px rgba(0,0,0,0.12)}
+.pbar{width:5px;background:var(--dark);flex-shrink:0}
+.pinfo{flex:1;padding:13px 12px;min-width:0}
+.pname{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pmeta{font-size:12px;color:var(--muted);margin-top:2px}
+.ppills{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
+.pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
+.pn{background:#f0f0f0;color:#555}
+.po{background:#fde8e6;color:var(--red)}
+.pc{background:#e6f9ed;color:var(--green)}
+.pacts{display:flex;align-items:center;padding:0 4px;gap:2px;flex-shrink:0}
+.psave{background:none;border:none;font-size:16px;padding:10px 8px;cursor:pointer;color:var(--muted)}
+.psave:active{color:var(--green)}
+.pdel{background:none;border:none;font-size:20px;padding:10px 6px;cursor:pointer;color:#ddd;line-height:1}
+.pdel:active{color:var(--red)}
+.parrow{color:#ccc;font-size:20px;padding:10px 12px 10px 4px;line-height:1}
 
-.items-tabs {
-  display:flex; background:#222; flex-shrink:0;
-}
-.itab {
-  flex:1; padding:10px 6px; text-align:center;
-  font-size:11px; font-weight:600;
-  letter-spacing:0.8px; text-transform:uppercase;
-  color:rgba(255,255,255,0.4); cursor:pointer;
-  border-bottom:2px solid transparent;
-}
-.itab.on { color:white; border-bottom-color:white; }
+.empty{text-align:center;padding:50px 20px;color:#bbb}
+.empty-i{font-size:44px;margin-bottom:10px}
+.empty p{font-size:14px;line-height:1.6}
 
-.items-body { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+/* ── ITEMS ── */
+#p-items{background:var(--bg)}
+.tabs{display:flex;background:#222;flex-shrink:0}
+.itab{flex:1;padding:10px;text-align:center;font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.4);cursor:pointer;border-bottom:2px solid transparent}
+.itab.on{color:#fff;border-bottom-color:#fff}
 
-/* ── ITEMS LIST ─────────────────── */
-.items-list-wrap { padding:12px 16px; display:flex; flex-direction:column; gap:12px; }
+.isticky{position:sticky;top:0;z-index:9;background:var(--bg);padding:10px 16px 8px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.icount{font-size:11px;font-weight:700;color:var(--muted)}
+.iadd{background:var(--dark);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+.iadd:active{background:#000}
+.ilist{padding:12px 16px;display:flex;flex-direction:column;gap:12px}
 
-.sticky-add {
-  position:sticky; top:0; z-index:9;
-  background:var(--bg); padding:10px 16px 6px;
-  border-bottom:1px solid var(--line);
-  display:flex; gap:8px; align-items:center;
-}
-.count-badge {
-  font-size:11px; font-weight:700; color:#888;
-  flex:1;
-}
-.add-item-btn {
-  background:var(--steel); color:white;
-  border:none; border-radius:8px; padding:9px 16px;
-  font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600;
-  cursor:pointer; display:flex; align-items:center; gap:5px;
-}
-.add-item-btn:active { background:#111; }
+/* SNAG CARD */
+.scard{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.07);border-left:4px solid var(--line)}
+.scard.open{border-left-color:var(--red)}
+.scard.closed{border-left-color:var(--green)}
+.shead{background:#fafaf8;padding:9px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line)}
+.snum{font-family:'Bebas Neue',sans-serif;font-size:19px;color:var(--dark);min-width:28px;flex-shrink:0}
+.sloc{flex:1;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:#1a1a1a;outline:none;min-width:0}
+.sloc::placeholder{color:#ccc}
+.ssel{border:none;border-radius:20px;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:700;padding:4px 9px;cursor:pointer;text-transform:uppercase;letter-spacing:0.4px;-webkit-appearance:none;outline:none;flex-shrink:0}
+.ssel.open{background:#fde8e6;color:var(--red)}
+.ssel.closed{background:#e6f9ed;color:var(--green)}
+.sdel{background:none;border:none;color:#ddd;font-size:19px;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0}
+.sdel:active{color:var(--red)}
 
-.empty { text-align:center; padding:50px 20px; color:#bbb; }
-.empty .ei { font-size:44px; margin-bottom:10px; }
-.empty p { font-size:14px; line-height:1.6; }
+.photowrap{position:relative;width:100%;padding-top:100%;background:#f0ede8;overflow:hidden;cursor:pointer}
+.photowrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:none}
+.photoph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#bbb;font-size:12px;pointer-events:none}
+.photoph svg{width:30px;height:30px;opacity:0.45}
+.photowrap input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.photorm{position:absolute;top:8px;right:8px;z-index:2;background:rgba(0,0,0,0.5);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;display:none;align-items:center;justify-content:center;line-height:1}
+.has-photo .photorm{display:flex}
 
-/* snag card */
-.scard {
-  background:white; border-radius:10px;
-  overflow:hidden; box-shadow:0 1px 6px rgba(0,0,0,0.07);
-  border-left:4px solid #ddd;
-  animation:fadeUp 0.2s ease;
-}
-.scard.open   { border-left-color:var(--red); }
-.scard.closed { border-left-color:var(--green); }
+.sdate{padding:7px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+.dlbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#bbb;flex-shrink:0}
+.sdate input{border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;color:#1a1a1a;outline:none;-webkit-appearance:none;flex:1}
+.sdesc{padding:11px 12px}
+.desclbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#bbb;margin-bottom:5px}
+.sdesc textarea{width:100%;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.6;color:#1a1a1a;outline:none;resize:none;min-height:65px}
+.sdesc textarea::placeholder{color:#ccc}
 
-.scard-top {
-  background:#fafaf9; padding:9px 12px;
-  display:flex; align-items:center; gap:8px;
-  border-bottom:1px solid var(--line);
-}
-.scard-num {
-  font-family:'Bebas Neue',sans-serif;
-  font-size:19px; color:var(--steel); min-width:28px;
-}
-.scard-loc {
-  flex:1; border:none; background:transparent;
-  font-family:'DM Sans',sans-serif;
-  font-size:13px; font-weight:500; color:var(--ink);
-  outline:none; min-width:0;
-}
-.scard-loc::placeholder { color:#ccc; }
-.status-sel {
-  border:none; border-radius:20px;
-  font-family:'DM Sans',sans-serif;
-  font-size:10px; font-weight:700;
-  padding:3px 9px; cursor:pointer;
-  text-transform:uppercase; letter-spacing:0.4px;
-  -webkit-appearance:none; outline:none;
-}
-.status-sel.open   { background:#fde8e6; color:var(--red); }
-.status-sel.closed { background:#e6f9ed; color:var(--green); }
-.sdel { background:none; border:none; color:#ddd; font-size:18px; cursor:pointer; padding:0 2px; line-height:1; }
-.sdel:active { color:var(--red); }
+/* EXPORT TAB */
+.expbody{padding:16px;display:flex;flex-direction:column;gap:12px}
+.sumcard{background:#fff;border-radius:12px;padding:18px;box-shadow:0 1px 6px rgba(0,0,0,0.07)}
+.sumtitle{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1.5px;color:var(--dark);margin-bottom:14px}
+.sumgrid{display:grid;grid-template-columns:repeat(3,1fr);text-align:center}
+.snum2{font-family:'Bebas Neue',sans-serif;font-size:36px;line-height:1}
+.st{color:var(--dark)}.so{color:var(--red)}.sc{color:var(--green)}
+.slbl2{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin-top:2px}
 
-.photo-zone {
-  position:relative;
-  width:100%; padding-top:100%;
-  background:#f0ede8; overflow:hidden; cursor:pointer;
-}
-.photo-zone img {
-  position:absolute; inset:0;
-  width:100%; height:100%;
-  object-fit:cover; object-position:center;
-  display:none;
-}
-.photo-ph { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:#bbb; font-size:12px; pointer-events:none; }
-.photo-ph svg { width:32px; height:32px; opacity:0.5; }
-.photo-zone input { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
-.photo-rm {
-  position:absolute; top:7px; right:7px; z-index:2;
-  background:rgba(0,0,0,0.5); color:white; border:none;
-  border-radius:50%; width:26px; height:26px; font-size:15px;
-  cursor:pointer; display:none; align-items:center; justify-content:center;
-}
-.has-photo .photo-rm { display:flex; }
-
-.scard-date-row {
-  padding:7px 12px; border-bottom:1px solid var(--line);
-  display:flex; align-items:center; gap:8px;
-}
-.date-lbl { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#bbb; }
-.scard-date { border:none; background:transparent; font-family:'DM Sans',sans-serif; font-size:13px; color:var(--ink); outline:none; -webkit-appearance:none; }
-
-.desc-area { padding:11px 12px; }
-.desc-lbl { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#bbb; margin-bottom:5px; }
-.desc-ta { width:100%; border:none; background:transparent; font-family:'DM Sans',sans-serif; font-size:14px; line-height:1.6; color:var(--ink); outline:none; resize:none; min-height:65px; }
-.desc-ta::placeholder { color:#ccc; }
-
-/* ── EXPORT TAB ─────────────────── */
-.export-wrap { padding:16px; display:flex; flex-direction:column; gap:14px; }
-
-.sum-card {
-  background:white; border-radius:12px; padding:18px;
-  box-shadow:0 1px 6px rgba(0,0,0,0.07);
-}
-.sum-card-title { font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:1.5px; color:var(--steel); margin-bottom:14px; }
-.sum-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; text-align:center; }
-.sum-n { font-family:'Bebas Neue',sans-serif; font-size:36px; line-height:1; }
-.sum-n.t { color:var(--steel); }
-.sum-n.o { color:var(--red); }
-.sum-n.c { color:var(--green); }
-.sum-l { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:#bbb; margin-top:3px; }
-
-.exp-btn {
-  background:var(--steel); color:white;
-  border:none; border-radius:12px; padding:17px;
-  font-family:'DM Sans',sans-serif; font-size:15px; font-weight:600;
-  cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
-  -webkit-appearance:none;
-}
-.exp-btn:active { background:#111; }
-
-/* ── TOAST ─────────────────────── */
-.toast {
-  position:fixed; bottom:calc(var(--safe-b) + 20px);
-  left:50%; transform:translateX(-50%) translateY(70px);
-  background:var(--steel); color:white;
-  padding:11px 22px; border-radius:24px;
-  font-size:13px; font-weight:600;
-  box-shadow:0 4px 20px rgba(0,0,0,0.25);
-  transition:transform 0.3s ease; z-index:9999;
-  white-space:nowrap;
-}
-.toast.on { transform:translateX(-50%) translateY(0); }
-.toast.ok  { background:var(--green); }
-.toast.err { background:var(--red); }
-
-/* ══════════════════════════════════════════════
-   LICENCE LOCKED SCREEN
-══════════════════════════════════════════════ */
-#s-locked {
-  background:var(--steel);
-  align-items:center; justify-content:center;
-  padding:40px 32px; gap:24px; text-align:center;
-}
-.locked-icon { font-size:64px; }
-.locked-title {
-  font-family:'Bebas Neue',sans-serif;
-  font-size:26px; letter-spacing:3px; color:white;
-}
-.locked-msg { font-size:14px; color:rgba(255,255,255,0.5); line-height:1.6; }
-.locked-email {
-  color:white; font-weight:700; font-size:15px;
-  border:1.5px solid rgba(255,255,255,0.3);
-  border-radius:10px; padding:12px 20px;
-  width:100%;
-}
-.locked-logout {
-  background:none; border:none; color:rgba(255,255,255,0.35);
-  font-family:'DM Sans',sans-serif; font-size:13px; cursor:pointer;
-  margin-top:8px;
-}
-
-/* ══════════════════════════════════════════════
-   ADMIN PANEL SCREEN
-══════════════════════════════════════════════ */
-#s-admin {
-  background:var(--bg);
-  flex-direction:column;
-}
-.admin-bar {
-  background:#1a1a1a;
-  padding:calc(var(--safe-t) + 12px) 16px 12px;
-  display:flex; align-items:center; gap:10px; flex-shrink:0;
-}
-.admin-title {
-  font-family:'Bebas Neue',sans-serif;
-  font-size:18px; letter-spacing:2px; color:white; flex:1;
-}
-.admin-badge {
-  background:var(--red); color:white;
-  font-size:10px; font-weight:700;
-  padding:3px 8px; border-radius:20px; letter-spacing:1px;
-}
-.admin-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:16px; }
-
-.admin-add-form {
-  background:white; border-radius:12px; padding:16px;
-  margin-bottom:20px; box-shadow:0 1px 6px rgba(0,0,0,0.07);
-  display:flex; flex-direction:column; gap:10px;
-}
-.admin-add-form .field-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-
-.user-card {
-  background:white; border-radius:10px;
-  margin-bottom:10px; padding:14px 16px;
-  box-shadow:0 1px 6px rgba(0,0,0,0.07);
-  display:flex; align-items:center; gap:12px;
-  animation:fadeUp 0.2s ease;
-}
-.user-card-info { flex:1; min-width:0; }
-.user-card-name { font-weight:700; font-size:14px; }
-.user-card-email { font-size:12px; color:#888; margin-top:2px; }
-.user-card-expiry {
-  font-size:11px; font-weight:700;
-  padding:3px 8px; border-radius:20px;
-  margin-top:5px; display:inline-block;
-}
-.expiry-ok      { background:#e6f9ed; color:var(--green); }
-.expiry-warn    { background:#fff3cd; color:#856404; }
-.expiry-expired { background:#fde8e6; color:var(--red); }
-.expiry-forever { background:#f0f0f0; color:#555; }
-.user-del-btn {
-  background:none; border:none; color:#ddd;
-  font-size:20px; cursor:pointer; padding:4px;
-}
-.user-del-btn:active { color:var(--red); }
-
-/* bulk save button on project card */
-.proj-save-btn {
-  background:none; border:none;
-  color:#aaa; font-size:18px;
-  padding:14px 8px; cursor:pointer;
-  display:flex; align-items:center;
-}
-.proj-save-btn:active { color:var(--green); }
-
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.scard,.pcard,.urow{animation:fadeUp 0.2s ease}
 </style>
 </head>
 <body>
 
-<!-- ══ LOGIN ══════════════════════════════════════ -->
-<div class="screen on" id="s-login">
-  <div class="login-logo" id="login-logo-tap"><span class="login-logo-text">MLA</span></div>
-  <div class="login-title">MLA INSPECTION</div>
-  <div class="login-sub">Site Inspection & Snag List</div>
-  <div class="login-form">
-    <input class="login-input" id="login-name" type="text" placeholder="Enter your name" autocomplete="off" autocapitalize="words"/>
-    <button class="login-btn" id="login-submit-btn">Continue →</button>
+<!-- LOGIN -->
+<div class="page active" id="p-login">
+  <div class="llogin"><span>MLA</span></div>
+  <div class="lhead">
+    <h1>MLA INSPECTION</h1>
+    <p>Site Inspection &amp; Snag List</p>
+  </div>
+  <div class="lform">
+    <input class="linput" id="inp-name" type="text" placeholder="Enter your name or email" autocomplete="off" autocapitalize="words"/>
+    <input class="linput" id="inp-pass" type="password" placeholder="Password" autocomplete="off"/>
+    <button class="lbtn" id="btn-login">Continue →</button>
   </div>
 </div>
 
-
-<!-- ══ LOCKED ══════════════════════════════════════ -->
-<div class="screen" id="s-locked">
-  <div class="locked-icon">🔒</div>
-  <div class="locked-title">ACCESS LOCKED</div>
-  <div class="locked-msg">Sorry, you are not on the access list.<br/>Please contact MLA to activate your account.</div>
-  <div class="locked-email">jaabirsuddoo5@gmail.com</div>
-  <button class="locked-logout" id="logout-btn">← Back to Login</button>
+<!-- LOCKED -->
+<div class="page" id="p-locked">
+  <div class="lock-icon">🔒</div>
+  <div class="lock-h">ACCESS LOCKED</div>
+  <div class="lock-msg">Sorry, you are not on the access list.<br/>Please contact MLA to activate your account.</div>
+  <div class="lock-email">jaabirsuddoo5@gmail.com</div>
+  <button class="lock-back" id="btn-lock-back">← Back to Login</button>
 </div>
 
-<!-- ══ ADMIN ═══════════════════════════════════════ -->
-<div class="screen" id="s-admin">
+<!-- ADMIN -->
+<div class="page" id="p-admin">
   <div class="admin-bar">
-    <div class="admin-title">⚙️ ADMIN PANEL</div>
-    <span class="admin-badge">MLA ONLY</span>
-    <button class="topbar-btn" onclick="show('s-login')">← Exit</button>
+    <h1>⚙️ ADMIN PANEL</h1>
+    <span class="abadge">MLA ONLY</span>
+    <button class="tbtn" id="btn-admin-exit">← Exit</button>
   </div>
-  <div class="admin-scroll">
-    <div class="section-label">ADD / UPDATE USER</div>
-    <div class="admin-add-form">
-      <input class="fi fi-full" id="au-name"  type="text"  placeholder="Full name" autocomplete="off"/>
-      <input class="fi fi-full" id="au-email" type="text"  placeholder="Email or username" autocomplete="off"/>
-      <div class="admin-add-form field-row">
-        <select class="fi" id="au-duration">
-          <option value="1y">1 Year</option>
-          <option value="6m">6 Months</option>
-          <option value="3m">3 Months</option>
-          <option value="forever">Forever (you)</option>
-        </select>
-        <button class="btn-create" onclick="adminAddUser()">＋ Add User</button>
+  <div class="admin-body">
+    <div class="slbl">ADD / UPDATE USER</div>
+    <div class="card" style="display:flex;flex-direction:column;gap:12px">
+      <div class="fgrp"><label class="flabel">Full Name</label><input class="fi" id="au-name" type="text" placeholder="e.g. John Smith" autocomplete="off"/></div>
+      <div class="fgrp"><label class="flabel">Email or Username</label><input class="fi" id="au-email" type="text" placeholder="e.g. john@company.com" autocomplete="off"/></div>
+      <div class="fgrp"><label class="flabel">Password</label><input class="fi" id="au-pass" type="text" placeholder="Set a password for this user" autocomplete="off"/></div>
+      <div class="frow">
+        <div class="fgrp">
+          <label class="flabel">Duration</label>
+          <select class="fi" id="au-dur">
+            <option value="1y">1 Year</option>
+            <option value="6m">6 Months</option>
+            <option value="3m">3 Months</option>
+            <option value="forever">Forever</option>
+          </select>
+        </div>
+        <div class="fgrp" style="justify-content:flex-end">
+          <label class="flabel">&nbsp;</label>
+          <button class="btn" id="btn-add-user">＋ Add</button>
+        </div>
       </div>
     </div>
-    <div class="section-label">ACTIVE USERS <span id="user-count-badge" style="background:var(--steel);color:white;padding:1px 7px;border-radius:20px;font-size:10px;margin-left:4px;">0</span></div>
-    <div id="admin-user-list"></div>
+    <div class="slbl">USERS <span id="ucount" style="background:var(--dark);color:#fff;padding:1px 7px;border-radius:20px;font-size:10px;margin-left:4px">0</span></div>
+    <div id="ulist"></div>
   </div>
 </div>
 
-<!-- ══ PROJECTS ════════════════════════════════════ -->
-<div class="screen" id="s-projects">
+<!-- PROJECTS -->
+<div class="page" id="p-projects">
   <div class="topbar">
-    <div class="topbar-logo"><span class="topbar-logo-text">MLA</span></div>
-    <div class="topbar-title">MLA INSPECTION<span id="user-greeting">Hello</span></div>
-    <button class="topbar-btn" id="logout-btn">← Logout</button>
+    <div class="tlogo"><span>MLA</span></div>
+    <div class="ttitle"><h1>MLA INSPECTION</h1><p id="p-greeting">Welcome</p></div>
+    <button class="tbtn" id="btn-logout">Logout</button>
   </div>
-  <div class="proj-scroll">
-    <div class="section-label">NEW PROJECT</div>
-    <div class="new-proj-form">
-      <input class="fi fi-full" id="np-name" type="text" placeholder="Project name (e.g. Buena Vista Villas)" autocomplete="off"/>
-      <div class="field-row">
-        <input class="fi" id="np-ref"  type="text" placeholder="Ref No." autocomplete="off"/>
-        <input class="fi" id="np-date" type="date"/>
+  <div class="pbody">
+    <div class="slbl">NEW PROJECT</div>
+    <div class="card" style="display:flex;flex-direction:column;gap:10px">
+      <div class="fgrp"><label class="flabel">Project Name</label><input class="fi" id="np-name" type="text" placeholder="e.g. Buena Vista Villas" autocomplete="off"/></div>
+      <div class="frow">
+        <div class="fgrp"><label class="flabel">Ref No.</label><input class="fi" id="np-ref" type="text" placeholder="MLA-001" autocomplete="off"/></div>
+        <div class="fgrp"><label class="flabel">Date</label><input class="fi" id="np-date" type="date"/></div>
       </div>
-      <button class="btn-create" onclick="createProject()">＋ Create Project</button>
+      <button class="btn" id="btn-new-proj">＋ Create Project</button>
     </div>
-    <div class="section-label">MY PROJECTS</div>
-    <div id="proj-list"></div>
+    <div class="slbl">MY PROJECTS</div>
+    <div id="plist"></div>
   </div>
 </div>
 
-<!-- ══ ITEMS ═══════════════════════════════════════ -->
-<div class="screen" id="s-items">
-  <div class="items-topbar">
-    <div class="back-btn" id="go-projects-btn">‹</div>
-    <div class="items-title-area">
-      <div class="items-title" id="items-proj-name">Project</div>
-      <div class="items-sub" id="items-proj-sub">—</div>
+<!-- ITEMS -->
+<div class="page" id="p-items">
+  <div class="topbar">
+    <div class="tlogo"><span>MLA</span></div>
+    <div class="ttitle"><h1 id="iproj-name">Project</h1><p id="iproj-sub">—</p></div>
+    <button class="tbtn" id="btn-back">‹ Back</button>
+  </div>
+  <div class="tabs">
+    <div class="itab on" id="itab-items">Items</div>
+    <div class="itab" id="itab-export">Export</div>
+  </div>
+  <div id="tab-items" class="scroll">
+    <div class="isticky">
+      <span class="icount" id="icount-lbl">0 items</span>
+      <button class="iadd" id="btn-add-item">＋ Add Item</button>
     </div>
-    <button class="topbar-btn" onclick="showItab('export')">Export</button>
-  </div>
-  <div class="items-tabs">
-    <div class="itab on" id="itab-list"   onclick="showItab('list')">Items</div>
-    <div class="itab"    id="itab-export" onclick="showItab('export')">Export</div>
-  </div>
-  <div class="items-body">
-
-    <!-- LIST TAB -->
-    <div id="itab-list-body">
-      <div class="sticky-add">
-        <span class="count-badge" id="count-badge">0 items</span>
-        <button class="add-item-btn" onclick="addItem()">＋ Add Item</button>
+    <div class="ilist" id="ilist">
+      <div class="empty" id="empty-state">
+        <div class="empty-i">📋</div>
+        <p>No items yet.<br/>Tap <strong>＋ Add Item</strong> to start.</p>
       </div>
-      <div class="items-list-wrap" id="items-list">
-        <div class="empty" id="empty-state">
-          <div class="ei">📋</div>
-          <p>No items yet.<br/>Tap <strong>＋ Add Item</strong> to start.</p>
+    </div>
+  </div>
+  <div id="tab-export" class="scroll" style="display:none">
+    <div class="expbody">
+      <div class="sumcard">
+        <div class="sumtitle">REPORT SUMMARY</div>
+        <div class="sumgrid">
+          <div><div class="snum2 st" id="sum-t">0</div><div class="slbl2">Total</div></div>
+          <div><div class="snum2 so" id="sum-o">0</div><div class="slbl2">Open</div></div>
+          <div><div class="snum2 sc" id="sum-c">0</div><div class="slbl2">Closed</div></div>
         </div>
       </div>
+      <button class="btn" id="btn-export">📄 Export to Word</button>
+      <button class="btn-out" id="btn-clear">🗑 Clear All Items</button>
     </div>
-
-    <!-- EXPORT TAB -->
-    <div id="itab-export-body" style="display:none">
-      <div class="export-wrap">
-        <div class="sum-card">
-          <div class="sum-card-title">REPORT SUMMARY</div>
-          <div class="sum-grid">
-            <div><div class="sum-n t" id="sum-t">0</div><div class="sum-l">Total</div></div>
-            <div><div class="sum-n o" id="sum-o">0</div><div class="sum-l">Open</div></div>
-            <div><div class="sum-n c" id="sum-c">0</div><div class="sum-l">Closed</div></div>
-          </div>
-        </div>
-        <button class="exp-btn" onclick="exportWord()">📄 Export to Word (.docx)</button>
-        <button class="exp-btn" style="background:#555" onclick="clearItems()">🗑 Clear All Items</button>
-      </div>
-    </div>
-
   </div>
 </div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
+<div id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════════
-let currentUser  = null;   // string: user name
-let currentProjId = null;  // string: project id
-let itemCounter  = 0;
+// ─── STORAGE ───────────────────────────────────
+const S={
+  get:(k,d)=>{try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d}catch(e){return d}},
+  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},
+  del:(k)=>{try{localStorage.removeItem(k)}catch(e){}}
+};
 
-// ── Storage helpers ──────────────────────────────
-function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e){} }
-function load(key, def) { try { const v=localStorage.getItem(key); return v?JSON.parse(v):def; } catch(e){ return def; } }
+// ─── STATE ─────────────────────────────────────
+let CU=null, CUD=null, CPJ=null, IC=0;
 
-function getProjects() { return load(`mla_projects_${currentUser}`, []); }
-function saveProjects(p) { save(`mla_projects_${currentUser}`, p); }
-function getItems(pid)  { return load(`mla_items_${currentUser}_${pid}`, []); }
-function saveItems(pid, items) { save(`mla_items_${currentUser}_${pid}`, items); }
+// ─── UTILS ─────────────────────────────────────
+function goPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function toast(msg,type=''){const el=document.getElementById('toast');el.textContent=msg;el.className='show '+(type||'');clearTimeout(el._t);el._t=setTimeout(()=>el.className='',2800);}
+function today(){return new Date().toISOString().split('T')[0];}
+function xe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-// ═══════════════════════════════════════════════════
-// LOGIN
-// ═══════════════════════════════════════════════════
-function doLogin() {
-  const name = document.getElementById('login-name').value.trim();
-  if (!name) { showToast('Please enter your name','err'); return; }
-
-  // Secret admin code typed in name field
-  if (name === 'mla2024admin') {
-    document.getElementById('login-name').value = '';
-    show('s-admin');
-    renderAdminUsers();
-    return;
-  }
-
-  currentUser = name.toLowerCase().replace(/\s+/g,'_');
-  save('mla_current_user', currentUser);
-  save('mla_user_display', name);
-  const status = checkLicence(currentUser);
-  if (status === 'ok') {
-    goProjects();
-  } else {
-    show('s-locked');
-  }
+// ─── LICENCE ───────────────────────────────────
+const ADMIN = 'mla2024admin';
+function getUsers(){return S.get('mla_users',[]);}
+function saveUsers(u){S.set('mla_users',u);}
+function checkAccess(val, pass){
+  const v=val.trim().toLowerCase();
+  if(v===ADMIN) return 'admin';
+  const u=getUsers().find(u=>u.email.toLowerCase()===v||u.name.toLowerCase()===v);
+  if(!u) return 'locked';
+  // Check password
+  if(u.password && u.password !== (pass||'')) return 'wrongpass';
+  if(u.expiry==='forever') return 'ok';
+  return new Date(u.expiry)>=new Date()?'ok':'expired';
 }
 
-// ── Licence system ────────────────────────────────
-const ADMIN_PASS = 'mla2024admin'; // secret admin password
-
-function checkLicence(username) {
-  // Admin always gets in
-  if (username === 'mla_admin') return 'ok';
-  const users = load('mla_licence_users', []);
-  const u = users.find(u => u.username === username || u.email.toLowerCase() === username.toLowerCase());
-  if (!u) return 'locked';
-  if (u.expiry === 'forever') return 'ok';
-  const now = new Date();
-  const exp = new Date(u.expiry);
-  if (exp < now) return 'expired';
-  return 'ok';
+// ─── LOGIN ─────────────────────────────────────
+function doLogin(){
+  const val=document.getElementById('inp-name').value.trim();
+  const pass=document.getElementById('inp-pass').value.trim();
+  if(!val){toast('Please enter your name','err');return;}
+  const acc=checkAccess(val,pass);
+  if(acc==='admin'){
+    document.getElementById('inp-name').value='';
+    document.getElementById('inp-pass').value='';
+    renderAdminUsers();goPage('p-admin');return;
+  }
+  if(acc==='wrongpass'){toast('Wrong password','err');return;}
+  if(acc==='ok'){
+    CU=val.toLowerCase().replace(/\s+/g,'_');CUD=val;
+    S.set('mla_cu',CU);S.set('mla_cud',CUD);
+    goProjects();return;
+  }
+  goPage('p-locked');
 }
 
-// ── Admin access — tap logo 5 times ──────────────
-let logoTaps = 0, logoTimer = null;
-function handleLogoTap() {
-  logoTaps++;
-  clearTimeout(logoTimer);
-  // Visual feedback - flash the logo
-  const logo = document.getElementById('login-logo-tap');
-  logo.style.opacity = '0.6';
-  setTimeout(() => logo.style.opacity = '1', 150);
-  logoTimer = setTimeout(() => { logoTaps = 0; }, 3000);
-  if (logoTaps >= 5) {
-    logoTaps = 0;
-    setTimeout(() => {
-      const pass = prompt('Admin password:');
-      if (pass === ADMIN_PASS) {
-        show('s-admin');
-        renderAdminUsers();
-      } else if (pass !== null) {
-        showToast('Wrong password','err');
-      }
-    }, 100);
-  }
-}
-
-// ── Admin functions ───────────────────────────────
-function adminAddUser() {
-  const name     = document.getElementById('au-name').value.trim();
-  const email    = document.getElementById('au-email').value.trim();
-  const duration = document.getElementById('au-duration').value;
-  if (!name || !email) { showToast('Fill in name and email','err'); return; }
-
-  let expiry;
-  if (duration === 'forever') {
-    expiry = 'forever';
-  } else {
-    const d = new Date();
-    if (duration === '1y') d.setFullYear(d.getFullYear() + 1);
-    if (duration === '6m') d.setMonth(d.getMonth() + 6);
-    if (duration === '3m') d.setMonth(d.getMonth() + 3);
-    expiry = d.toISOString().split('T')[0];
-  }
-
-  const users = load('mla_licence_users', []);
-  const existing = users.findIndex(u => u.email.toLowerCase() === email.toLowerCase());
-  const user = { name, email, username: email.toLowerCase().replace(/\s+/g,'_'), expiry, added: new Date().toISOString().split('T')[0] };
-
-  if (existing >= 0) {
-    users[existing] = user;
-    showToast('User updated ✓','ok');
-  } else {
-    users.push(user);
-    showToast('User added ✓','ok');
-  }
-
-  save('mla_licence_users', users);
-  document.getElementById('au-name').value  = '';
-  document.getElementById('au-email').value = '';
+// ─── ADMIN ─────────────────────────────────────
+function adminAdd(){
+  const name=document.getElementById('au-name').value.trim();
+  const email=document.getElementById('au-email').value.trim().toLowerCase();
+  const pass=document.getElementById('au-pass').value.trim();
+  const dur=document.getElementById('au-dur').value;
+  if(!name||!email){toast('Fill in name and email','err');return;}
+  if(!pass){toast('Please set a password','err');return;}
+  let expiry='forever';
+  if(dur!=='forever'){const d=new Date();if(dur==='1y')d.setFullYear(d.getFullYear()+1);else if(dur==='6m')d.setMonth(d.getMonth()+6);else if(dur==='3m')d.setMonth(d.getMonth()+3);expiry=d.toISOString().split('T')[0];}
+  const users=getUsers();
+  const idx=users.findIndex(u=>u.email===email);
+  const user={name,email,password:pass,expiry,added:today()};
+  if(idx>=0){users[idx]=user;toast('User updated ✓','ok');}else{users.push(user);toast('User added ✓','ok');}
+  saveUsers(users);
+  document.getElementById('au-name').value='';
+  document.getElementById('au-email').value='';
+  document.getElementById('au-pass').value='';
   renderAdminUsers();
 }
-
-function adminDeleteUser(email) {
-  if (!confirm('Remove this user?')) return;
-  const users = load('mla_licence_users', []).filter(u => u.email !== email);
-  save('mla_licence_users', users);
-  renderAdminUsers();
-  showToast('User removed');
+function adminDel(email){
+  if(!confirm('Remove this user?'))return;
+  saveUsers(getUsers().filter(u=>u.email!==email));
+  renderAdminUsers();toast('Removed');
 }
-
-function renderAdminUsers() {
-  const users = load('mla_licence_users', []);
-  document.getElementById('user-count-badge').textContent = users.length;
-  const list = document.getElementById('admin-user-list');
-  if (!users.length) {
-    list.innerHTML = '<div class="empty"><div class="ei">👥</div><p>No users yet.<br/>Add one above.</p></div>';
-    return;
-  }
-  const now = new Date();
-  list.innerHTML = users.map(u => {
-    let expiryClass, expiryText;
-    if (u.expiry === 'forever') {
-      expiryClass = 'expiry-forever'; expiryText = '∞ Forever';
-    } else {
-      const exp = new Date(u.expiry);
-      const days = Math.ceil((exp - now) / (1000*60*60*24));
-      if (days < 0)  { expiryClass = 'expiry-expired'; expiryText = 'EXPIRED'; }
-      else if (days <= 30) { expiryClass = 'expiry-warn'; expiryText = `${days} days left`; }
-      else { expiryClass = 'expiry-ok'; expiryText = `Until ${u.expiry}`; }
-    }
-    return \`
-      <div class="user-card">
-        <div class="user-card-info">
-          <div class="user-card-name">\${esc(u.name)}</div>
-          <div class="user-card-email">\${esc(u.email)}</div>
-          <span class="user-card-expiry \${expiryClass}">\${expiryText}</span>
-        </div>
-        <button class="user-del-btn" onclick="adminDeleteUser('\${u.email}')">×</button>
-      </div>\`;
+function renderAdminUsers(){
+  const users=getUsers();
+  document.getElementById('ucount').textContent=users.length;
+  const list=document.getElementById('ulist');
+  if(!users.length){list.innerHTML='<div class="empty"><div class="empty-i">👥</div><p>No users yet.</p></div>';return;}
+  const now=new Date();
+  list.innerHTML=users.map(u=>{
+    let cls,txt;
+    if(u.expiry==='forever'){cls='tfore';txt='∞ Forever';}
+    else{const days=Math.ceil((new Date(u.expiry)-now)/86400000);if(days<0){cls='texp';txt='EXPIRED';}else if(days<=30){cls='twarn';txt=days+' days left';}else{cls='tok';txt='Until '+u.expiry;}}
+    return`<div class="urow"><div class="uinfo"><div class="uname">${xe(u.name)}</div><div class="uemail">${xe(u.email)} · 🔑 ${xe(u.password||'no password')}</div><span class="utag ${cls}">${txt}</span></div><button class="udel" data-e="${xe(u.email)}">×</button></div>`;
   }).join('');
+  list.querySelectorAll('.udel').forEach(b=>b.addEventListener('click',()=>adminDel(b.dataset.e)));
 }
 
-function doLogout() {
-  currentUser = null; currentProjId = null;
-  show('s-login');
+// ─── PROJECTS ──────────────────────────────────
+function getProjects(){return S.get('mla_p_'+CU,[]);}
+function saveProjects(p){S.set('mla_p_'+CU,p);}
+function getItems(pid){return S.get('mla_i_'+CU+'_'+pid,[]);}
+function saveItems(pid,items){S.set('mla_i_'+CU+'_'+pid,items);}
+
+function goProjects(){
+  document.getElementById('p-greeting').textContent=CUD;
+  document.getElementById('np-date').value=today();
+  renderProjects();goPage('p-projects');
 }
-
-// keydown handled above
-
-// ═══════════════════════════════════════════════════
-// PROJECTS
-// ═══════════════════════════════════════════════════
-function goProjects() {
-  show('s-projects');
-  const display = load('mla_user_display', currentUser);
-  document.getElementById('user-greeting').textContent = display;
-  document.getElementById('np-date').valueAsDate = new Date();
-  renderProjects();
+function createProject(){
+  const name=document.getElementById('np-name').value.trim();
+  if(!name){toast('Enter a project name','err');return;}
+  const p={id:'p'+Date.now(),name,ref:document.getElementById('np-ref').value.trim(),date:document.getElementById('np-date').value};
+  const ps=getProjects();ps.unshift(p);saveProjects(ps);
+  document.getElementById('np-name').value='';
+  document.getElementById('np-ref').value='';
+  renderProjects();toast('Project created ✓','ok');
 }
-
-function createProject() {
-  const name = document.getElementById('np-name').value.trim();
-  if (!name) { showToast('Enter a project name','err'); return; }
-  const proj = {
-    id:   'p_' + Date.now(),
-    name,
-    ref:  document.getElementById('np-ref').value.trim(),
-    date: document.getElementById('np-date').value,
-    created: new Date().toLocaleDateString(),
-  };
-  const projects = getProjects();
-  projects.unshift(proj);
-  saveProjects(projects);
-  document.getElementById('np-name').value = '';
-  document.getElementById('np-ref').value  = '';
-  renderProjects();
-  showToast('Project created ✓','ok');
-}
-
-function renderProjects() {
-  const projects = getProjects();
-  const list = document.getElementById('proj-list');
-  if (!projects.length) {
-    list.innerHTML = '<div class="empty"><div class="ei">🏗</div><p>No projects yet.<br/>Create one above.</p></div>';
-    return;
-  }
-  list.innerHTML = projects.map(p => {
-    const items  = getItems(p.id);
-    const total  = items.length;
-    const open   = items.filter(i=>i.status==='open').length;
-    const closed = items.filter(i=>i.status==='closed').length;
-    return `
-      <div class="proj-card" onclick="openProject('${p.id}')">
-        <div class="proj-card-bar"></div>
-        <div class="proj-card-body">
-          <div class="proj-card-name">${esc(p.name)}</div>
-          <div class="proj-card-meta">${p.ref ? p.ref+' · ' : ''}${p.date||p.created}</div>
-          <div class="proj-card-counts">
-            <span class="pill pill-total">${total} items</span>
-            ${open   ? `<span class="pill pill-open">${open} open</span>` : ''}
-            ${closed ? `<span class="pill pill-closed">${closed} closed</span>` : ''}
-          </div>
+function renderProjects(){
+  const ps=getProjects();
+  const list=document.getElementById('plist');
+  if(!ps.length){list.innerHTML='<div class="empty"><div class="empty-i">🏗</div><p>No projects yet.<br/>Create one above.</p></div>';return;}
+  list.innerHTML=ps.map(p=>{
+    const its=getItems(p.id);
+    const tot=its.length,op=its.filter(i=>i.status==='open').length,cl=its.filter(i=>i.status==='closed').length;
+    return`<div class="pcard" data-pid="${p.id}">
+      <div class="pbar"></div>
+      <div class="pinfo">
+        <div class="pname">${xe(p.name)}</div>
+        <div class="pmeta">${p.ref?p.ref+' · ':''}${p.date||''}</div>
+        <div class="ppills">
+          <span class="pill pn">${tot} items</span>
+          ${op?`<span class="pill po">${op} open</span>`:''}
+          ${cl?`<span class="pill pc">${cl} closed</span>`:''}
         </div>
-        <button class="proj-save-btn" onclick="bulkSavePhotos(event,'${p.id}')" title="Save all photos to gallery">⬇️</button>
-        <button class="proj-del" onclick="deleteProject(event,'${p.id}')">×</button>
-        <div class="proj-card-arrow">›</div>
-      </div>`;
+      </div>
+      <div class="pacts">
+        <button class="psave" data-pid="${p.id}" title="Save all photos">⬇️</button>
+        <button class="pdel" data-pid="${p.id}">×</button>
+        <span class="parrow">›</span>
+      </div>
+    </div>`;
   }).join('');
+  list.querySelectorAll('.pcard').forEach(card=>{
+    card.addEventListener('click',e=>{if(e.target.closest('.pacts'))return;openProject(card.dataset.pid);});
+  });
+  list.querySelectorAll('.pdel').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();deleteProject(b.dataset.pid);}));
+  list.querySelectorAll('.psave').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();bulkSave(b.dataset.pid);}));
 }
-
-function deleteProject(e, pid) {
-  e.stopPropagation();
-  const p = getProjects().find(p=>p.id===pid);
-  if (!confirm(`Delete "${p?.name}"?\nAll items will be lost.`)) return;
+function deleteProject(pid){
+  const p=getProjects().find(p=>p.id===pid);
+  if(!confirm('Delete "'+p?.name+'"? All items will be lost.'))return;
   saveProjects(getProjects().filter(p=>p.id!==pid));
-  localStorage.removeItem(`mla_items_${currentUser}_${pid}`);
-  renderProjects();
-  showToast('Project deleted');
+  S.del('mla_i_'+CU+'_'+pid);
+  renderProjects();toast('Project deleted');
+}
+async function bulkSave(pid){
+  const its=getItems(pid).filter(i=>i.photo);
+  if(!its.length){toast('No photos in this project','err');return;}
+  toast('Saving '+its.length+' photos…');
+  let n=0;
+  for(const it of its){
+    try{
+      const res=await fetch(it.photo);const blob=await res.blob();
+      const url=URL.createObjectURL(blob);const a=document.createElement('a');
+      a.href=url;a.download='photo_'+(it.seq||n+1)+'.jpg';
+      document.body.appendChild(a);a.click();document.body.removeChild(a);
+      URL.revokeObjectURL(url);n++;await new Promise(r=>setTimeout(r,400));
+    }catch(e){}
+  }
+  toast('✓ '+n+' photos saved!','ok');
 }
 
-// ═══════════════════════════════════════════════════
-// ITEMS
-// ═══════════════════════════════════════════════════
-function openProject(pid) {
-  currentProjId = pid;
-  const proj = getProjects().find(p=>p.id===pid);
-  document.getElementById('items-proj-name').textContent = proj?.name || 'Project';
-  document.getElementById('items-proj-sub').textContent  =
-    [proj?.ref, proj?.date].filter(Boolean).join(' · ') || '—';
-  showItab('list');
-  show('s-items');
-  renderItems();
+// ─── ITEMS ─────────────────────────────────────
+function openProject(pid){
+  CPJ=pid;
+  const p=getProjects().find(p=>p.id===pid);
+  document.getElementById('iproj-name').textContent=p?.name||'Project';
+  document.getElementById('iproj-sub').textContent=[p?.ref,p?.date].filter(Boolean).join(' · ')||'—';
+  showTab('items');renderItems();goPage('p-items');
 }
-
-function showItab(tab) {
-  ['list','export'].forEach(t => {
-    document.getElementById(`itab-${t}`).classList.toggle('on', t===tab);
-    document.getElementById(`itab-${t}-body`).style.display = t===tab ? 'block' : 'none';
-  });
-  if (tab==='export') updateSummary();
+function showTab(t){
+  document.getElementById('itab-items').classList.toggle('on',t==='items');
+  document.getElementById('itab-export').classList.toggle('on',t==='export');
+  document.getElementById('tab-items').style.display=t==='items'?'block':'none';
+  document.getElementById('tab-export').style.display=t==='export'?'block':'none';
+  if(t==='export')updateSummary();
 }
-
-function renderItems() {
-  const items = getItems(currentProjId);
-  itemCounter = items.length ? Math.max(...items.map(i=>i.seq||0)) : 0;
-  const list  = document.getElementById('items-list');
-  document.getElementById('empty-state').style.display = items.length ? 'none' : 'block';
-  // Remove existing cards
+function renderItems(){
+  const items=getItems(CPJ);
+  IC=items.length?Math.max(...items.map(i=>i.seq||0)):0;
+  const list=document.getElementById('ilist');
   list.querySelectorAll('.scard').forEach(c=>c.remove());
-  items.forEach(item => {
-    const el = makeCard(item);
-    list.appendChild(el);
-    restoreCard(el, item);
-  });
+  document.getElementById('empty-state').style.display=items.length?'none':'block';
+  items.forEach(item=>{const el=buildCard(item);list.appendChild(el);fillCard(el,item);});
   updateBadge();
 }
-
-function addItem() {
-  itemCounter++;
-  const today = new Date().toISOString().split('T')[0];
-  const item  = { id:'i_'+Date.now(), seq:itemCounter, photo:null, location:'', date:today, description:'', status:'open' };
-  const items = getItems(currentProjId);
-  items.push(item);
-  saveItems(currentProjId, items);
-  document.getElementById('empty-state').style.display = 'none';
-  const el = makeCard(item);
-  document.getElementById('items-list').appendChild(el);
+function addItem(){
+  IC++;
+  const item={id:'i'+Date.now(),seq:IC,photo:null,location:'',date:today(),description:'',status:'open'};
+  const items=getItems(CPJ);items.push(item);saveItems(CPJ,items);
+  document.getElementById('empty-state').style.display='none';
+  const el=buildCard(item);document.getElementById('ilist').appendChild(el);
   el.scrollIntoView({behavior:'smooth',block:'start'});
-  setTimeout(()=>el.querySelector('.scard-loc').focus(), 300);
+  setTimeout(()=>el.querySelector('.sloc').focus(),300);
   updateBadge();
 }
-
-function makeCard(item) {
-  const el = document.createElement('div');
-  el.className = `scard ${item.status}`;
-  el.id = `card-${item.id}`;
-  el.innerHTML = `
-    <div class="scard-top">
-      <span class="scard-num">#${String(item.seq).padStart(2,'0')}</span>
-      <input class="scard-loc" placeholder="Location / Room"
-        oninput="updateF('${item.id}','location',this.value)"/>
-      <select class="status-sel ${item.status}" onchange="updateStatus('${item.id}',this)">
+function buildCard(item){
+  const el=document.createElement('div');
+  el.className='scard '+(item.status||'open');
+  el.id='card-'+item.id;
+  el.innerHTML=`
+    <div class="shead">
+      <span class="snum">#${String(item.seq).padStart(2,'0')}</span>
+      <input class="sloc" placeholder="Location / Room"/>
+      <select class="ssel ${item.status||'open'}">
         <option value="open">Open</option>
         <option value="closed">Closed</option>
       </select>
-      <button class="sdel" onclick="removeItem('${item.id}')">×</button>
+      <button class="sdel">×</button>
     </div>
-    <div class="photo-zone" id="pz-${item.id}">
-      <div class="photo-ph">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="3" y="3" width="18" height="18" rx="2"/>
-          <circle cx="8.5" cy="8.5" r="1.5"/>
-          <polyline points="21 15 16 10 5 21"/>
-        </svg>
+    <div class="photowrap" id="pw-${item.id}">
+      <div class="photoph">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
         <span>Tap to add photo</span>
       </div>
-      <img id="pi-${item.id}" alt=""/>
-      <button class="photo-rm" onclick="removePhoto(event,'${item.id}')">×</button>
-      <input type="file" accept="image/*" capture="environment" onchange="handlePhoto('${item.id}',this)"/>
+      <img id="img-${item.id}" alt=""/>
+      <button class="photorm">×</button>
+      <input type="file" accept="image/*" capture="environment"/>
     </div>
-    <div class="scard-date-row">
-      <span class="date-lbl">Date</span>
-      <input class="scard-date" type="date" onchange="updateF('${item.id}','date',this.value)"/>
-    </div>
-    <div class="desc-area">
-      <div class="desc-lbl">Description</div>
-      <textarea class="desc-ta" placeholder="Describe the issue..." oninput="updateF('${item.id}','description',this.value)"></textarea>
-    </div>`;
+    <div class="sdate"><span class="dlbl">Date</span><input type="date"/></div>
+    <div class="sdesc"><div class="desclbl">Description</div><textarea placeholder="Describe the issue..."></textarea></div>`;
+  el.querySelector('.sloc').addEventListener('input',e=>updateF(item.id,'location',e.target.value));
+  el.querySelector('[type="date"]').addEventListener('change',e=>updateF(item.id,'date',e.target.value));
+  el.querySelector('textarea').addEventListener('input',e=>updateF(item.id,'description',e.target.value));
+  el.querySelector('.ssel').addEventListener('change',e=>updateStatus(item.id,e.target));
+  el.querySelector('.sdel').addEventListener('click',()=>removeItem(item.id));
+  el.querySelector('[type="file"]').addEventListener('change',e=>handlePhoto(item.id,e.target));
+  el.querySelector('.photorm').addEventListener('click',e=>{e.stopPropagation();removePhoto(item.id);});
   return el;
 }
-
-function restoreCard(el, item) {
-  el.querySelector('.scard-loc').value   = item.location || '';
-  const sel = el.querySelector('.status-sel');
-  sel.value = item.status;
-  sel.className = `status-sel ${item.status}`;
-  el.querySelector('.scard-date').value  = item.date || '';
-  el.querySelector('.desc-ta').value     = item.description || '';
-  if (item.photo) {
-    const img = document.getElementById(`pi-${item.id}`);
-    img.src = item.photo; img.style.display = 'block';
-    el.querySelector('.photo-ph').style.display = 'none';
-    document.getElementById(`pz-${item.id}`).classList.add('has-photo');
+function fillCard(el,item){
+  el.querySelector('.sloc').value=item.location||'';
+  const sel=el.querySelector('.ssel');sel.value=item.status||'open';sel.className='ssel '+(item.status||'open');
+  el.querySelector('[type="date"]').value=item.date||'';
+  el.querySelector('textarea').value=item.description||'';
+  if(item.photo){
+    const img=document.getElementById('img-'+item.id);img.src=item.photo;img.style.display='block';
+    el.querySelector('.photoph').style.display='none';
+    document.getElementById('pw-'+item.id).classList.add('has-photo');
   }
 }
-
-function updateF(id, field, val) {
-  const items = getItems(currentProjId);
-  const item  = items.find(i=>i.id===id);
-  if (item) { item[field]=val; saveItems(currentProjId, items); }
+function updateF(id,field,val){
+  const items=getItems(CPJ);const item=items.find(i=>i.id===id);
+  if(item){item[field]=val;saveItems(CPJ,items);}
 }
-
-function updateStatus(id, sel) {
-  const items = getItems(currentProjId);
-  const item  = items.find(i=>i.id===id);
-  if (!item) return;
-  item.status = sel.value;
-  saveItems(currentProjId, items);
-  const card = document.getElementById(`card-${id}`);
-  card.className = `scard ${sel.value}`;
-  sel.className  = `status-sel ${sel.value}`;
-  updateBadge();
-  renderProjects(); // refresh counts on projects list
+function updateStatus(id,sel){
+  const items=getItems(CPJ);const item=items.find(i=>i.id===id);
+  if(!item)return;item.status=sel.value;saveItems(CPJ,items);
+  const card=document.getElementById('card-'+id);
+  card.className='scard '+sel.value;sel.className='ssel '+sel.value;
+  updateBadge();renderProjects();
 }
-
-function handlePhoto(id, input) {
-  const file = input.files[0]; if (!file) return;
-  const r = new FileReader();
-  r.onload = e => {
-    const image = new Image();
-    image.onload = () => {
-      // Crop to square from center + compress to 800px JPEG
-      const canvas = document.createElement('canvas');
-      const SIZE = 800;
-      const min = Math.min(image.width, image.height);
-      const sx  = (image.width  - min) / 2;
-      const sy  = (image.height - min) / 2;
-      canvas.width = SIZE; canvas.height = SIZE;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(image, sx, sy, min, min, 0, 0, SIZE, SIZE);
-      const compressed = canvas.toDataURL('image/jpeg', 0.75);
-      // Save compressed version - much smaller, won't get wiped
-      const items = getItems(currentProjId);
-      const item  = items.find(i=>i.id===id);
-      if (item) { item.photo = compressed; saveItems(currentProjId, items); }
-      const img = document.getElementById(`pi-${id}`);
-      img.src = compressed; img.style.display = 'block';
-      document.querySelector(`#pz-${id} .photo-ph`).style.display = 'none';
-      document.getElementById(`pz-${id}`).classList.add('has-photo');
+function handlePhoto(id,input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img2=new Image();
+    img2.onload=()=>{
+      const canvas=document.createElement('canvas');
+      const SIZE=800;const min=Math.min(img2.width,img2.height);
+      const sx=(img2.width-min)/2,sy=(img2.height-min)/2;
+      canvas.width=SIZE;canvas.height=SIZE;
+      canvas.getContext('2d').drawImage(img2,sx,sy,min,min,0,0,SIZE,SIZE);
+      const compressed=canvas.toDataURL('image/jpeg',0.75);
+      const items=getItems(CPJ);const item=items.find(i=>i.id===id);
+      if(item){item.photo=compressed;saveItems(CPJ,items);}
+      const imgEl=document.getElementById('img-'+id);
+      imgEl.src=compressed;imgEl.style.display='block';
+      el_pw(id).querySelector('.photoph').style.display='none';
+      el_pw(id).classList.add('has-photo');
     };
-    image.src = e.target.result;
+    img2.src=e.target.result;
   };
-  r.readAsDataURL(file);
+  reader.readAsDataURL(file);
+}
+function el_pw(id){return document.getElementById('pw-'+id);}
+function removePhoto(id){
+  const items=getItems(CPJ);const item=items.find(i=>i.id===id);
+  if(item){item.photo=null;saveItems(CPJ,items);}
+  const imgEl=document.getElementById('img-'+id);imgEl.src='';imgEl.style.display='none';
+  el_pw(id).querySelector('.photoph').style.display='flex';
+  el_pw(id).classList.remove('has-photo');
+}
+function removeItem(id){
+  if(!confirm('Remove this item?'))return;
+  saveItems(CPJ,getItems(CPJ).filter(i=>i.id!==id));
+  document.getElementById('card-'+id)?.remove();
+  const remaining=getItems(CPJ);
+  document.getElementById('empty-state').style.display=remaining.length?'none':'block';
+  updateBadge();renderProjects();
+}
+function clearAll(){
+  if(!getItems(CPJ).length)return;
+  if(!confirm('Clear all items?'))return;
+  saveItems(CPJ,[]);IC=0;
+  document.getElementById('ilist').querySelectorAll('.scard').forEach(c=>c.remove());
+  document.getElementById('empty-state').style.display='block';
+  updateBadge();updateSummary();renderProjects();toast('All items cleared');
+}
+function updateBadge(){const n=getItems(CPJ).length;document.getElementById('icount-lbl').textContent=n+' item'+(n!==1?'s':'');}
+function updateSummary(){
+  const items=getItems(CPJ);
+  document.getElementById('sum-t').textContent=items.length;
+  document.getElementById('sum-o').textContent=items.filter(i=>i.status==='open').length;
+  document.getElementById('sum-c').textContent=items.filter(i=>i.status==='closed').length;
 }
 
-function removePhoto(e, id) {
-  e.stopPropagation();
-  const items = getItems(currentProjId);
-  const item  = items.find(i=>i.id===id);
-  if (item) { item.photo=null; saveItems(currentProjId, items); }
-  const img = document.getElementById(`pi-${id}`);
-  img.src=''; img.style.display='none';
-  document.querySelector(`#pz-${id} .photo-ph`).style.display='flex';
-  document.getElementById(`pz-${id}`).classList.remove('has-photo');
+// ─── EXPORT TO WORD ────────────────────────────
+async function exportWord(){
+  const items=getItems(CPJ);
+  if(!items.length){toast('No items to export','err');return;}
+  toast('Building report…');
+  const proj=getProjects().find(p=>p.id===CPJ)||{};
+  function xe2(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function parseImg(d){const m=d?.match(/^data:image\/(png|jpe?g|gif|webp);base64,(.+)$/i);return m?{data:m[2],ext:m[1].replace('jpeg','jpg')}:null;}
+  const W=9360,imgs=[];
+  function addImg(d){const p=parseImg(d);if(!p)return null;const id=imgs.length+1,rId='rId'+(100+id);imgs.push({id,rId,base64:p.data,ext:p.ext});return{rId,id};}
+  function bn(){return`w:val="none" w:sz="0" w:space="0" w:color="FFFFFF"`;}
+  function bs(c='CCCCCC',z=4){return`w:color="${c}" w:sz="${z}" w:space="0" w:val="single"`;}
+  function rn(t,o={}){let p='';if(o.b)p+='<w:b/>';if(o.i)p+='<w:i/>';if(o.s)p+=`<w:sz w:val="${o.s}"/><w:szCs w:val="${o.s}"/>`;if(o.c)p+=`<w:color w:val="${o.c}"/>`;if(o.f)p+=`<w:rFonts w:ascii="${o.f}" w:hAnsi="${o.f}"/>`;return`<w:r>${p?'<w:rPr>'+p+'</w:rPr>':''}<w:t xml:space="preserve">${xe2(t)}</w:t></w:r>`;}
+  function pa(runs,o={}){const sp=o.after?`<w:spacing w:after="${o.after}"/>`:'';const jc=o.align?`<w:jc w:val="${o.align}"/>`:'';return`<w:p>${sp||jc?`<w:pPr>${sp}${jc}</w:pPr>`:''  }${runs}</w:p>`;}
+  function ir(rId,iid,w,h){const we=w*9525,he=h*9525;return`<w:r><w:drawing><wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"><wp:extent cx="${we}" cy="${he}"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:docPr id="${iid}" name="I${iid}"/><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="${iid}" name="I${iid}"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="${rId}" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${we}" cy="${he}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>`;}
+  function cl(content,o={}){const w=o.w?`<w:tcW w:w="${o.w}" w:type="dxa"/>`:`<w:tcW w:w="0" w:type="auto"/>`;const bg=o.bg?`<w:shd w:val="clear" w:color="auto" w:fill="${o.bg}"/>`:'';const sp=o.span?`<w:gridSpan w:val="${o.span}"/>`:'';const bT=o.bT?`<w:top ${bs(o.bT,o.bTs||4)}/>`:`<w:top ${bn()}/>`;const bB=o.bB?`<w:bottom ${bs(o.bB,o.bBs||4)}/>`:`<w:bottom ${bn()}/>`;const bL=o.bL?`<w:left ${bs(o.bL,4)}/>`:`<w:left ${bn()}/>`;const bR=o.bR?`<w:right ${bs(o.bR,4)}/>`:`<w:right ${bn()}/>`;const va=o.va?`<w:vAlign w:val="${o.va}"/>`:'';return`<w:tc><w:tcPr>${w}${sp}${bg}${bT}${bB}${bL}${bR}${va}<w:tcMar><w:top w:w="80" w:type="dxa"/><w:left w:w="120" w:type="dxa"/><w:bottom w:w="80" w:type="dxa"/><w:right w:w="120" w:type="dxa"/></w:tcMar></w:tcPr>${content}</w:tc>`;}
+  function rw(...cells){return`<w:tr>${cells.join('')}</w:tr>`;}
+  function tb(rows,tw=W){return`<w:tbl><w:tblPr><w:tblW w:w="${tw}" w:type="dxa"/><w:tblLayout w:type="fixed"/><w:tblBorders><w:insideH ${bn()}/><w:insideV ${bn()}/></w:tblBorders><w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:left w:w="0" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="0" w:type="dxa"/></w:tblCellMar></w:tblPr>${rows.join('')}</w:tbl>`;}
+  let body='';
+  body+=pa(rn('SITE INSPECTION REPORT',{b:true,s:40,c:'1A1A1A',f:'Arial'}),{after:160});
+  const hw=Math.floor(W/4);
+  body+=tb([rw(cl(pa(rn('Project',{s:16,c:'AAAAAA',f:'Arial'})),{bg:'1E1E1E',w:hw,bT:'1E1E1E',bTs:8}),cl(pa(rn(proj.name||'',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{bg:'1E1E1E',w:hw,bT:'1E1E1E',bTs:8}),cl(pa(rn('Ref No.',{s:16,c:'AAAAAA',f:'Arial'})),{bg:'1E1E1E',w:hw,bT:'1E1E1E',bTs:8}),cl(pa(rn(proj.ref||'',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{bg:'1E1E1E',w:hw,bT:'1E1E1E',bTs:8})),rw(cl(pa(rn('Inspector',{s:16,c:'AAAAAA',f:'Arial'})),{bg:'1E1E1E',w:hw,bB:'1E1E1E',bBs:8}),cl(pa(rn(CUD||'',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{bg:'1E1E1E',w:hw,bB:'1E1E1E',bBs:8}),cl(pa(rn('Date',{s:16,c:'AAAAAA',f:'Arial'})),{bg:'1E1E1E',w:hw,bB:'1E1E1E',bBs:8}),cl(pa(rn(proj.date||'',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{bg:'1E1E1E',w:hw,bB:'1E1E1E',bBs:8}))]);
+  body+=pa('',{after:200});
+  const pW=Math.floor(W*0.36),dW=W-pW;
+  for(let i=0;i<items.length;i++){
+    const it=items[i];const sc=it.status==='open'?'C0392B':'27AE60';
+    const hdr=rn('#'+String(it.seq||i+1).padStart(2,'0')+'  ',{b:true,s:24,c:'1E1E1E',f:'Arial'})+rn((it.location||'No location')+'  ',{b:true,s:22,c:'1A1A1A',f:'Arial'})+rn((it.date||'')+'  ',{s:18,c:'888888',f:'Arial'})+rn('● '+it.status.toUpperCase(),{b:true,s:18,c:sc,f:'Arial'});
+    let pCell;
+    if(it.photo){const im=addImg(it.photo);pCell=im?cl(pa(ir(im.rId,im.id,190,145),{align:'center'}),{w:pW,bg:'F5F2ED',bB:'CCCCCC',bR:'CCCCCC',va:'center'}):cl(pa(rn('[Photo]',{s:18,c:'AAAAAA',f:'Arial'}),{align:'center'}),{w:pW,bg:'F5F2ED',bB:'CCCCCC',bR:'CCCCCC'});}
+    else{pCell=cl(pa(rn('[No Photo]',{s:18,c:'AAAAAA',f:'Arial'}),{align:'center'}),{w:pW,bg:'F5F2ED',bB:'CCCCCC',bR:'CCCCCC'});}
+    const dCell=cl(pa(rn('DESCRIPTION',{b:true,s:14,c:'AAAAAA',f:'Arial'}),{after:80})+pa(rn(it.description||'—',{s:20,c:'1A1A1A',f:'Arial'})),{w:dW,bB:'CCCCCC'});
+    body+=tb([rw(cl(pa(hdr),{span:2,bg:'F8F6F3',bT:'1E1E1E',bTs:8,bB:'CCCCCC'})),rw(pCell,dCell)]);
+    body+=pa('',{after:180});
+  }
+  const oN=items.filter(i=>i.status==='open').length,cN=items.filter(i=>i.status==='closed').length;
+  const sw=Math.floor(W*0.5),c1=Math.floor(sw*0.6),c2=sw-c1;
+  body+=pa('',{after:160});
+  body+=tb([rw(cl(pa(rn('SUMMARY',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{span:2,bg:'1E1E1E',bT:'1E1E1E',bTs:8,bB:'CCCCCC'})),rw(cl(pa(rn('Total Items',{s:18,f:'Arial'})),{w:c1,bB:'CCCCCC',bR:'CCCCCC'}),cl(pa(rn(String(items.length),{b:true,s:18,f:'Arial'})),{w:c2,bB:'CCCCCC'})),rw(cl(pa(rn('Open',{s:18,c:'C0392B',f:'Arial'})),{w:c1,bB:'CCCCCC',bR:'CCCCCC'}),cl(pa(rn(String(oN),{b:true,s:18,c:'C0392B',f:'Arial'})),{w:c2,bB:'CCCCCC'})),rw(cl(pa(rn('Closed',{s:18,c:'27AE60',f:'Arial'})),{w:c1,bB:'1E1E1E',bBs:8,bR:'CCCCCC'}),cl(pa(rn(String(cN),{b:true,s:18,c:'27AE60',f:'Arial'})),{w:c2,bB:'1E1E1E',bBs:8}))],sw);
+  const docXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><w:body>${body}<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/></w:sectPr></w:body></w:document>`;
+  const relsXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>${imgs.map(m=>`<Relationship Id="${m.rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/img${m.id}.${m.ext}"/>`).join('')}</Relationships>`;
+  const stylesXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr></w:rPrDefault></w:docDefaults></w:styles>`;
+  const ctXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Default Extension="jpg" ContentType="image/jpeg"/><Default Extension="jpeg" ContentType="image/jpeg"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>`;
+  const rootRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`;
+  function sb(s){return new TextEncoder().encode(s);}
+  function bb(b){const bin=atob(b),a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a;}
+  function crc32(d){let c=0xFFFFFFFF;const t=crc32.t||(crc32.t=(()=>{const x=new Uint32Array(256);for(let i=0;i<256;i++){let v=i;for(let j=0;j<8;j++)v=(v&1)?(0xEDB88320^(v>>>1)):(v>>>1);x[i]=v;}return x;})());for(let i=0;i<d.length;i++)c=t[(c^d[i])&0xFF]^(c>>>8);return(c^0xFFFFFFFF)>>>0;}
+  const u16=n=>[n&0xFF,(n>>8)&0xFF];
+  const u32=n=>[n&0xFF,(n>>8)&0xFF,(n>>16)&0xFF,(n>>24)&0xFF];
+  function makeZip(files){const parts=[],cd=[];let off=0;for(const f of files){const nb=new TextEncoder().encode(f.name),d=f.data,crc=crc32(d);const lh=[0x50,0x4B,0x03,0x04,20,0,0,0,0,0,0,0,0,0,...u32(crc),...u32(d.length),...u32(d.length),...u16(nb.length),0,0,...nb];const ce=[0x50,0x4B,0x01,0x02,20,0,20,0,0,0,0,0,0,0,0,0,...u32(crc),...u32(d.length),...u32(d.length),...u16(nb.length),0,0,0,0,0,0,0,0,0,0,...u32(off),...nb];parts.push(new Uint8Array(lh),d);cd.push(new Uint8Array(ce));off+=lh.length+d.length;}const cs=cd.reduce((s,c)=>s+c.length,0);const eocd=[0x50,0x4B,0x05,0x06,0,0,0,0,...u16(files.length),...u16(files.length),...u32(cs),...u32(off),0,0];const all=[...parts,...cd,new Uint8Array(eocd)];const tot=all.reduce((s,a)=>s+a.length,0);const out=new Uint8Array(tot);let p=0;for(const a of all){out.set(a,p);p+=a.length;}return out;}
+  const zipFiles=[{name:'[Content_Types].xml',data:sb(ctXml)},{name:'_rels/.rels',data:sb(rootRels)},{name:'word/document.xml',data:sb(docXml)},{name:'word/styles.xml',data:sb(stylesXml)},{name:'word/_rels/document.xml.rels',data:sb(relsXml)}];
+  for(const m of imgs)zipFiles.push({name:`word/media/img${m.id}.${m.ext}`,data:bb(m.base64)});
+  try{
+    const zip=makeZip(zipFiles);
+    const blob=new Blob([zip],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');
+    a.href=url;a.download=((proj.name||'inspection').replace(/\s+/g,'_'))+'_report.docx';
+    document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1000);
+    toast('✓ Report downloaded!','ok');
+  }catch(e){toast('Export failed','err');console.error(e);}
 }
 
-function removeItem(id) {
-  if (!confirm('Remove this item?')) return;
-  let items = getItems(currentProjId);
-  items = items.filter(i=>i.id!==id);
-  saveItems(currentProjId, items);
-  document.getElementById(`card-${id}`)?.remove();
-  document.getElementById('empty-state').style.display = items.length ? 'none' : 'block';
-  updateBadge();
-  renderProjects();
-}
-
-function clearItems() {
-  const items = getItems(currentProjId);
-  if (!items.length) return;
-  if (!confirm('Clear all items in this project?')) return;
-  saveItems(currentProjId, []);
-  itemCounter = 0;
-  document.getElementById('items-list').querySelectorAll('.scard').forEach(c=>c.remove());
-  document.getElementById('empty-state').style.display = 'block';
-  updateBadge(); updateSummary(); renderProjects();
-  showToast('All items cleared');
-}
-
-function updateBadge() {
-  const items = getItems(currentProjId);
-  document.getElementById('count-badge').textContent = `${items.length} item${items.length!==1?'s':''}`;
-}
-
-function updateSummary() {
-  const items  = getItems(currentProjId);
-  document.getElementById('sum-t').textContent = items.length;
-  document.getElementById('sum-o').textContent = items.filter(i=>i.status==='open').length;
-  document.getElementById('sum-c').textContent = items.filter(i=>i.status==='closed').length;
-}
-
-// ═══════════════════════════════════════════════════
-// SCREEN HELPER
-// ═══════════════════════════════════════════════════
-function show(id) {
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
-  document.getElementById(id).classList.add('on');
-}
-
-// ═══════════════════════════════════════════════════
-// INIT — auto-login if returning user
-// ═══════════════════════════════════════════════════
-(function init() {
-  const saved = load('mla_current_user', null);
-  if (saved) {
-    currentUser = saved;
-    const status = checkLicence(currentUser);
-    if (status === 'ok') {
-      goProjects();
-    } else {
-      show('s-locked');
-    }
-  }
-})();
-
-// ═══════════════════════════════════════════════════
-// TOAST
-// ═══════════════════════════════════════════════════
-function showToast(msg, type='') {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.className = `toast on ${type}`;
-  setTimeout(()=>t.className='toast', 2800);
-}
-
-function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-
-// ── Bulk save all photos to gallery ──────────────
-async function bulkSavePhotos(e, pid) {
-  e.stopPropagation();
-  const items = getItems(pid);
-  const photos = items.filter(i => i.photo);
-  if (!photos.length) { showToast('No photos in this project','err'); return; }
-
-  showToast(`Saving ${photos.length} photos…`);
-  let saved = 0;
-
-  for (const item of photos) {
-    try {
-      // Convert dataURL to blob and trigger download/save
-      const res  = await fetch(item.photo);
-      const blob = await res.blob();
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement('a');
-      a.href     = url;
-      a.download = `photo_${item.seq||saved+1}.jpg`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      saved++;
-      // Small delay between saves
-      await new Promise(r => setTimeout(r, 400));
-    } catch(err) { console.error(err); }
-  }
-  showToast(`✓ ${saved} photos saved!`,'ok');
-}
-
-// ═══════════════════════════════════════════════════
-// EXPORT TO WORD — zero dependencies, pure JS DOCX/XML
-// ═══════════════════════════════════════════════════
-async function exportWord() {
-  const items = getItems(currentProjId);
-  if (!items.length) { showToast('No items to export','err'); return; }
-  showToast('Building report…');
-
-  const proj   = getProjects().find(p=>p.id===currentProjId) || {};
-  const inspector = load('mla_user_display', currentUser);
-
-  function xmlEsc(s) {
-    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-  function parseImg(dataUrl) {
-    const m = dataUrl?.match(/^data:image\/(png|jpe?g|gif|webp);base64,(.+)$/i);
-    if (!m) return null;
-    return { data:m[2], ext:m[1].replace('jpeg','jpg') };
-  }
-  const PAGE_W = 9360;
-  const imgStore = [];
-
-  function addImg(dataUrl) {
-    const p = parseImg(dataUrl); if (!p) return null;
-    const id = imgStore.length+1;
-    const rId = `rId${100+id}`;
-    imgStore.push({id,rId,base64:p.data,ext:p.ext});
-    return {rId,id};
-  }
-
-  function border(color='CCCCCC',sz=4) { return `w:color="${color}" w:sz="${sz}" w:space="0" w:val="single"`; }
-  function bNone() { return `w:val="none" w:sz="0" w:space="0" w:color="FFFFFF"`; }
-
-  function run(text,o={}) {
-    let rp='';
-    if(o.bold)   rp+='<w:b/>';
-    if(o.italic) rp+='<w:i/>';
-    if(o.size)   rp+=`<w:sz w:val="${o.size}"/><w:szCs w:val="${o.size}"/>`;
-    if(o.color)  rp+=`<w:color w:val="${o.color}"/>`;
-    if(o.font)   rp+=`<w:rFonts w:ascii="${o.font}" w:hAnsi="${o.font}"/>`;
-    const rpr = rp?`<w:rPr>${rp}</w:rPr>`:'';
-    return `<w:r>${rpr}<w:t xml:space="preserve">${xmlEsc(text)}</w:t></w:r>`;
-  }
-
-  function para(runs,o={}) {
-    const sp = o.after?`<w:spacing w:after="${o.after}"/>`:'';
-    const jc = o.align?`<w:jc w:val="${o.align}"/>`:'';
-    const ppr = (sp||jc)?`<w:pPr>${sp}${jc}</w:pPr>`:'';
-    return `<w:p>${ppr}${runs}</w:p>`;
-  }
-
-  function imgRun(rId,imgId,w,h) {
-    const we=w*9525, he=h*9525;
-    return `<w:r><w:drawing><wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"><wp:extent cx="${we}" cy="${he}"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:docPr id="${imgId}" name="Img${imgId}"/><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="${imgId}" name="Img${imgId}"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="${rId}" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${we}" cy="${he}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>`;
-  }
-
-  function cell(content,o={}) {
-    const w   = o.w?`<w:tcW w:w="${o.w}" w:type="dxa"/>`:`<w:tcW w:w="0" w:type="auto"/>`;
-    const bg  = o.bg?`<w:shd w:val="clear" w:color="auto" w:fill="${o.bg}"/>`:'';
-    const sp  = o.span?`<w:gridSpan w:val="${o.span}"/>`:'';
-    const bT  = o.bT?`<w:top ${border(o.bT,o.bTs||4)}/>`:`<w:top ${bNone()}/>`;
-    const bB  = o.bB?`<w:bottom ${border(o.bB,o.bBs||4)}/>`:`<w:bottom ${bNone()}/>`;
-    const bL  = o.bL?`<w:left ${border(o.bL,4)}/>`:`<w:left ${bNone()}/>`;
-    const bR  = o.bR?`<w:right ${border(o.bR,4)}/>`:`<w:right ${bNone()}/>`;
-    const va  = o.va?`<w:vAlign w:val="${o.va}"/>`:'';
-    const pad = `<w:tcMar><w:top w:w="80" w:type="dxa"/><w:left w:w="120" w:type="dxa"/><w:bottom w:w="80" w:type="dxa"/><w:right w:w="120" w:type="dxa"/></w:tcMar>`;
-    return `<w:tc><w:tcPr>${w}${sp}${bg}${bT}${bB}${bL}${bR}${va}${pad}</w:tcPr>${content}</w:tc>`;
-  }
-
-  function row(...cells) { return `<w:tr>${cells.join('')}</w:tr>`; }
-
-  function tbl(rows, tw=PAGE_W) {
-    return `<w:tbl><w:tblPr><w:tblW w:w="${tw}" w:type="dxa"/><w:tblLayout w:type="fixed"/><w:tblBorders><w:insideH ${bNone()}/><w:insideV ${bNone()}/></w:tblBorders><w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:left w:w="0" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="0" w:type="dxa"/></w:tblCellMar></w:tblPr>${rows.join('')}</w:tbl>`;
-  }
-
-  // ── Body ──────────────────────────────────────────
-  let body = '';
-
-  // Title
-  body += para(run('SITE INSPECTION REPORT',{bold:true,size:40,color:'1A1A1A',font:'Arial'}),{after:160});
-
-  // Project info
-  const hw = Math.floor(PAGE_W/4);
-  body += tbl([
-    row(
-      cell(para(run('Project',   {size:16,color:'AAAAAA',font:'Arial'})),{bg:'2A2A2A',w:hw,bT:'2A2A2A',bTs:8}),
-      cell(para(run(proj.name||'',{bold:true,size:20,color:'FFFFFF',font:'Arial'})),{bg:'2A2A2A',w:hw,bT:'2A2A2A',bTs:8}),
-      cell(para(run('Ref No.',   {size:16,color:'AAAAAA',font:'Arial'})),{bg:'2A2A2A',w:hw,bT:'2A2A2A',bTs:8}),
-      cell(para(run(proj.ref||'',{bold:true,size:20,color:'FFFFFF',font:'Arial'})),{bg:'2A2A2A',w:hw,bT:'2A2A2A',bTs:8}),
-    ),
-    row(
-      cell(para(run('Inspector', {size:16,color:'AAAAAA',font:'Arial'})),{bg:'2A2A2A',w:hw,bB:'2A2A2A',bBs:8}),
-      cell(para(run(inspector,   {bold:true,size:20,color:'FFFFFF',font:'Arial'})),{bg:'2A2A2A',w:hw,bB:'2A2A2A',bBs:8}),
-      cell(para(run('Date',      {size:16,color:'AAAAAA',font:'Arial'})),{bg:'2A2A2A',w:hw,bB:'2A2A2A',bBs:8}),
-      cell(para(run(proj.date||'',{bold:true,size:20,color:'FFFFFF',font:'Arial'})),{bg:'2A2A2A',w:hw,bB:'2A2A2A',bBs:8}),
-    ),
-  ]);
-
-  body += para('',{after:200});
-
+// ─── BIND ALL BUTTONS ON LOAD ──────────────────
+window.addEventListener('DOMContentLoaded',()=>{
+  // Login
+  document.getElementById('btn-login').addEventListener('click',doLogin);
+  document.getElementById('inp-name').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('inp-pass').focus();});
+  document.getElementById('inp-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+  // Locked
+  document.getElementById('btn-lock-back').addEventListener('click',()=>goPage('p-login'));
+  // Admin
+  document.getElementById('btn-admin-exit').addEventListener('click',()=>goPage('p-login'));
+  document.getElementById('btn-add-user').addEventListener('click',adminAdd);
+  // Projects
+  document.getElementById('btn-logout').addEventListener('click',()=>{CU=null;CUD=null;S.del('mla_cu');S.del('mla_cud');goPage('p-login');});
+  document.getElementById('btn-new-proj').addEventListener('click',createProject);
   // Items
-  const pW = Math.floor(PAGE_W*0.36);
-  const dW = PAGE_W - pW;
+  document.getElementById('btn-back').addEventListener('click',()=>{renderProjects();goPage('p-projects');});
+  document.getElementById('btn-add-item').addEventListener('click',addItem);
+  document.getElementById('itab-items').addEventListener('click',()=>showTab('items'));
+  document.getElementById('itab-export').addEventListener('click',()=>showTab('export'));
+  document.getElementById('btn-export').addEventListener('click',exportWord);
+  document.getElementById('btn-clear').addEventListener('click',clearAll);
 
-  for (let i=0;i<items.length;i++) {
-    const it = items[i];
-    const sc = it.status==='open'?'C0392B':'27AE60';
-    const num = String(it.seq||i+1).padStart(2,'0');
-    const hdr =
-      run(`#${num}  `,{bold:true,size:24,color:'2A2A2A',font:'Arial'})+
-      run((it.location||'No location')+'  ',{bold:true,size:22,color:'1A1A1A',font:'Arial'})+
-      run((it.date||'')+'  ',{size:18,color:'888888',font:'Arial'})+
-      run('● '+it.status.toUpperCase(),{bold:true,size:18,color:sc,font:'Arial'});
-
-    let photoCell;
-    if (it.photo) {
-      const img = addImg(it.photo);
-      photoCell = img
-        ? cell(para(imgRun(img.rId,img.id,190,145),{align:'center'}),{w:pW,bg:'F5F2ED',bB:'CCCCCC',bR:'CCCCCC',va:'center'})
-        : cell(para(run('[Photo]',{size:18,color:'AAAAAA',font:'Arial'}),{align:'center'}),{w:pW,bg:'F5F2ED',bB:'CCCCCC',bR:'CCCCCC'});
-    } else {
-      photoCell = cell(para(run('[No Photo]',{size:18,color:'AAAAAA',font:'Arial'}),{align:'center'}),{w:pW,bg:'F5F2ED',bB:'CCCCCC',bR:'CCCCCC'});
-    }
-
-    const descCell = cell(
-      para(run('DESCRIPTION',{bold:true,size:14,color:'AAAAAA',font:'Arial'}),{after:80})+
-      para(run(it.description||'—',{size:20,color:'1A1A1A',font:'Arial'})),
-      {w:dW,bB:'CCCCCC'}
-    );
-
-    body += tbl([
-      row(cell(para(hdr),{span:2,bg:'F8F6F3',bT:'2A2A2A',bTs:8,bB:'CCCCCC'})),
-      row(photoCell,descCell),
-    ]);
-    body += para('',{after:180});
+  // Auto-login returning user
+  const cu=S.get('mla_cu',null),cud=S.get('mla_cud',null);
+  if(cu&&cud){
+    const acc=checkAccess(cud);
+    if(acc==='ok'){CU=cu;CUD=cud;goProjects();}
+    else{goPage('p-locked');}
   }
+});
 
-  // Summary
-  const openN   = items.filter(i=>i.status==='open').length;
-  const closedN = items.filter(i=>i.status==='closed').length;
-  const sw=Math.floor(PAGE_W*0.5), c1=Math.floor(sw*0.6), c2=sw-c1;
-  body += para('',{after:160});
-  body += tbl([
-    row(cell(para(run('SUMMARY',{bold:true,size:20,color:'FFFFFF',font:'Arial'})),{span:2,bg:'2A2A2A',bT:'2A2A2A',bTs:8,bB:'CCCCCC'})),
-    row(cell(para(run('Total Items',{size:18,font:'Arial'})),{w:c1,bB:'CCCCCC',bR:'CCCCCC'}),cell(para(run(String(items.length),{bold:true,size:18,color:'1A1A1A',font:'Arial'})),{w:c2,bB:'CCCCCC'})),
-    row(cell(para(run('Open',{size:18,color:'C0392B',font:'Arial'})),{w:c1,bB:'CCCCCC',bR:'CCCCCC'}),cell(para(run(String(openN),{bold:true,size:18,color:'C0392B',font:'Arial'})),{w:c2,bB:'CCCCCC'})),
-    row(cell(para(run('Closed',{size:18,color:'27AE60',font:'Arial'})),{w:c1,bB:'2A2A2A',bBs:8,bR:'CCCCCC'}),cell(para(run(String(closedN),{bold:true,size:18,color:'27AE60',font:'Arial'})),{w:c2,bB:'2A2A2A',bBs:8})),
-  ],sw);
+// Prevent zoom
+document.addEventListener('gesturestart',e=>e.preventDefault());
+document.addEventListener('gesturechange',e=>e.preventDefault());
+document.addEventListener('gestureend',e=>e.preventDefault());
+document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
+let _lt=0;
+document.addEventListener('touchend',e=>{const now=Date.now();if(now-_lt<300)e.preventDefault();_lt=now;},{passive:false});
 
-  // ── Assemble XML ──────────────────────────────────
-  const docXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
-<w:body>${body}
-<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/></w:sectPr>
-</w:body></w:document>`;
-
-  const imgRels = imgStore.map(img=>
-    `<Relationship Id="${img.rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/img${img.id}.${img.ext}"/>`
-  ).join('');
-
-  const relsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>${imgRels}</Relationships>`;
-
-  const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr></w:rPrDefault></w:docDefaults></w:styles>`;
-
-  const ctXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Default Extension="jpg" ContentType="image/jpeg"/><Default Extension="jpeg" ContentType="image/jpeg"/><Default Extension="gif" ContentType="image/gif"/><Default Extension="webp" ContentType="image/webp"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>`;
-
-  const rootRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`;
-
-  // ── ZIP builder ───────────────────────────────────
-  function strBytes(s) { return new TextEncoder().encode(s); }
-  function b64Bytes(b) { const bin=atob(b),a=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i); return a; }
-
-  function crc32(d) {
-    let c=0xFFFFFFFF;
-    const t=crc32.t||(crc32.t=(()=>{const x=new Uint32Array(256);for(let i=0;i<256;i++){let v=i;for(let j=0;j<8;j++)v=(v&1)?(0xEDB88320^(v>>>1)):(v>>>1);x[i]=v;}return x;})());
-    for(let i=0;i<d.length;i++)c=t[(c^d[i])&0xFF]^(c>>>8);
-    return(c^0xFFFFFFFF)>>>0;
-  }
-  const u16=(n)=>[n&0xFF,(n>>8)&0xFF];
-  const u32=(n)=>[n&0xFF,(n>>8)&0xFF,(n>>16)&0xFF,(n>>24)&0xFF];
-
-  function makeZip(files) {
-    const parts=[],cdir=[];let off=0;
-    for(const f of files){
-      const nb=new TextEncoder().encode(f.name),d=f.data,crc=crc32(d);
-      const lh=[0x50,0x4B,0x03,0x04,20,0,0,0,0,0,0,0,0,0,...u32(crc),...u32(d.length),...u32(d.length),...u16(nb.length),0,0,...nb];
-      const cd=[0x50,0x4B,0x01,0x02,20,0,20,0,0,0,0,0,0,0,0,0,...u32(crc),...u32(d.length),...u32(d.length),...u16(nb.length),0,0,0,0,0,0,0,0,0,0,...u32(off),...nb];
-      parts.push(new Uint8Array(lh),d);cdir.push(new Uint8Array(cd));
-      off+=lh.length+d.length;
-    }
-    const cs=cdir.reduce((s,c)=>s+c.length,0);
-    const eocd=[0x50,0x4B,0x05,0x06,0,0,0,0,...u16(files.length),...u16(files.length),...u32(cs),...u32(off),0,0];
-    const all=[...parts,...cdir,new Uint8Array(eocd)];
-    const tot=all.reduce((s,a)=>s+a.length,0);
-    const out=new Uint8Array(tot);let p=0;
-    for(const a of all){out.set(a,p);p+=a.length;}
-    return out;
-  }
-
-  const zipFiles=[
-    {name:'[Content_Types].xml',  data:strBytes(ctXml)},
-    {name:'_rels/.rels',          data:strBytes(rootRels)},
-    {name:'word/document.xml',    data:strBytes(docXml)},
-    {name:'word/styles.xml',      data:strBytes(stylesXml)},
-    {name:'word/_rels/document.xml.rels', data:strBytes(relsXml)},
-  ];
-  for(const img of imgStore) zipFiles.push({name:`word/media/img${img.id}.${img.ext}`,data:b64Bytes(img.base64)});
-
-  try {
-    const zip  = makeZip(zipFiles);
-    const blob = new Blob([zip],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href=url; a.download=`${(proj.name||'inspection').replace(/\s+/g,'_')}_report.docx`;
-    document.body.appendChild(a); a.click();
-    setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1000);
-    showToast('✓ Report downloaded!','ok');
-  } catch(e) {
-    showToast('Export failed: '+e.message,'err');
-    console.error(e);
-  }
-}
-
-// ── Logo tap → secret admin ──────────────────────
-// Logo tap no longer used for admin access
-
-// ── Prevent zoom ─────────────────────────────────
-document.addEventListener('gesturestart', e => e.preventDefault());
-document.addEventListener('gesturechange', e => e.preventDefault());
-document.addEventListener('gestureend', e => e.preventDefault());
-document.addEventListener('touchmove', e => {
-  if (e.touches.length > 1) e.preventDefault();
-}, { passive: false });
-let lastTap = 0;
-document.addEventListener('touchend', e => {
-  const now = Date.now();
-  if (now - lastTap < 300) e.preventDefault();
-  lastTap = now;
-}, { passive: false });
-
-// ── Service worker ────────────────────────────────
-if('serviceWorker' in navigator) {
-  // Unregister old service workers to force fresh load
-  navigator.serviceWorker.getRegistrations().then(regs => {
-    regs.forEach(reg => reg.unregister());
-  });
+// Service worker
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister()));
   window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 }
-
-// ── Button bindings ───────────────────────────────
-document.getElementById('login-submit-btn').addEventListener('click', doLogin);
-document.getElementById('login-name').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') doLogin();
-});
-document.querySelectorAll('#logout-btn').forEach(el => el.addEventListener('click', doLogout));
 </script>
 </body>
 </html>
