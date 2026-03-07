@@ -180,6 +180,8 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .scard,.pcard,.urow{animation:fadeUp 0.2s ease}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -1265,44 +1267,13 @@ function buildAndDownloadWord(proj, renderedPlans) {
 
 function exportPDF() {
   if (!ITEMS.length) { showToast('No items to export', 'err'); return; }
-  showToast('Building PDF...');
-  var proj = CPJ_DATA || {};
-  var oN = ITEMS.filter(function(i){return i.status==='open';}).length;
-  var cN = ITEMS.filter(function(i){return i.status==='closed';}).length;
-  var aiSummary = document.getElementById('ai-summary-text') ? document.getElementById('ai-summary-text').value.trim() : '';
-  var aiHtml = aiSummary
-    ? '<div style="page-break-after:always;padding-bottom:40px;"><div style="font-size:20px;font-weight:900;letter-spacing:2px;margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid #1e1e1e;">EXECUTIVE SUMMARY</div><div style="font-size:14px;line-height:1.9;color:#333;">'+aiSummary+'</div></div>'
-    : '';
-
-  var rows = ITEMS.map(function(it,i) {
-    var sc = it.status==='open' ? '#c0392b' : '#27ae60';
-    var beforePh = it.photo
-      ? '<div><div style="font-size:9px;font-weight:700;color:#aaa;margin-bottom:4px;">BEFORE</div><img src="'+it.photo+'" style="width:100%;height:130px;object-fit:cover;border-radius:6px;display:block;"/></div>'
-      : '<div style="height:130px;background:#f0ede8;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:11px;flex-direction:column;gap:4px;"><div style="font-size:9px;font-weight:700;color:#ccc;">BEFORE</div>No Photo</div>';
-    var afterPh = it.photoAfter
-      ? '<div><div style="font-size:9px;font-weight:700;color:#27ae60;margin-bottom:4px;">AFTER</div><img src="'+it.photoAfter+'" style="width:100%;height:130px;object-fit:cover;border-radius:6px;display:block;"/></div>'
-      : '<div style="height:130px;background:#f0fbf4;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:11px;flex-direction:column;gap:4px;"><div style="font-size:9px;font-weight:700;color:#a8d5b5;">AFTER</div>No Photo</div>';
-    return '<div style="margin-bottom:18px;border:1px solid #e4e1dc;border-radius:10px;overflow:hidden;page-break-inside:avoid;">' +
-      '<div style="background:#f8f6f3;padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #e4e1dc;">' +
-        '<span style="font-size:18px;font-weight:900;min-width:36px;">#'+String(it.seq||i+1).padStart(2,'0')+'</span>' +
-        '<span style="font-size:14px;font-weight:700;flex:1;">'+(it.location||'No location')+'</span>' +
-        '<span style="font-size:11px;color:#888;">'+(it.date||'')+'</span>' +
-        '<span style="background:'+sc+'22;color:'+sc+';font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;">'+it.status+'</span>' +
-      '</div>' +
-      '<div style="display:flex;">' +
-        '<div style="width:26%;padding:10px;background:#fafaf8;border-right:1px solid #e4e1dc;">'+beforePh+'</div>' +
-        '<div style="width:26%;padding:10px;background:#f8fdf9;border-right:1px solid #e4e1dc;">'+afterPh+'</div>' +
-        '<div style="flex:1;padding:12px;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:#aaa;margin-bottom:6px;">DESCRIPTION</div><div style="font-size:13px;line-height:1.6;">'+(it.description||'...')+'</div></div>' +
-      '</div></div>';
-  }).join('');
-
   showLoader(true, 'Loading plans...');
   callAPI('GET', '/projects/' + CPJ + '/plans', null, function(err2, freshPlans2) {
     if (!err2 && freshPlans2) PLANS = freshPlans2;
     var plansWithImgs = PLANS.filter(function(p) { return p.image; });
     if (!plansWithImgs.length) {
       showLoader(false);
-      buildPdfOverlay(aiHtml, rows, proj, oN, cN, '');
+      buildAndDownloadPDF([]);
       return;
     }
     showLoader(true, 'Rendering floor plans...');
@@ -1312,59 +1283,183 @@ function exportPDF() {
       renderPlanWithPins(plan, function(b64) {
         renderedPdfPlans[idx] = { plan: plan, b64: b64 };
         rem2--;
-        if (rem2 === 0) {
-          showLoader(false);
-          var plansHtml = '<div style="margin-bottom:24px;page-break-before:always;"><div style="font-size:16px;font-weight:900;letter-spacing:2px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #1e1e1e;">FLOOR PLANS</div>';
-          renderedPdfPlans.forEach(function(rp) {
-            if (!rp || !rp.b64) return;
-            plansHtml += '<div style="margin-bottom:20px;"><div style="font-size:13px;font-weight:700;color:#555;margin-bottom:8px;">' + (rp.plan.name||'Floor Plan') + '</div>';
-            plansHtml += '<img src="' + rp.b64 + '" style="width:100%;border-radius:8px;border:1px solid #e4e1dc;"/></div>';
-          });
-          plansHtml += '</div>';
-          buildPdfOverlay(aiHtml, rows, proj, oN, cN, plansHtml);
-        }
+        if (rem2 === 0) { showLoader(false); buildAndDownloadPDF(renderedPdfPlans); }
       });
     });
   });
 }
 
-function buildPdfOverlay(aiHtml, rows, proj, oN, cN, plansHtml) {
-  plansHtml = plansHtml || '';
-  aiHtml = aiHtml || '';
+function buildAndDownloadPDF(renderedPlans) {
+  var proj = CPJ_DATA || {};
+  var oN = ITEMS.filter(function(i){ return i.status==='open'; }).length;
+  var cN = ITEMS.filter(function(i){ return i.status==='closed'; }).length;
+  var aiSummary = (document.getElementById('ai-summary-text')||{}).value;
+  aiSummary = aiSummary ? aiSummary.trim() : '';
 
-  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#fff;padding:32px;}@page{margin:32px 32px 60px 32px;}@media print{footer{position:fixed;bottom:0;left:0;right:0;padding:10px 32px;background:#fff;border-top:1px solid #e4e1dc;display:flex;justify-content:space-between;align-items:center;}}</style></head><body>' +
-    aiHtml +
-    '<div style="margin-bottom:24px;"><div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;"><div style="background:#1e1e1e;border-radius:10px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;"><span style="font-size:16px;font-weight:900;color:#fff;letter-spacing:2px;">MLA</span></div><div><div style="font-size:22px;font-weight:900;letter-spacing:2px;">SITE INSPECTION REPORT</div><div style="font-size:12px;color:#888;margin-top:2px;">Generated '+ new Date().toLocaleDateString() +'</div></div></div><table style="width:100%;border-collapse:collapse;background:#1e1e1e;"><tr><td style="padding:10px 14px;color:#aaa;font-size:11px;width:15%;">PROJECT</td><td style="padding:10px 14px;color:#fff;font-weight:700;width:35%;">'+(proj.name||'...')+'</td><td style="padding:10px 14px;color:#aaa;font-size:11px;width:15%;">REF NO.</td><td style="padding:10px 14px;color:#fff;font-weight:700;">'+(proj.ref||'...')+'</td></tr><tr><td style="padding:10px 14px;color:#aaa;font-size:11px;">INSPECTOR</td><td style="padding:10px 14px;color:#fff;font-weight:700;">'+(CUD||'...')+'</td><td style="padding:10px 14px;color:#aaa;font-size:11px;">DATE</td><td style="padding:10px 14px;color:#fff;font-weight:700;">'+(proj.date||'...')+'</td></tr></table></div>' +
-    plansHtml + rows +
-    '<div style="margin-top:24px;border:1px solid #e4e1dc;border-radius:10px;overflow:hidden;"><div style="background:#1e1e1e;padding:10px 14px;"><span style="font-size:13px;font-weight:700;color:#fff;">SUMMARY</span></div><table style="width:50%;border-collapse:collapse;"><tr><td style="padding:8px 14px;border-bottom:1px solid #e4e1dc;">Total</td><td style="padding:8px 14px;font-weight:700;border-bottom:1px solid #e4e1dc;">'+ITEMS.length+'</td></tr><tr><td style="padding:8px 14px;color:#c0392b;border-bottom:1px solid #e4e1dc;">Open</td><td style="padding:8px 14px;font-weight:700;color:#c0392b;border-bottom:1px solid #e4e1dc;">'+oN+'</td></tr><tr><td style="padding:8px 14px;color:#27ae60;">Closed</td><td style="padding:8px 14px;font-weight:700;color:#27ae60;">'+cN+'</td></tr></table></div>' +
-    '<footer style="margin-top:40px;padding-top:12px;border-top:1px solid #e4e1dc;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:11px;color:#aaa;">'+new Date().toLocaleDateString()+'</span><span style="font-size:12px;font-weight:900;color:#1e1e1e;letter-spacing:1px;">MLA INSPECTION</span></footer>' +
-    '</body></html>';
+  // Build full HTML document for rendering
+  var itemsHtml = ITEMS.map(function(it, i) {
+    var sc = it.status==='open' ? '#c0392b' : '#27ae60';
+    var scBg = it.status==='open' ? '#fde8e6' : '#e6f9ed';
+    var beforeImg = it.photo
+      ? '<img src="'+it.photo+'" style="width:100%;height:110px;object-fit:cover;border-radius:4px;display:block;"/>'
+      : '<div style="width:100%;height:110px;background:#f0ede8;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:10px;">No Photo</div>';
+    var afterImg = it.photoAfter
+      ? '<img src="'+it.photoAfter+'" style="width:100%;height:110px;object-fit:cover;border-radius:4px;display:block;"/>'
+      : '<div style="width:100%;height:110px;background:#f0fbf4;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:10px;">No Photo</div>';
+    return '<div style="margin-bottom:14px;border:1px solid #ddd;border-radius:6px;overflow:hidden;page-break-inside:avoid;">'
+      +'<div style="background:#f5f3f0;padding:8px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #ddd;">'
+        +'<span style="font-size:16px;font-weight:900;color:#1e1e1e;min-width:32px;">#'+String(it.seq||i+1).padStart(2,'0')+'</span>'
+        +'<span style="font-size:13px;font-weight:700;flex:1;color:#1a1a1a;">'+(it.location||'No location')+'</span>'
+        +'<span style="font-size:10px;color:#888;">'+(it.date||'')+'</span>'
+        +'<span style="background:'+scBg+';color:'+sc+';font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;text-transform:uppercase;">'+it.status+'</span>'
+      +'</div>'
+      +'<div style="display:flex;">'
+        +'<div style="width:22%;padding:8px;background:#fafaf8;border-right:1px solid #ddd;">'
+          +'<div style="font-size:8px;font-weight:700;color:#aaa;margin-bottom:4px;text-transform:uppercase;">Before</div>'
+          +beforeImg
+        +'</div>'
+        +'<div style="width:22%;padding:8px;background:#f8fdf9;border-right:1px solid #ddd;">'
+          +'<div style="font-size:8px;font-weight:700;color:#27ae60;margin-bottom:4px;text-transform:uppercase;">After</div>'
+          +afterImg
+        +'</div>'
+        +'<div style="flex:1;padding:10px;">'
+          +'<div style="font-size:8px;font-weight:700;color:#aaa;text-transform:uppercase;margin-bottom:5px;">Description</div>'
+          +'<div style="font-size:12px;line-height:1.6;color:#1a1a1a;">'+(it.description||'...')+'</div>'
+        +'</div>'
+      +'</div>'
+    +'</div>';
+  }).join('');
 
-  var overlay = document.getElementById('pdf-overlay');
-  var frame = document.getElementById('pdf-frame');
-  overlay.style.display = 'flex';
-  var blob = new Blob([html], {type: 'text/html'});
-  var blobUrl = URL.createObjectURL(blob);
-  frame.src = blobUrl;
-  frame._blobUrl = blobUrl;
-  showToast('Tap Print / Save PDF to export', 'ok');
+  var plansHtml = '';
+  if (renderedPlans && renderedPlans.length) {
+    plansHtml = '<div style="margin-top:20px;margin-bottom:14px;padding-top:16px;border-top:2px solid #1e1e1e;">'
+      +'<div style="font-size:14px;font-weight:900;letter-spacing:2px;margin-bottom:14px;color:#1e1e1e;">FLOOR PLANS</div>';
+    renderedPlans.forEach(function(rp) {
+      if (!rp || !rp.b64) return;
+      plansHtml += '<div style="margin-bottom:16px;">'
+        +'<div style="font-size:11px;font-weight:700;color:#555;margin-bottom:6px;">'+(rp.plan.name||'Floor Plan')+'</div>'
+        +'<img src="'+rp.b64+'" style="width:100%;border-radius:6px;border:1px solid #ddd;display:block;"/>'
+      +'</div>';
+    });
+    plansHtml += '</div>';
+  }
+
+  var aiBlock = aiSummary
+    ? '<div style="margin-bottom:20px;padding:16px;background:#f8f6f3;border-radius:6px;border-left:3px solid #1e1e1e;">'
+        +'<div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:8px;">Executive Summary</div>'
+        +'<div style="font-size:12px;line-height:1.8;color:#333;">'+aiSummary+'</div>'
+      +'</div>'
+    : '';
+
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"/>'
+    +'<style>'
+    +'*{margin:0;padding:0;box-sizing:border-box;}'
+    +'body{font-family:Arial,Helvetica,sans-serif;background:#fff;color:#1a1a1a;width:794px;padding:40px;}'
+    +'</style></head><body>'
+    // Header
+    +'<div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid #1e1e1e;">'
+      +'<div style="background:#1e1e1e;border-radius:8px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'
+        +'<span style="font-size:13px;font-weight:900;color:#fff;letter-spacing:2px;">MLA</span>'
+      +'</div>'
+      +'<div style="flex:1;">'
+        +'<div style="font-size:18px;font-weight:900;letter-spacing:2px;color:#1e1e1e;">SITE INSPECTION REPORT</div>'
+        +'<div style="font-size:11px;color:#888;margin-top:2px;">Generated '+new Date().toLocaleDateString()+'</div>'
+      +'</div>'
+    +'</div>'
+    // Project info table
+    +'<table style="width:100%;border-collapse:collapse;margin-bottom:20px;background:#1e1e1e;border-radius:6px;overflow:hidden;">'
+      +'<tr>'
+        +'<td style="padding:9px 12px;color:#aaa;font-size:10px;width:14%;">PROJECT</td>'
+        +'<td style="padding:9px 12px;color:#fff;font-weight:700;font-size:12px;width:36%;">'+(proj.name||'')+'</td>'
+        +'<td style="padding:9px 12px;color:#aaa;font-size:10px;width:14%;">REF NO.</td>'
+        +'<td style="padding:9px 12px;color:#fff;font-weight:700;font-size:12px;">'+(proj.ref||'')+'</td>'
+      +'</tr><tr>'
+        +'<td style="padding:9px 12px;color:#aaa;font-size:10px;">INSPECTOR</td>'
+        +'<td style="padding:9px 12px;color:#fff;font-weight:700;font-size:12px;">'+(CUD||'')+'</td>'
+        +'<td style="padding:9px 12px;color:#aaa;font-size:10px;">DATE</td>'
+        +'<td style="padding:9px 12px;color:#fff;font-weight:700;font-size:12px;">'+(proj.date||'')+'</td>'
+      +'</tr>'
+    +'</table>'
+    +aiBlock
+    +itemsHtml
+    +plansHtml
+    // Summary
+    +'<div style="margin-top:20px;border:1px solid #ddd;border-radius:6px;overflow:hidden;width:260px;">'
+      +'<div style="background:#1e1e1e;padding:8px 12px;"><span style="font-size:11px;font-weight:700;color:#fff;letter-spacing:1px;">SUMMARY</span></div>'
+      +'<table style="width:100%;border-collapse:collapse;">'
+        +'<tr><td style="padding:7px 12px;font-size:12px;border-bottom:1px solid #ddd;">Total Items</td><td style="padding:7px 12px;font-weight:700;font-size:12px;border-bottom:1px solid #ddd;">'+ITEMS.length+'</td></tr>'
+        +'<tr><td style="padding:7px 12px;font-size:12px;color:#c0392b;border-bottom:1px solid #ddd;">Open</td><td style="padding:7px 12px;font-weight:700;font-size:12px;color:#c0392b;border-bottom:1px solid #ddd;">'+oN+'</td></tr>'
+        +'<tr><td style="padding:7px 12px;font-size:12px;color:#27ae60;">Closed</td><td style="padding:7px 12px;font-weight:700;font-size:12px;color:#27ae60;">'+cN+'</td></tr>'
+      +'</table>'
+    +'</div>'
+    +'</body></html>';
+
+  // Render in hidden div then export with jsPDF
+  var container = document.createElement('div');
+  container.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;background:#fff;z-index:-1;';
+  container.innerHTML = html;
+  document.body.appendChild(container);
+
+  showLoader(true, 'Generating PDF...');
+
+  // Wait for images to load
+  var imgs = container.querySelectorAll('img');
+  var loadPromises = Array.prototype.map.call(imgs, function(img) {
+    return new Promise(function(resolve) {
+      if (img.complete) { resolve(); } else { img.onload = resolve; img.onerror = resolve; }
+    });
+  });
+
+  Promise.all(loadPromises).then(function() {
+    return html2canvas(container, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      width: 794,
+      scrollX: 0,
+      scrollY: 0
+    });
+  }).then(function(canvas) {
+    document.body.removeChild(container);
+    showLoader(false);
+
+    var imgData = canvas.toDataURL('image/jpeg', 0.92);
+    var jsPDF = window.jspdf ? window.jspdf.jsPDF : window.jsPDF;
+    var pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    var pageW = pdf.internal.pageSize.getWidth();
+    var pageH = pdf.internal.pageSize.getHeight();
+    var margin = 0;
+    var imgW = pageW - margin * 2;
+    var imgH = (canvas.height * imgW) / canvas.width;
+    var y = margin;
+    var remaining = imgH;
+
+    while (remaining > 0) {
+      pdf.addImage(imgData, 'JPEG', margin, y, imgW, imgH, '', 'FAST');
+      remaining -= (pageH - margin * 2);
+      if (remaining > 0) {
+        y -= (pageH - margin * 2);
+        pdf.addPage();
+      }
+    }
+
+    var fname = ((proj.name||'inspection').replace(/\s+/g,'_')) + '_report.pdf';
+    pdf.save(fname);
+    showToast('PDF downloaded!', 'ok');
+  }).catch(function(e) {
+    if (container.parentNode) document.body.removeChild(container);
+    showLoader(false);
+    showToast('PDF failed: ' + e.message, 'err');
+    console.error(e);
+  });
 }
 
 function closePdfOverlay() {
   document.getElementById('pdf-overlay').style.display = 'none';
-  var frame = document.getElementById('pdf-frame');
-  if (frame._blobUrl) { URL.revokeObjectURL(frame._blobUrl); frame._blobUrl = null; }
-  frame.src = 'about:blank';
 }
 
-function printPdfOverlay() {
-  var frame = document.getElementById('pdf-frame');
-  if (frame._blobUrl) {
-    window.open(frame._blobUrl, '_blank');
-  } else {
-    try { frame.contentWindow.focus(); frame.contentWindow.print(); } catch(e) {}
-  }
-}
+function printPdfOverlay() {}
 
 // ═══════════════════════════════════════════════
 // FLOOR PLANS
