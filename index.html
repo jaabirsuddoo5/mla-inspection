@@ -195,7 +195,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
   <div class="lock-icon">🔒</div>
   <div class="lock-h">ACCESS LOCKED</div>
   <div class="lock-msg">Sorry, you are not on the access list.<br/>Please contact MLA to activate your account.</div>
-  <div class="lock-email">jaabirsuddoo5@gmail.com</div>
+  <div class="lock-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="03696262616a71707667676c6c3643646e626a6f2d606c6e">[email&#160;protected]</a></div>
   <button class="lock-back" id="btn-lock-back">← Back to Login</button>
 </div>
 
@@ -228,6 +228,18 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
         </div>
       </div>
     </div>
+    <!-- Storage overview -->
+    <div id="storage-bar-wrap" style="background:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 1px 6px rgba(0,0,0,0.07)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#999">TOTAL STORAGE</span>
+        <span id="storage-text" style="font-size:12px;font-weight:700;color:#1e1e1e">Loading...</span>
+      </div>
+      <div style="background:#f0ede8;border-radius:20px;height:8px;overflow:hidden">
+        <div id="storage-fill" style="height:100%;background:#1e1e1e;border-radius:20px;transition:width 0.5s;width:0%"></div>
+      </div>
+      <div style="font-size:11px;color:#999;margin-top:5px">512 MB free tier limit</div>
+    </div>
+
     <div class="slbl">USERS <span id="ucount" style="background:var(--dark);color:#fff;padding:1px 7px;border-radius:20px;font-size:10px;margin-left:4px">0</span></div>
     <div id="ulist"></div>
   </div>
@@ -298,7 +310,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 <div id="loader"><div class="spinner"></div></div>
 <div id="toast"></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ─── CONFIG ────────────────────────────────────
 const API = 'https://mla-backends.onrender.com/api';
 
@@ -365,21 +377,46 @@ async function doLogin(){
 // ─── ADMIN ─────────────────────────────────────
 async function loadAdminUsers(){
   try{
-    const users = await api('GET','/admin/users');
-    renderAdminUsers(users);
+    const [users, statsRes] = await Promise.all([
+      api('GET','/admin/users'),
+      api('GET','/admin/stats').catch(()=>null)
+    ]);
+    // Update storage bar
+    if(statsRes){
+      const pct = Math.min(statsRes.usedPct, 100);
+      const fill = document.getElementById('storage-fill');
+      const text = document.getElementById('storage-text');
+      fill.style.width = pct+'%';
+      fill.style.background = pct>80?'#c0392b':pct>50?'#e67e22':'#1e1e1e';
+      text.textContent = statsRes.totalMB+' MB / 512 MB ('+statsRes.usedPct+'%)';
+    }
+    renderAdminUsers(users, statsRes?.users);
   }catch(e){toast('Failed to load users','err');}
 }
 
-function renderAdminUsers(users){
+function renderAdminUsers(users, stats){
   document.getElementById('ucount').textContent=users.length;
   const list=document.getElementById('ulist');
   if(!users.length){list.innerHTML='<div class="empty"><div class="empty-i">👥</div><p>No users yet.</p></div>';return;}
   const now=new Date();
+
+  // Merge stats into users if available
+  const statsMap={};
+  if(stats) stats.forEach(s=>statsMap[s.email]=s);
+
   list.innerHTML=users.map(u=>{
     let cls,txt;
     if(u.expiry==='forever'){cls='tfore';txt='∞ Forever';}
     else{const days=Math.ceil((new Date(u.expiry)-now)/86400000);if(days<0){cls='texp';txt='EXPIRED';}else if(days<=30){cls='twarn';txt=days+' days left';}else{cls='tok';txt='Until '+u.expiry;}}
-    return`<div class="urow"><div class="uinfo"><div class="uname">${xe(u.name)}</div><div class="uemail">${xe(u.email)}</div><span class="utag ${cls}">${txt}</span></div><button class="udel" data-e="${xe(u.email)}">×</button></div>`;
+    const st = statsMap[u.email];
+    const storageLine = st
+      ? `<div style="font-size:11px;color:#888;margin-top:3px">
+           📁 ${st.projects} projects · 📸 ${st.photos} photos · 
+           <span style="font-weight:700;color:${st.storageMB>50?'#c0392b':st.storageMB>20?'#e67e22':'#27ae60'}">${st.storageMB} MB</span>
+           ${st.storageMB>30?'<span style="color:#c0392b;font-size:10px;font-weight:700;margin-left:4px">⚠️ High</span>':''}
+         </div>`
+      : '';
+    return`<div class="urow"><div class="uinfo"><div class="uname">${xe(u.name)}</div><div class="uemail">${xe(u.email)}</div><span class="utag ${cls}">${txt}</span>${storageLine}</div><button class="udel" data-e="${xe(u.email)}">×</button></div>`;
   }).join('');
   list.querySelectorAll('.udel').forEach(b=>b.addEventListener('click',()=>adminDel(b.dataset.e)));
 }
@@ -814,11 +851,4 @@ document.addEventListener('gesturechange',e=>e.preventDefault());
 document.addEventListener('gestureend',e=>e.preventDefault());
 document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
 let _lt=0;
-document.addEventListener('touchend',e=>{const now=Date.now();if(now-_lt<300)e.preventDefault();_lt=now;},{passive:false});
-
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister()));
-}
-</script>
-</body>
-</html>
+document.addEventListener('touchend',e=
