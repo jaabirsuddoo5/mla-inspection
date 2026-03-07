@@ -48,9 +48,13 @@ body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--ink);
   background:#3a3a3a;
   border-radius:20px;
   display:flex; align-items:center; justify-content:center;
-  overflow:hidden;
+  cursor:pointer; user-select:none; -webkit-user-select:none;
 }
-.login-logo img { width:70px; object-fit:contain; filter:brightness(0) invert(1); }
+.login-logo-text {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:32px; letter-spacing:4px;
+  color:white; pointer-events:none;
+}
 .login-title {
   font-family:'Bebas Neue',sans-serif;
   font-size:28px; letter-spacing:3px;
@@ -94,9 +98,12 @@ body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--ink);
   width:36px; height:36px;
   background:#3a3a3a; border-radius:8px;
   display:flex; align-items:center; justify-content:center;
-  overflow:hidden; flex-shrink:0;
+  flex-shrink:0;
 }
-.topbar-logo img { width:26px; filter:brightness(0) invert(1); }
+.topbar-logo-text {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:13px; letter-spacing:2px; color:white;
+}
 .topbar-title {
   font-family:'Bebas Neue',sans-serif;
   font-size:19px; letter-spacing:2px; color:white; flex:1;
@@ -460,9 +467,7 @@ body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--ink);
 
 <!-- ══ LOGIN ══════════════════════════════════════ -->
 <div class="screen on" id="s-login">
-  <div class="login-logo" id="login-logo-tap">
-    <img src="data:image/jpeg;base64,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" alt="MLA"/>
-  </div>
+  <div class="login-logo" id="login-logo-tap"><span class="login-logo-text">MLA</span></div>
   <div class="login-title">MLA INSPECTION</div>
   <div class="login-sub">Site Inspection & Snag List</div>
   <div class="login-form">
@@ -511,7 +516,7 @@ body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--ink);
 <!-- ══ PROJECTS ════════════════════════════════════ -->
 <div class="screen" id="s-projects">
   <div class="topbar">
-    <div class="topbar-logo"><img src="data:image/jpeg;base64,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" alt="MLA"/></div>
+    <div class="topbar-logo"><span class="topbar-logo-text">MLA</span></div>
     <div class="topbar-title">MLA INSPECTION<span id="user-greeting">Hello</span></div>
     <button class="topbar-btn" onclick="doLogout()">← Logout</button>
   </div>
@@ -638,16 +643,22 @@ let logoTaps = 0, logoTimer = null;
 function handleLogoTap() {
   logoTaps++;
   clearTimeout(logoTimer);
-  logoTimer = setTimeout(() => { logoTaps = 0; }, 2000);
+  // Visual feedback - flash the logo
+  const logo = document.getElementById('login-logo-tap');
+  logo.style.opacity = '0.6';
+  setTimeout(() => logo.style.opacity = '1', 150);
+  logoTimer = setTimeout(() => { logoTaps = 0; }, 3000);
   if (logoTaps >= 5) {
     logoTaps = 0;
-    const pass = prompt('Admin password:');
-    if (pass === ADMIN_PASS) {
-      show('s-admin');
-      renderAdminUsers();
-    } else if (pass !== null) {
-      showToast('Wrong password','err');
-    }
+    setTimeout(() => {
+      const pass = prompt('Admin password:');
+      if (pass === ADMIN_PASS) {
+        show('s-admin');
+        renderAdminUsers();
+      } else if (pass !== null) {
+        showToast('Wrong password','err');
+      }
+    }, 100);
   }
 }
 
@@ -1301,7 +1312,13 @@ async function exportWord() {
 }
 
 // ── Logo tap → secret admin ──────────────────────
-document.getElementById('login-logo-tap').addEventListener('click', handleLogoTap);
+// Use touchend for iPhone, click for desktop
+const logoEl = document.getElementById('login-logo-tap');
+logoEl.addEventListener('touchend', function(e) {
+  e.preventDefault();
+  handleLogoTap();
+});
+logoEl.addEventListener('click', handleLogoTap);
 
 // ── Prevent zoom ─────────────────────────────────
 document.addEventListener('gesturestart', e => e.preventDefault());
