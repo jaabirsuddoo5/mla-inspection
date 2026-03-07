@@ -1197,8 +1197,9 @@ function exportWord() {
           body += pa(rn(rp.plan.name || 'Floor Plan', {b:true, s:22, c:'555555', f:'Arial'}), {after:80});
           var pm = addImg(rp.b64);
           if (pm) {
-            var planH = Math.floor(W * 0.65);
-            body += pa(ir(pm.rId, pm.id, Math.floor(W/9525), Math.floor(planH/9525)), {align:'center'});
+            // W is in twips (9360), convert to pixels for ir() which multiplies by 9525
+            // Use full page width: ~620px wide, ~400px tall
+            body += pa(ir(pm.rId, pm.id, 620, 400), {align:'center'});
           }
           body += pa('', {after:160});
         });
@@ -1241,6 +1242,7 @@ function buildWordDoc(body, oN, cN, proj, imgs, W) {
     document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(url);a.remove();},1000);
     showToast('Word report downloaded!','ok');
   } catch(e) { showToast('Export failed','err');console.error(e); }
+}
 
 function exportPDF() {
   if (!ITEMS.length) { showToast('No items to export', 'err'); return; }
