@@ -185,8 +185,8 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
   </div>
   <div class="lform">
     <input class="linput" id="inp-name" type="text" placeholder="Enter your name or email" autocomplete="off" autocapitalize="words"/>
-    <input class="linput" id="inp-pass" type="password" placeholder="Password" autocomplete="off"/>
-    <button class="lbtn" id="btn-login">Continue →</button>
+    <input class="linput" id="inp-pass" type="password" placeholder="Password" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <button class="lbtn" id="btn-login" onclick="doLogin()">Continue →</button>
   </div>
 </div>
 
