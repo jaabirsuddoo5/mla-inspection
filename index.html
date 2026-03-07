@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
 <meta name="apple-mobile-web-app-title" content="MLA Inspection"/>
 <meta name="theme-color" content="#1e1e1e"/>
 <meta name="mobile-web-app-capable" content="yes"/>
@@ -27,7 +27,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 }
 .page{display:none;height:100%;flex-direction:column;overflow:hidden}
 .page.active{display:flex}
-.topbar{background:var(--dark);padding:calc(env(safe-area-inset-top,59px)+12px) 16px 14px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.topbar{background:var(--dark);padding:16px 16px 14px;display:flex;align-items:center;gap:12px;flex-shrink:0}
 .tlogo{width:34px;height:34px;background:var(--dark3);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .tlogo span{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:1.5px;color:#fff}
 .ttitle{flex:1;min-width:0}
@@ -54,7 +54,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite}
 .lmsg{color:#fff;font-size:13px;font-weight:600}
 @keyframes spin{to{transform:rotate(360deg)}}
-#p-login{background:var(--dark);align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top,59px)+40px) 28px 40px;gap:28px}
+#p-login{background:var(--dark);align-items:center;justify-content:center;padding:60px 28px 40px;gap:28px}
 .llogin{width:88px;height:88px;background:var(--dark3);border-radius:18px;display:flex;align-items:center;justify-content:center}
 .llogin span{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:#fff}
 .lhead{text-align:center}
@@ -72,7 +72,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .lock-contact{font-size:14px;font-weight:700;color:#fff;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:12px 20px;width:100%;text-align:center}
 .lock-back{background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;padding:8px;font-family:'DM Sans',sans-serif}
 #p-admin{background:var(--bg)}
-.admin-bar{background:#111;padding:calc(env(safe-area-inset-top,59px)+12px) 16px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.admin-bar{background:#111;padding:16px 16px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0}
 .admin-bar h1{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;flex:1}
 .abadge{background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
 .admin-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;display:flex;flex-direction:column;gap:14px}
@@ -138,7 +138,15 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .annot-undo{background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
 .annot-save{background:#27ae60;border:none;color:#fff;border-radius:8px;padding:10px 0;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;flex:1;text-align:center}
 .annot-cancel{background:rgba(255,255,255,0.1);border:none;color:#fff;border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
-.sdate{padding:7px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+.plan-card{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.07);margin-bottom:12px}
+.plan-head{background:#fafaf8;padding:10px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line)}
+.plan-name-inp{flex:1;border:none;background:transparent;font-size:14px;font-weight:600;color:#1a1a1a;outline:none;font-family:'DM Sans',sans-serif}
+.plan-thumb{width:100%;height:160px;object-fit:contain;background:#f0ede8;display:block;cursor:pointer}
+.plan-empty{height:120px;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:13px;flex-direction:column;gap:6px;cursor:pointer}
+.plan-actions{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}
+.plan-upload-btn{flex:1;background:var(--dark);color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.plan-del-btn{background:#fde8e6;color:var(--red);border:none;border-radius:8px;padding:9px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.pin-count{font-size:11px;color:var(--muted);padding:0 12px 8px};border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
 .dlbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#bbb;flex-shrink:0}
 .sdate input{border:none;background:transparent;font-size:13px;color:#1a1a1a;outline:none;-webkit-appearance:none;flex:1;font-family:'DM Sans',sans-serif}
 .sdesc{padding:11px 12px}
@@ -256,6 +264,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
   </div>
   <div class="tabs">
     <div class="itab on" id="itab-items">Items</div>
+    <div class="itab" id="itab-plans">Plans</div>
     <div class="itab" id="itab-export">Export</div>
   </div>
   <div id="tab-items" class="scroll">
@@ -270,6 +279,14 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
       </div>
     </div>
   </div>
+  <!-- PLANS TAB -->
+  <div id="tab-plans" class="scroll" style="display:none">
+    <div class="ilist" id="plans-list"></div>
+    <div style="padding:0 16px 16px">
+      <button class="btn" id="btn-add-plan" type="button">+ Add Floor Plan</button>
+    </div>
+  </div>
+
   <div id="tab-export" class="scroll" style="display:none">
     <div class="expbody">
       <div class="sumcard">
@@ -290,9 +307,47 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 <div id="loader"><div class="spinner"></div><div class="lmsg" id="lmsg">Loading...</div></div>
 <div id="toast"></div>
 
-<!-- ANNOTATION MODAL -->
+<!-- FLOOR PLAN MODAL -->
+<div id="plan-modal" style="position:fixed;inset:0;z-index:10001;background:#000;display:none;flex-direction:column">
+  <div id="plan-modal-topbar" style="background:#111;padding:16px 16px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+    <button onclick="closePlanModal()" style="background:rgba(255,255,255,0.1);border:none;color:#fff;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif" type="button">✕ Close</button>
+    <span id="plan-modal-title" style="color:#fff;font-size:13px;font-weight:700;letter-spacing:1px">FLOOR PLAN</span>
+    <button id="plan-pin-btn" onclick="startPinMode()" style="background:#e74c3c;border:none;color:#fff;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif" type="button">📍 Add Pin</button>
+  </div>
+  <div id="plan-canvas-wrap" style="flex:1;overflow:hidden;position:relative;touch-action:none">
+    <canvas id="plan-canvas" style="position:absolute;top:0;left:0;touch-action:none"></canvas>
+  </div>
+  <div id="plan-pin-hint" style="display:none;background:#e74c3c;color:#fff;text-align:center;padding:12px;font-size:13px;font-weight:700;flex-shrink:0">
+    Tap on the plan to place pin — tap again to cancel
+  </div>
+</div>
+
+<!-- PIN ITEM SELECTOR SHEET -->
+<div id="pin-sheet" style="position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,0.5);display:none;align-items:flex-end">
+  <div style="background:#fff;border-radius:20px 20px 0 0;width:100%;max-height:70vh;display:flex;flex-direction:column">
+    <div style="padding:16px;border-bottom:1px solid #e4e1dc;display:flex;align-items:center;justify-content:space-between">
+      <span style="font-weight:700;font-size:15px">Select Snag Item</span>
+      <button onclick="closePinSheet()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#999" type="button">✕</button>
+    </div>
+    <div id="pin-sheet-list" style="overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;padding:8px 0"></div>
+  </div>
+</div>
+
+<!-- PIN DETAIL SHEET -->
+<div id="pin-detail" style="position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,0.5);display:none;align-items:flex-end">
+  <div style="background:#fff;border-radius:20px 20px 0 0;width:100%;padding:20px;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span id="pd-num" style="font-family:'Bebas Neue',sans-serif;font-size:24px"></span>
+      <span id="pd-status" style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px"></span>
+      <button onclick="closePinDetail()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#999" type="button">✕</button>
+    </div>
+    <div id="pd-loc" style="font-size:14px;font-weight:600;color:#333"></div>
+    <div id="pd-desc" style="font-size:13px;color:#666;line-height:1.5"></div>
+    <img id="pd-photo" style="width:100%;border-radius:10px;object-fit:cover;max-height:200px;display:none"/>
+  </div>
+</div>
 <div id="annot-modal">
-  <div style="background:#111;padding:calc(env(safe-area-inset-top,59px)+12px) 16px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+  <div style="background:#111;padding:16px 16px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
     <button class="annot-cancel" onclick="closeAnnotate()" type="button">✕ Cancel</button>
     <span style="color:#fff;font-size:13px;font-weight:700;letter-spacing:1px;">ANNOTATE</span>
     <button class="annot-undo" onclick="annotUndo()" type="button">↩ Undo</button>
@@ -731,10 +786,13 @@ function openProject(pid, projData) {
 
 function showTab(t) {
   document.getElementById('itab-items').classList.toggle('on', t === 'items');
+  document.getElementById('itab-plans').classList.toggle('on', t === 'plans');
   document.getElementById('itab-export').classList.toggle('on', t === 'export');
   document.getElementById('tab-items').style.display = t === 'items' ? 'block' : 'none';
+  document.getElementById('tab-plans').style.display = t === 'plans' ? 'block' : 'none';
   document.getElementById('tab-export').style.display = t === 'export' ? 'block' : 'none';
   if (t === 'export') updateSummary();
+  if (t === 'plans') loadPlans();
 }
 
 function renderItems() {
@@ -896,6 +954,51 @@ function updateSummary() {
   document.getElementById('sum-c').textContent = ITEMS.filter(function(i) { return i.status === 'closed'; }).length;
 }
 
+// Render a floor plan with all its pins drawn on it, return base64 jpeg
+function renderPlanWithPins(plan) {
+  if (!plan.image) return null;
+  try {
+    var img = new Image();
+    // Synchronous via canvas trick - image already loaded as base64
+    var canvas = document.createElement('canvas');
+    img.src = plan.image;
+    // Draw at fixed export size
+    var maxW = 1200, maxH = 800;
+    var scale = Math.min(maxW / img.width, maxH / img.height, 1);
+    canvas.width = img.width * scale;
+    canvas.height = img.height * scale;
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    // Draw pins
+    ITEMS.forEach(function(item) {
+      if (!item.pins) return;
+      item.pins.forEach(function(pin) {
+        if (pin.planId !== plan._id) return;
+        var sx = pin.x * canvas.width;
+        var sy = pin.y * canvas.height;
+        var color = item.status === 'closed' ? '#27ae60' : '#e74c3c';
+        // Pole
+        ctx.strokeStyle = color; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx, sy - 36); ctx.stroke();
+        // Flag
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(sx, sy - 36); ctx.lineTo(sx + 24, sy - 28); ctx.lineTo(sx, sy - 20);
+        ctx.closePath(); ctx.fill();
+        // Number
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 11px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(String(item.seq || '?'), sx + 12, sy - 26);
+        // Base dot
+        ctx.fillStyle = color;
+        ctx.beginPath(); ctx.arc(sx, sy, 5, 0, Math.PI * 2); ctx.fill();
+      });
+    });
+    return canvas.toDataURL('image/jpeg', 0.9);
+  } catch(e) { return null; }
+}
+
 function exportWord() {
   if (!ITEMS.length) { showToast('No items to export', 'err'); return; }
   showToast('Building Word report...');
@@ -930,6 +1033,27 @@ function exportWord() {
   }
   var oN=ITEMS.filter(function(i){return i.status==='open';}).length;
   var cN=ITEMS.filter(function(i){return i.status==='closed';}).length;
+
+  // Floor plans section (if any plans with images exist)
+  var plansWithImages = PLANS.filter(function(p) { return p.image; });
+  if (plansWithImages.length) {
+    body += pa('', {after: 200});
+    body += pa(rn('FLOOR PLANS', {b:true, s:28, c:'1A1A1A', f:'Arial'}), {after:120});
+    plansWithImages.forEach(function(plan) {
+      // Render plan with pins to canvas
+      var planB64 = renderPlanWithPins(plan);
+      if (planB64) {
+        body += pa(rn(plan.name || 'Floor Plan', {b:true, s:22, c:'555555', f:'Arial'}), {after:80});
+        var pm = addImg(planB64);
+        if (pm) {
+          var planW = W; var planH = Math.floor(W * 0.65);
+          body += pa(ir(pm.rId, pm.id, planW / 9525 * 9525 / 9525, planH / 9525 * 9525 / 9525), {align:'center'});
+        }
+        body += pa('', {after:160});
+      }
+    });
+  }
+
   var sw=Math.floor(W*0.5),c1=Math.floor(sw*0.6),c2=sw-c1;
   body+=tb([rw(cl(pa(rn('SUMMARY',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{span:2,bg:'1E1E1E',bT:'1E1E1E',bTs:8,bB:'CCCCCC'})),rw(cl(pa(rn('Total Items',{s:18,f:'Arial'})),{w:c1,bB:'CCCCCC',bR:'CCCCCC'}),cl(pa(rn(String(ITEMS.length),{b:true,s:18,f:'Arial'})),{w:c2,bB:'CCCCCC'})),rw(cl(pa(rn('Open',{s:18,c:'C0392B',f:'Arial'})),{w:c1,bB:'CCCCCC',bR:'CCCCCC'}),cl(pa(rn(String(oN),{b:true,s:18,c:'C0392B',f:'Arial'})),{w:c2,bB:'CCCCCC'})),rw(cl(pa(rn('Closed',{s:18,c:'27AE60',f:'Arial'})),{w:c1,bB:'1E1E1E',bBs:8,bR:'CCCCCC'}),cl(pa(rn(String(cN),{b:true,s:18,c:'27AE60',f:'Arial'})),{w:c2,bB:'1E1E1E',bBs:8}))],sw);
   // Footer XML
@@ -967,13 +1091,459 @@ function exportPDF() {
     var ph = it.photo ? '<img src="'+it.photo+'" style="width:100%;height:160px;object-fit:cover;border-radius:6px;display:block;"/>' : '<div style="width:100%;height:160px;background:#f0ede8;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:13px;">No Photo</div>';
     return '<div style="margin-bottom:18px;border:1px solid #e4e1dc;border-radius:10px;overflow:hidden;page-break-inside:avoid;"><div style="background:#f8f6f3;padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #e4e1dc;"><span style="font-size:18px;font-weight:900;min-width:36px;">#'+String(it.seq||i+1).padStart(2,'0')+'</span><span style="font-size:14px;font-weight:700;flex:1;">'+(it.location||'No location')+'</span><span style="font-size:11px;color:#888;">'+(it.date||'')+'</span><span style="background:'+sc+'22;color:'+sc+';font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;">'+it.status+'</span></div><div style="display:flex;"><div style="width:38%;padding:12px;background:#fafaf8;border-right:1px solid #e4e1dc;">'+ph+'</div><div style="flex:1;padding:12px;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:#aaa;margin-bottom:6px;">DESCRIPTION</div><div style="font-size:13px;line-height:1.6;">'+(it.description||'...')+'</div></div></div></div>';
   }).join('');
-  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#fff;padding:32px;}@page{margin:32px 32px 60px 32px;}@media print{footer{position:fixed;bottom:0;left:0;right:0;padding:10px 32px;background:#fff;border-top:1px solid #e4e1dc;display:flex;justify-content:space-between;align-items:center;}}</style></head><body><div style="margin-bottom:24px;"><div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;"><div style="background:#1e1e1e;border-radius:10px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;"><span style="font-size:16px;font-weight:900;color:#fff;letter-spacing:2px;">MLA</span></div><div><div style="font-size:22px;font-weight:900;letter-spacing:2px;">SITE INSPECTION REPORT</div><div style="font-size:12px;color:#888;margin-top:2px;">Generated '+ new Date().toLocaleDateString() +'</div></div></div><table style="width:100%;border-collapse:collapse;background:#1e1e1e;"><tr><td style="padding:10px 14px;color:#aaa;font-size:11px;width:15%;">PROJECT</td><td style="padding:10px 14px;color:#fff;font-weight:700;width:35%;">'+(proj.name||'...')+'</td><td style="padding:10px 14px;color:#aaa;font-size:11px;width:15%;">REF NO.</td><td style="padding:10px 14px;color:#fff;font-weight:700;">'+(proj.ref||'...')+'</td></tr><tr><td style="padding:10px 14px;color:#aaa;font-size:11px;">INSPECTOR</td><td style="padding:10px 14px;color:#fff;font-weight:700;">'+(CUD||'...')+'</td><td style="padding:10px 14px;color:#aaa;font-size:11px;">DATE</td><td style="padding:10px 14px;color:#fff;font-weight:700;">'+(proj.date||'...')+'</td></tr></table></div>'+rows+'<div style="margin-top:24px;border:1px solid #e4e1dc;border-radius:10px;overflow:hidden;"><div style="background:#1e1e1e;padding:10px 14px;"><span style="font-size:13px;font-weight:700;color:#fff;">SUMMARY</span></div><table style="width:50%;border-collapse:collapse;"><tr><td style="padding:8px 14px;border-bottom:1px solid #e4e1dc;">Total</td><td style="padding:8px 14px;font-weight:700;border-bottom:1px solid #e4e1dc;">'+ITEMS.length+'</td></tr><tr><td style="padding:8px 14px;color:#c0392b;border-bottom:1px solid #e4e1dc;">Open</td><td style="padding:8px 14px;font-weight:700;color:#c0392b;border-bottom:1px solid #e4e1dc;">'+oN+'</td></tr><tr><td style="padding:8px 14px;color:#27ae60;">Closed</td><td style="padding:8px 14px;font-weight:700;color:#27ae60;">'+cN+'</td></tr></table></div><footer style="margin-top:40px;padding-top:12px;border-top:1px solid #e4e1dc;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:11px;color:#aaa;">'+new Date().toLocaleDateString()+'</span><span style="font-size:12px;font-weight:900;color:#1e1e1e;letter-spacing:1px;">MLA INSPECTION</span></footer></body></html>';
+  // Build floor plan HTML section
+  var plansHtml = '';
+  var plansWithImgs = PLANS.filter(function(p) { return p.image; });
+  if (plansWithImgs.length) {
+    plansHtml = '<div style="margin-bottom:24px;page-break-before:always;"><div style="font-size:16px;font-weight:900;letter-spacing:2px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #1e1e1e;">FLOOR PLANS</div>';
+    plansWithImgs.forEach(function(plan) {
+      var planImg = renderPlanWithPins(plan);
+      if (planImg) {
+        plansHtml += '<div style="margin-bottom:20px;"><div style="font-size:13px;font-weight:700;color:#555;margin-bottom:8px;">' + (plan.name||'Floor Plan') + '</div>';
+        plansHtml += '<img src="' + planImg + '" style="width:100%;border-radius:8px;border:1px solid #e4e1dc;"/></div>';
+      }
+    });
+    plansHtml += '</div>';
+  }
+
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#fff;padding:32px;}@page{margin:32px 32px 60px 32px;}@media print{footer{position:fixed;bottom:0;left:0;right:0;padding:10px 32px;background:#fff;border-top:1px solid #e4e1dc;display:flex;justify-content:space-between;align-items:center;}}</style></head><body><div style="margin-bottom:24px;"><div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;"><div style="background:#1e1e1e;border-radius:10px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;"><span style="font-size:16px;font-weight:900;color:#fff;letter-spacing:2px;">MLA</span></div><div><div style="font-size:22px;font-weight:900;letter-spacing:2px;">SITE INSPECTION REPORT</div><div style="font-size:12px;color:#888;margin-top:2px;">Generated '+ new Date().toLocaleDateString() +'</div></div></div><table style="width:100%;border-collapse:collapse;background:#1e1e1e;"><tr><td style="padding:10px 14px;color:#aaa;font-size:11px;width:15%;">PROJECT</td><td style="padding:10px 14px;color:#fff;font-weight:700;width:35%;">'+(proj.name||'...')+'</td><td style="padding:10px 14px;color:#aaa;font-size:11px;width:15%;">REF NO.</td><td style="padding:10px 14px;color:#fff;font-weight:700;">'+(proj.ref||'...')+'</td></tr><tr><td style="padding:10px 14px;color:#aaa;font-size:11px;">INSPECTOR</td><td style="padding:10px 14px;color:#fff;font-weight:700;">'+(CUD||'...')+'</td><td style="padding:10px 14px;color:#aaa;font-size:11px;">DATE</td><td style="padding:10px 14px;color:#fff;font-weight:700;">'+(proj.date||'...')+'</td></tr></table></div>' + plansHtml + rows+'<div style="margin-top:24px;border:1px solid #e4e1dc;border-radius:10px;overflow:hidden;"><div style="background:#1e1e1e;padding:10px 14px;"><span style="font-size:13px;font-weight:700;color:#fff;">SUMMARY</span></div><table style="width:50%;border-collapse:collapse;"><tr><td style="padding:8px 14px;border-bottom:1px solid #e4e1dc;">Total</td><td style="padding:8px 14px;font-weight:700;border-bottom:1px solid #e4e1dc;">'+ITEMS.length+'</td></tr><tr><td style="padding:8px 14px;color:#c0392b;border-bottom:1px solid #e4e1dc;">Open</td><td style="padding:8px 14px;font-weight:700;color:#c0392b;border-bottom:1px solid #e4e1dc;">'+oN+'</td></tr><tr><td style="padding:8px 14px;color:#27ae60;">Closed</td><td style="padding:8px 14px;font-weight:700;color:#27ae60;">'+cN+'</td></tr></table></div><footer style="margin-top:40px;padding-top:12px;border-top:1px solid #e4e1dc;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:11px;color:#aaa;">'+new Date().toLocaleDateString()+'</span><span style="font-size:12px;font-weight:900;color:#1e1e1e;letter-spacing:1px;">MLA INSPECTION</span></footer></body></html>';
   var win = window.open('', '_blank');
   if (!win) { showToast('Allow popups to export PDF', 'err'); return; }
   win.document.write(html); win.document.close();
   win.onload = function() { setTimeout(function() { win.print(); showToast('Save as PDF', 'ok'); }, 500); };
 }
 
+// ═══════════════════════════════════════════════
+// FLOOR PLANS
+// ═══════════════════════════════════════════════
+var PLANS = [];
+var PLAN_MODAL_ID = null;
+var PLAN_MODAL_IMG = null;
+var PIN_MODE = false;
+var PIN_X = 0, PIN_Y = 0;
+
+// Pinch zoom state
+var PZ = { scale:1, tx:0, ty:0, lastScale:1, lastTx:0, lastTy:0, dist0:0, mx0:0, my0:0 };
+
+function loadPlans() {
+  callAPI('GET', '/projects/' + CPJ + '/plans', null, function(err, plans) {
+    if (err) { showToast('Failed to load plans', 'err'); return; }
+    PLANS = plans || [];
+    renderPlans();
+  });
+}
+
+function renderPlans() {
+  var list = document.getElementById('plans-list');
+  list.innerHTML = '';
+  PLANS.forEach(function(plan) {
+    var el = document.createElement('div');
+    el.className = 'plan-card';
+    el.id = 'plancard-' + plan._id;
+    // Count pins for this plan
+    var pinCount = ITEMS.filter(function(i) {
+      return i.pins && i.pins.some(function(p) { return p.planId === plan._id; });
+    }).length;
+    el.innerHTML =
+      '<div class="plan-head">' +
+        '<span style="font-size:18px">🗺️</span>' +
+        '<input class="plan-name-inp" value="' + (plan.name||'Floor Plan').replace(/"/g,'&quot;') + '" placeholder="e.g. Ground Floor"/>' +
+        '<button onclick="viewPlan(\'' + plan._id + '\')" style="background:var(--dark);color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:\'DM Sans\',sans-serif" type="button">View</button>' +
+      '</div>' +
+      (plan.image ? '<img class="plan-thumb" src="' + plan.image + '" onclick="viewPlan(\'' + plan._id + '\')" />' :
+        '<div class="plan-empty"><span style="font-size:30px">📐</span><span>No image uploaded yet</span></div>') +
+      '<div class="pin-count">' + pinCount + ' pin' + (pinCount!==1?'s':'') + ' placed</div>' +
+      '<div class="plan-actions">' +
+        '<label class="plan-upload-btn" style="display:flex;align-items:center;justify-content:center;gap:6px">' +
+          '📎 Upload Image / PDF' +
+          '<input type="file" accept="image/*,application/pdf" style="display:none" onchange="uploadPlanImage(\'' + plan._id + '\',this)"/>' +
+        '</label>' +
+        '<button class="plan-del-btn" onclick="deletePlan(\'' + plan._id + '\')" type="button">Delete</button>' +
+      '</div>';
+    // Name save on blur
+    el.querySelector('.plan-name-inp').addEventListener('blur', function(e) {
+      callAPI('PUT', '/plans/' + plan._id, { name: e.target.value }, function() {});
+      plan.name = e.target.value;
+    });
+    list.appendChild(el);
+  });
+}
+
+function uploadPlanImage(planId, input) {
+  var file = input.files[0]; if (!file) return;
+  showLoader(true, 'Processing image...');
+  if (file.type === 'application/pdf') {
+    // Convert PDF first page to image via FileReader + canvas trick
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      // Load PDF.js from CDN dynamically
+      if (!window.pdfjsLib) {
+        var script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+        script.onload = function() {
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          renderPDFtoImage(e.target.result, planId);
+        };
+        document.head.appendChild(script);
+      } else {
+        renderPDFtoImage(e.target.result, planId);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  } else {
+    var reader2 = new FileReader();
+    reader2.onload = function(e) {
+      var img = new Image();
+      img.onload = function() {
+        var canvas = document.createElement('canvas');
+        var maxW = 1600, maxH = 1600;
+        var scale = Math.min(maxW/img.width, maxH/img.height, 1);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        var b64 = canvas.toDataURL('image/jpeg', 0.85);
+        savePlanImage(planId, b64);
+      };
+      img.src = e.target.result;
+    };
+    reader2.readAsDataURL(file);
+  }
+}
+
+function renderPDFtoImage(arrayBuffer, planId) {
+  var typedArray = new Uint8Array(arrayBuffer);
+  pdfjsLib.getDocument({ data: typedArray }).promise.then(function(pdf) {
+    pdf.getPage(1).then(function(page) {
+      var viewport = page.getViewport({ scale: 2.0 });
+      var canvas = document.createElement('canvas');
+      canvas.width = viewport.width; canvas.height = viewport.height;
+      page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport }).promise.then(function() {
+        var b64 = canvas.toDataURL('image/jpeg', 0.85);
+        savePlanImage(planId, b64);
+      });
+    });
+  }).catch(function(e) { showLoader(false); showToast('PDF error: ' + e.message, 'err'); });
+}
+
+function savePlanImage(planId, b64) {
+  callAPI('PUT', '/plans/' + planId, { image: b64 }, function(err) {
+    showLoader(false);
+    if (err) { showToast('Upload failed', 'err'); return; }
+    var plan = PLANS.find(function(p) { return p._id === planId; });
+    if (plan) plan.image = b64;
+    renderPlans();
+    showToast('Plan uploaded!', 'ok');
+  });
+}
+
+function deletePlan(planId) {
+  if (!confirm('Delete this floor plan? Pins on this plan will be removed.')) return;
+  callAPI('DELETE', '/plans/' + planId, null, function(err) {
+    if (err) { showToast('Failed', 'err'); return; }
+    PLANS = PLANS.filter(function(p) { return p._id !== planId; });
+    // Remove pins from local ITEMS
+    ITEMS.forEach(function(item) {
+      if (item.pins) item.pins = item.pins.filter(function(p) { return p.planId !== planId; });
+    });
+    renderPlans();
+    showToast('Plan deleted', 'ok');
+  });
+}
+
+function addPlan() {
+  callAPI('POST', '/projects/' + CPJ + '/plans', { name: 'Floor Plan ' + (PLANS.length + 1) }, function(err, plan) {
+    if (err) { showToast('Failed', 'err'); return; }
+    PLANS.push(plan);
+    renderPlans();
+    showToast('Plan added!', 'ok');
+  });
+}
+
+// ─── FLOOR PLAN VIEWER ────────────────────────
+function viewPlan(planId) {
+  var plan = PLANS.find(function(p) { return p._id === planId; });
+  if (!plan || !plan.image) { showToast('Upload an image first', 'err'); return; }
+  PLAN_MODAL_ID = planId;
+  PIN_MODE = false;
+  PZ = { scale:1, tx:0, ty:0, dist0:0 };
+  document.getElementById('plan-modal-title').textContent = plan.name || 'Floor Plan';
+  document.getElementById('plan-pin-hint').style.display = 'none';
+  document.getElementById('plan-modal').style.display = 'flex';
+
+  var img = new Image();
+  img.onload = function() {
+    PLAN_MODAL_IMG = img;
+    initPlanCanvas();
+  };
+  img.src = plan.image;
+}
+
+function initPlanCanvas() {
+  var wrap = document.getElementById('plan-canvas-wrap');
+  var canvas = document.getElementById('plan-canvas');
+  var W = wrap.clientWidth, H = wrap.clientHeight;
+  canvas.width = W; canvas.height = H;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+
+  // Fit image
+  var img = PLAN_MODAL_IMG;
+  var scale = Math.min(W / img.width, H / img.height);
+  PZ.scale = scale;
+  PZ.tx = (W - img.width * scale) / 2;
+  PZ.ty = (H - img.height * scale) / 2;
+
+  drawPlanCanvas();
+  attachPlanEvents(canvas);
+}
+
+function drawPlanCanvas() {
+  var canvas = document.getElementById('plan-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  var img = PLAN_MODAL_IMG;
+  if (!img) return;
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.save();
+  ctx.translate(PZ.tx, PZ.ty);
+  ctx.scale(PZ.scale, PZ.scale);
+  ctx.drawImage(img, 0, 0);
+  ctx.restore();
+
+  // Draw pins
+  var planId = PLAN_MODAL_ID;
+  ITEMS.forEach(function(item) {
+    if (!item.pins) return;
+    item.pins.forEach(function(pin) {
+      if (pin.planId !== planId) return;
+      var sx = pin.x * img.width * PZ.scale + PZ.tx;
+      var sy = pin.y * img.height * PZ.scale + PZ.ty;
+      drawFlag(ctx, sx, sy, item.seq, item.status);
+    });
+  });
+}
+
+function drawFlag(ctx, x, y, num, status) {
+  var color = status === 'closed' ? '#27ae60' : '#e74c3c';
+  // Flag pole
+  ctx.strokeStyle = color; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y - 28); ctx.stroke();
+  // Flag
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(x, y - 28); ctx.lineTo(x + 18, y - 22); ctx.lineTo(x, y - 16);
+  ctx.closePath(); ctx.fill();
+  // Number
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 9px DM Sans, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(String(num || '?'), x + 9, y - 20);
+  // Dot at base
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();
+}
+
+function attachPlanEvents(canvas) {
+  // Remove old listeners by cloning
+  var newCanvas = canvas.cloneNode(true);
+  canvas.parentNode.replaceChild(newCanvas, canvas);
+  canvas = document.getElementById('plan-canvas');
+
+  var isPinching = false, isDragging = false;
+  var lastTx = 0, lastTy = 0, startX = 0, startY = 0;
+
+  function getTouches(e) { return e.touches; }
+  function dist(t) { return Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY); }
+  function mid(t) { return { x: (t[0].clientX + t[1].clientX) / 2, y: (t[0].clientY + t[1].clientY) / 2 }; }
+  function canvasPos(cx, cy) {
+    var r = canvas.getBoundingClientRect();
+    return { x: cx - r.left, y: cy - r.top };
+  }
+
+  canvas.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    var t = getTouches(e);
+    if (t.length === 2) {
+      isPinching = true; isDragging = false;
+      PZ.dist0 = dist(t); PZ.lastScale = PZ.scale;
+      var m = mid(t); PZ.mx0 = m.x; PZ.my0 = m.y;
+      PZ.lastTx = PZ.tx; PZ.lastTy = PZ.ty;
+    } else if (t.length === 1) {
+      isDragging = true;
+      startX = t[0].clientX - PZ.tx;
+      startY = t[0].clientY - PZ.ty;
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+    var t = getTouches(e);
+    if (isPinching && t.length === 2) {
+      var newDist = dist(t);
+      var newScale = Math.max(0.5, Math.min(6, PZ.lastScale * (newDist / PZ.dist0)));
+      var m = mid(t);
+      var cp = canvasPos(m.x, m.y);
+      PZ.tx = cp.x - (cp.x - PZ.lastTx) * (newScale / PZ.lastScale);
+      PZ.ty = cp.y - (cp.y - PZ.lastTy) * (newScale / PZ.lastScale);
+      PZ.scale = newScale;
+      drawPlanCanvas();
+    } else if (isDragging && t.length === 1 && !PIN_MODE) {
+      PZ.tx = t[0].clientX - startX;
+      PZ.ty = t[0].clientY - startY;
+      drawPlanCanvas();
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    if (e.touches.length < 2) isPinching = false;
+    if (e.changedTouches.length === 1 && !isPinching) {
+      var t = e.changedTouches[0];
+      var cp = canvasPos(t.clientX, t.clientY);
+      handlePlanTap(cp.x, cp.y);
+    }
+    isDragging = false;
+  }, { passive: false });
+
+  // Mouse support
+  var mouseDown = false;
+  canvas.addEventListener('mousedown', function(e) {
+    mouseDown = true;
+    startX = e.clientX - PZ.tx; startY = e.clientY - PZ.ty;
+  });
+  canvas.addEventListener('mousemove', function(e) {
+    if (!mouseDown || PIN_MODE) return;
+    PZ.tx = e.clientX - startX; PZ.ty = e.clientY - startY;
+    drawPlanCanvas();
+  });
+  canvas.addEventListener('mouseup', function(e) {
+    if (mouseDown) {
+      var cp = canvasPos(e.clientX, e.clientY);
+      handlePlanTap(cp.x, cp.y);
+    }
+    mouseDown = false;
+  });
+}
+
+function handlePlanTap(cx, cy) {
+  var img = PLAN_MODAL_IMG;
+  if (!img) return;
+
+  // Convert canvas coords to image-relative (0-1)
+  var ix = (cx - PZ.tx) / (img.width * PZ.scale);
+  var iy = (cy - PZ.ty) / (img.height * PZ.scale);
+
+  // Check if tapping an existing pin
+  var planId = PLAN_MODAL_ID;
+  var tapped = null;
+  ITEMS.forEach(function(item) {
+    if (!item.pins) return;
+    item.pins.forEach(function(pin) {
+      if (pin.planId !== planId) return;
+      var sx = pin.x * img.width * PZ.scale + PZ.tx;
+      var sy = pin.y * img.height * PZ.scale + PZ.ty;
+      var dx = cx - sx, dy = cy - sy;
+      if (Math.sqrt(dx*dx + dy*dy) < 28) tapped = { item: item, pin: pin };
+    });
+  });
+
+  if (tapped) {
+    showPinDetail(tapped.item, tapped.pin);
+    return;
+  }
+
+  if (PIN_MODE && ix >= 0 && ix <= 1 && iy >= 0 && iy <= 1) {
+    PIN_X = ix; PIN_Y = iy;
+    openPinSheet();
+    return;
+  }
+}
+
+function startPinMode() {
+  PIN_MODE = true;
+  document.getElementById('plan-pin-hint').style.display = 'block';
+  document.getElementById('plan-pin-btn').textContent = '✕ Cancel';
+  document.getElementById('plan-pin-btn').onclick = cancelPinMode;
+}
+
+function cancelPinMode() {
+  PIN_MODE = false;
+  document.getElementById('plan-pin-hint').style.display = 'none';
+  document.getElementById('plan-pin-btn').textContent = '📍 Add Pin';
+  document.getElementById('plan-pin-btn').onclick = startPinMode;
+}
+
+function openPinSheet() {
+  var sheet = document.getElementById('pin-sheet');
+  var list = document.getElementById('pin-sheet-list');
+  list.innerHTML = '';
+  ITEMS.forEach(function(item) {
+    var el = document.createElement('div');
+    el.style.cssText = 'padding:12px 16px;border-bottom:1px solid #f0ede8;display:flex;align-items:center;gap:10px;cursor:pointer';
+    var color = item.status === 'closed' ? '#27ae60' : '#e74c3c';
+    el.innerHTML =
+      '<div style="width:28px;height:28px;border-radius:50%;background:' + color + ';color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">' + (item.seq||'?') + '</div>' +
+      '<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:14px">' + (item.location || 'No location') + '</div>' +
+      '<div style="font-size:12px;color:#999">' + (item.description ? item.description.substring(0,40) + (item.description.length>40?'...':'') : 'No description') + '</div></div>' +
+      '<span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;background:' + (item.status==='closed'?'#e6f9ed':'#fde8e6') + ';color:' + color + '">' + (item.status||'open').toUpperCase() + '</span>';
+    el.addEventListener('click', function() {
+      closePinSheet();
+      placePin(item._id, PIN_X, PIN_Y);
+    });
+    list.appendChild(el);
+  });
+  sheet.style.display = 'flex';
+}
+
+function closePinSheet() {
+  document.getElementById('pin-sheet').style.display = 'none';
+  cancelPinMode();
+}
+
+function placePin(itemId, x, y) {
+  var item = ITEMS.find(function(i) { return i._id === itemId; });
+  if (!item) return;
+  if (!item.pins) item.pins = [];
+  // Check if already has pin on this plan — update it
+  var existing = item.pins.find(function(p) { return p.planId === PLAN_MODAL_ID; });
+  if (existing) { existing.x = x; existing.y = y; }
+  else item.pins.push({ planId: PLAN_MODAL_ID, x: x, y: y });
+
+  callAPI('PUT', '/items/' + itemId, { pins: item.pins }, function(err) {
+    if (err) { showToast('Failed to save pin', 'err'); return; }
+    drawPlanCanvas();
+    showToast('Pin placed!', 'ok');
+    // Refresh pin count
+    renderPlans();
+  });
+}
+
+function showPinDetail(item, pin) {
+  var sheet = document.getElementById('pin-detail');
+  var color = item.status === 'closed' ? '#27ae60' : '#e74c3c';
+  var bg = item.status === 'closed' ? '#e6f9ed' : '#fde8e6';
+  document.getElementById('pd-num').textContent = '#' + String(item.seq||'?').padStart(2,'0');
+  document.getElementById('pd-status').textContent = (item.status||'open').toUpperCase();
+  document.getElementById('pd-status').style.cssText = 'font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:' + bg + ';color:' + color;
+  document.getElementById('pd-loc').textContent = item.location || 'No location';
+  document.getElementById('pd-desc').textContent = item.description || 'No description';
+  var ph = document.getElementById('pd-photo');
+  if (item.photo) { ph.src = item.photo; ph.style.display = 'block'; }
+  else ph.style.display = 'none';
+  sheet.style.display = 'flex';
+}
+
+function closePinDetail() { document.getElementById('pin-detail').style.display = 'none'; }
+
+function closePlanModal() {
+  document.getElementById('plan-modal').style.display = 'none';
+  PLAN_MODAL_ID = null; PLAN_MODAL_IMG = null; PIN_MODE = false;
+  cancelPinMode();
+  renderPlans(); // refresh pin counts
+}
+
+// ═══════════════════════════════════════════════
 // ANNOTATION
 var ANNOT_ID = null, ANNOT_COLOR = '#e74c3c', ANNOT_DRAWING = false;
 var ANNOT_HISTORY = [];
@@ -1084,9 +1654,42 @@ document.getElementById('btn-new-proj').onclick = createProject;
 document.getElementById('btn-back').onclick = function() { goProjects(); };
 document.getElementById('btn-add-item').onclick = addItem;
 document.getElementById('itab-items').onclick = function() { showTab('items'); };
+document.getElementById('itab-plans').onclick = function() { showTab('plans'); };
+document.getElementById('btn-add-plan').onclick = addPlan;
 document.getElementById('itab-export').onclick = function() { showTab('export'); };
 document.getElementById('btn-export').onclick = exportWord;
 document.getElementById('btn-export-pdf').onclick = exportPDF;
+
+// PHOTO PINCH ZOOM - only on .photowrap img elements
+(function() {
+  var pz = { el:null, scale:1, tx:0, ty:0, d0:0, s0:1, x0:0, y0:0 };
+  function dist(t) { return Math.hypot(t[0].clientX-t[1].clientX, t[0].clientY-t[1].clientY); }
+  document.addEventListener('touchstart', function(e) {
+    var img = e.target;
+    if (!img || img.tagName !== 'IMG' || !img.closest('.photowrap')) return;
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      pz.el = img; pz.d0 = dist(e.touches); pz.s0 = pz.scale;
+      pz.x0 = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      pz.y0 = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    }
+  }, { passive: false });
+  document.addEventListener('touchmove', function(e) {
+    if (!pz.el || e.touches.length < 2) return;
+    e.preventDefault();
+    var newScale = Math.max(1, Math.min(4, pz.s0 * dist(e.touches) / pz.d0));
+    pz.scale = newScale;
+    pz.el.style.transform = 'scale(' + newScale + ')';
+    pz.el.style.transformOrigin = 'center center';
+  }, { passive: false });
+  document.addEventListener('touchend', function(e) {
+    if (!pz.el) return;
+    if (e.touches.length === 0) {
+      if (pz.scale <= 1.05) { pz.el.style.transform = ''; pz.scale = 1; }
+      pz.el = null;
+    }
+  });
+})();
 document.getElementById('btn-clear').onclick = clearAll;
 
 // Always require login on app open
