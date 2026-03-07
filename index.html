@@ -691,13 +691,28 @@ function handlePhoto(id, input) {
   const file = input.files[0]; if (!file) return;
   const r = new FileReader();
   r.onload = e => {
-    const items = getItems(currentProjId);
-    const item  = items.find(i=>i.id===id);
-    if (item) { item.photo = e.target.result; saveItems(currentProjId, items); }
-    const img = document.getElementById(`pi-${id}`);
-    img.src = e.target.result; img.style.display = 'block';
-    document.querySelector(`#pz-${id} .photo-ph`).style.display = 'none';
-    document.getElementById(`pz-${id}`).classList.add('has-photo');
+    const image = new Image();
+    image.onload = () => {
+      // Crop to square from center + compress to 800px JPEG
+      const canvas = document.createElement('canvas');
+      const SIZE = 800;
+      const min = Math.min(image.width, image.height);
+      const sx  = (image.width  - min) / 2;
+      const sy  = (image.height - min) / 2;
+      canvas.width = SIZE; canvas.height = SIZE;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(image, sx, sy, min, min, 0, 0, SIZE, SIZE);
+      const compressed = canvas.toDataURL('image/jpeg', 0.75);
+      // Save compressed version - much smaller, won't get wiped
+      const items = getItems(currentProjId);
+      const item  = items.find(i=>i.id===id);
+      if (item) { item.photo = compressed; saveItems(currentProjId, items); }
+      const img = document.getElementById(`pi-${id}`);
+      img.src = compressed; img.style.display = 'block';
+      document.querySelector(`#pz-${id} .photo-ph`).style.display = 'none';
+      document.getElementById(`pz-${id}`).classList.add('has-photo');
+    };
+    image.src = e.target.result;
   };
   r.readAsDataURL(file);
 }
