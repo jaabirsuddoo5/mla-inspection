@@ -1130,118 +1130,135 @@ function renderPlanWithPins(plan, callback) {
 
 function exportWord() {
   if (!ITEMS.length) { showToast('No items to export', 'err'); return; }
-  showToast('Building Word report...');
   var proj = CPJ_DATA || {};
-  function xe2(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-  function parseImg(d){var m=d&&d.match(/^data:image\/(png|jpe?g|gif|webp);base64,(.+)$/i);return m?{data:m[2],ext:m[1].replace('jpeg','jpg')}:null;}
-  var W=9360,imgs=[];
-  function addImg(d){var p=parseImg(d);if(!p)return null;var id=imgs.length+1,rId='rId'+(100+id);imgs.push({id:id,rId:rId,base64:p.data,ext:p.ext});return{rId:rId,id:id};}
-  function bn(){return'w:val="none" w:sz="0" w:space="0" w:color="FFFFFF"';}
-  function bs(c,z){c=c||'CCCCCC';z=z||4;return'w:color="'+c+'" w:sz="'+z+'" w:space="0" w:val="single"';}
-  function rn(t,o){o=o||{};var p='';if(o.b)p+='<w:b/>';if(o.s)p+='<w:sz w:val="'+o.s+'"/><w:szCs w:val="'+o.s+'"/>';if(o.c)p+='<w:color w:val="'+o.c+'"/>';if(o.f)p+='<w:rFonts w:ascii="'+o.f+'" w:hAnsi="'+o.f+'"/>';return'<w:r>'+(p?'<w:rPr>'+p+'</w:rPr>':'')+'<w:t xml:space="preserve">'+xe2(t)+'</w:t></w:r>';}
-  function pa(runs,o){o=o||{};var sp=o.after?'<w:spacing w:after="'+o.after+'"/>':'';var jc=o.align?'<w:jc w:val="'+o.align+'"/>':'';return'<w:p>'+(sp||jc?'<w:pPr>'+sp+jc+'</w:pPr>':'')+runs+'</w:p>';}
-  function ir(rId,iid,w,h){var we=w*9525,he=h*9525;return'<w:r><w:drawing><wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"><wp:extent cx="'+we+'" cy="'+he+'"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:docPr id="'+iid+'" name="I'+iid+'"/><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="'+iid+'" name="I'+iid+'"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="'+rId+'" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="'+we+'" cy="'+he+'"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>';}
-  function cl(content,o){o=o||{};var w=o.w?'<w:tcW w:w="'+o.w+'" w:type="dxa"/>':'<w:tcW w:w="0" w:type="auto"/>';var bg=o.bg?'<w:shd w:val="clear" w:color="auto" w:fill="'+o.bg+'"/>':"";var sp=o.span?'<w:gridSpan w:val="'+o.span+'"/>':"";var bT=o.bT?'<w:top '+bs(o.bT,o.bTs)+'/>':'<w:top '+bn()+'/>';var bB=o.bB?'<w:bottom '+bs(o.bB,o.bBs)+'/>':'<w:bottom '+bn()+'/>';var bL=o.bL?'<w:left '+bs(o.bL,4)+'/>':'<w:left '+bn()+'/>';var bR=o.bR?'<w:right '+bs(o.bR,4)+'/>':'<w:right '+bn()+'/>';var va=o.va?'<w:vAlign w:val="'+o.va+'"/>':"";return'<w:tc><w:tcPr>'+w+sp+bg+bT+bB+bL+bR+va+'<w:tcMar><w:top w:w="80" w:type="dxa"/><w:left w:w="120" w:type="dxa"/><w:bottom w:w="80" w:type="dxa"/><w:right w:w="120" w:type="dxa"/></w:tcMar></w:tcPr>'+content+'</w:tc>';}
-  function rw(){var cells=Array.prototype.slice.call(arguments);return'<w:tr>'+cells.join('')+'</w:tr>';}
-  function tb(rows,tw){tw=tw||W;return'<w:tbl><w:tblPr><w:tblW w:w="'+tw+'" w:type="dxa"/><w:tblLayout w:type="fixed"/><w:tblBorders><w:insideH '+bn()+'/><w:insideV '+bn()+'/></w:tblBorders><w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:left w:w="0" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="0" w:type="dxa"/></w:tblCellMar></w:tblPr>'+rows.join('')+'</w:tbl>';}
-  var body='';
-  // AI Summary page (if filled)
-  var aiSummary = document.getElementById('ai-summary-text') ? document.getElementById('ai-summary-text').value.trim() : '';
-  if (aiSummary) {
-    body += pa(rn('EXECUTIVE SUMMARY', {b:true, s:32, c:'1A1A1A', f:'Arial'}), {after:200});
-    body += pa(rn(aiSummary, {s:22, c:'333333', f:'Arial'}), {after:400});
-    body += '<w:p><w:r><w:br w:type="page"/></w:r></w:p>';
-  }
-  body+=pa(rn('SITE INSPECTION REPORT',{b:true,s:40,c:'1A1A1A',f:'Arial'}),{after:160});
-  var hw=Math.floor(W/4);
-  body+=tb([rw(cl(pa(rn('Project',{s:16,c:'AAAAAA',f:'Arial'})),{bg:'1E1E1E',w:hw,bT:'1E1E1E',bTs:8}),cl(pa(rn(proj.name||'',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{bg:'1E1E1E',w:hw,bT:'1E1E1E',bTs:8}),cl(pa(rn('Ref No.',{s:16,c:'AAAAAA',f:'Arial'})),{bg:'1E1E1E',w:hw,bT:'1E1E1E',bTs:8}),cl(pa(rn(proj.ref||'',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{bg:'1E1E1E',w:hw,bT:'1E1E1E',bTs:8})),rw(cl(pa(rn('Inspector',{s:16,c:'AAAAAA',f:'Arial'})),{bg:'1E1E1E',w:hw,bB:'1E1E1E',bBs:8}),cl(pa(rn(CUD||'',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{bg:'1E1E1E',w:hw,bB:'1E1E1E',bBs:8}),cl(pa(rn('Date',{s:16,c:'AAAAAA',f:'Arial'})),{bg:'1E1E1E',w:hw,bB:'1E1E1E',bBs:8}),cl(pa(rn(proj.date||'',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{bg:'1E1E1E',w:hw,bB:'1E1E1E',bBs:8}))]);
-  body+=pa('',{after:200});
-  var pW=Math.floor(W*0.25), dW=W-pW*2;
-  for(var i=0;i<ITEMS.length;i++){
-    var it=ITEMS[i];var sc=it.status==='open'?'C0392B':'27AE60';
-    var hdr=rn('#'+String(it.seq||i+1).padStart(2,'0')+'  ',{b:true,s:24,c:'1E1E1E',f:'Arial'})+rn((it.location||'No location')+'  ',{b:true,s:22,c:'1A1A1A',f:'Arial'})+rn((it.date||'')+'  ',{s:18,c:'888888',f:'Arial'})+rn(it.status.toUpperCase(),{b:true,s:18,c:sc,f:'Arial'});
-    // Before photo cell
-    var beforeCell;
-    if(it.photo){var imB=addImg(it.photo);beforeCell=imB?cl(pa(rn('BEFORE',{b:true,s:14,c:'AAAAAA',f:'Arial'}),{after:60})+pa(ir(imB.rId,imB.id,150,130),{align:'center'}),{w:pW,bg:'F5F2ED',bB:'CCCCCC',bR:'CCCCCC',va:'top'}):cl(pa(rn('[Before]',{s:16,c:'AAAAAA',f:'Arial'}),{align:'center'}),{w:pW,bg:'F5F2ED',bB:'CCCCCC',bR:'CCCCCC'});}
-    else{beforeCell=cl(pa(rn('BEFORE',{b:true,s:14,c:'AAAAAA',f:'Arial'}),{after:40})+pa(rn('[No Photo]',{s:16,c:'CCCCCC',f:'Arial'}),{align:'center'}),{w:pW,bg:'F5F2ED',bB:'CCCCCC',bR:'CCCCCC'});}
-    // After photo cell
-    var afterCell;
-    if(it.photoAfter){var imA=addImg(it.photoAfter);afterCell=imA?cl(pa(rn('AFTER',{b:true,s:14,c:'27AE60',f:'Arial'}),{after:60})+pa(ir(imA.rId,imA.id,150,130),{align:'center'}),{w:pW,bg:'F0FBF4',bB:'CCCCCC',bR:'CCCCCC',va:'top'}):cl(pa(rn('[After]',{s:16,c:'AAAAAA',f:'Arial'}),{align:'center'}),{w:pW,bg:'F0FBF4',bB:'CCCCCC',bR:'CCCCCC'});}
-    else{afterCell=cl(pa(rn('AFTER',{b:true,s:14,c:'27AE60',f:'Arial'}),{after:40})+pa(rn('[No Photo]',{s:16,c:'CCCCCC',f:'Arial'}),{align:'center'}),{w:pW,bg:'F0FBF4',bB:'CCCCCC',bR:'CCCCCC'});}
-    var dCell=cl(pa(rn('DESCRIPTION',{b:true,s:14,c:'AAAAAA',f:'Arial'}),{after:80})+pa(rn(it.description||'...',{s:20,c:'1A1A1A',f:'Arial'})),{w:dW,bB:'CCCCCC'});
-    body+=tb([rw(cl(pa(hdr),{span:3,bg:'F8F6F3',bT:'1E1E1E',bTs:8,bB:'CCCCCC'})),rw(beforeCell,afterCell,dCell)]);
-    body+=pa('',{after:180});
-  }
-  var oN=ITEMS.filter(function(i){return i.status==='open';}).length;
-  var cN=ITEMS.filter(function(i){return i.status==='closed';}).length;
-
-  // Floor plans section - render async then build doc
   var plansWithImages = PLANS.filter(function(p) { return p.image; });
-  if (!plansWithImages.length) {
-    buildWordDoc(body, oN, cN, proj, imgs, W);
-    return;
-  }
-  showLoader(true, 'Rendering floor plans...');
-  var renderedPlans = [];
-  var remaining = plansWithImages.length;
-  plansWithImages.forEach(function(plan, idx) {
-    renderPlanWithPins(plan, function(b64) {
-      renderedPlans[idx] = { plan: plan, b64: b64 };
-      remaining--;
-      if (remaining === 0) {
-        showLoader(false);
-        body += pa('', {after: 200});
-        body += pa(rn('FLOOR PLANS', {b:true, s:28, c:'1A1A1A', f:'Arial'}), {after:120});
-        renderedPlans.forEach(function(rp) {
-          if (!rp || !rp.b64) return;
-          body += pa(rn(rp.plan.name || 'Floor Plan', {b:true, s:22, c:'555555', f:'Arial'}), {after:80});
-          var pm = addImg(rp.b64);
-          if (pm) {
-            // W is in twips (9360), convert to pixels for ir() which multiplies by 9525
-            // Use full page width: ~620px wide, ~400px tall
-            body += pa(ir(pm.rId, pm.id, 620, 400), {align:'center'});
-          }
-          body += pa('', {after:160});
-        });
-        buildWordDoc(body, oN, cN, proj, imgs, W);
-      }
+
+  // Render all plan images first (async), then build doc
+  if (plansWithImages.length) {
+    showLoader(true, 'Rendering floor plans...');
+    var rendered = new Array(plansWithImages.length);
+    var done = 0;
+    plansWithImages.forEach(function(plan, idx) {
+      renderPlanWithPins(plan, function(b64) {
+        rendered[idx] = { plan: plan, b64: b64 };
+        done++;
+        if (done === plansWithImages.length) {
+          showLoader(false);
+          buildAndDownloadWord(proj, rendered);
+        }
+      });
     });
-  });
+  } else {
+    buildAndDownloadWord(proj, []);
+  }
 }
 
-function buildWordDoc(body, oN, cN, proj, imgs, W) {
-  function xe2(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-  function bn(){return'w:val="none" w:sz="0" w:space="0" w:color="FFFFFF"';}
-  function bs(c,z){c=c||'CCCCCC';z=z||4;return'w:color="'+c+'" w:sz="'+z+'" w:space="0" w:val="single"';}
-  function pa(runs,o){o=o||{};var sp=o.after?'<w:spacing w:after="'+o.after+'"/>':'';var jc=o.align?'<w:jc w:val="'+o.align+'"/>':'';return'<w:p>'+(sp||jc?'<w:pPr>'+sp+jc+'</w:pPr>':'')+runs+'</w:p>';}
-  function ir(rId,iid,w,h){var we=w*9525,he=h*9525;return'<w:r><w:drawing><wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"><wp:extent cx="'+we+'" cy="'+he+'"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:docPr id="'+iid+'" name="I'+iid+'"/><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="'+iid+'" name="I'+iid+'"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="'+rId+'" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="'+we+'" cy="'+he+'"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>';}
-  function cl(content,o){o=o||{};var w=o.w?'<w:tcW w:w="'+o.w+'" w:type="dxa"/>':'<w:tcW w:w="0" w:type="auto"/>';var bg=o.bg?'<w:shd w:val="clear" w:color="auto" w:fill="'+o.bg+'"/>':"";var sp=o.span?'<w:gridSpan w:val="'+o.span+'"/>':"";var bT=o.bT?'<w:top '+bs(o.bT,o.bTs)+'/>':'<w:top '+bn()+'/>';var bB=o.bB?'<w:bottom '+bs(o.bB,o.bBs)+'/>':'<w:bottom '+bn()+'/>';var bL=o.bL?'<w:left '+bs(o.bL,4)+'/>':'<w:left '+bn()+'/>';var bR=o.bR?'<w:right '+bs(o.bR,4)+'/>':'<w:right '+bn()+'/>';var va=o.va?'<w:vAlign w:val="'+o.va+'"/>':"";return'<w:tc><w:tcPr>'+w+sp+bg+bT+bB+bL+bR+va+'<w:tcMar><w:top w:w="80" w:type="dxa"/><w:left w:w="120" w:type="dxa"/><w:bottom w:w="80" w:type="dxa"/><w:right w:w="120" w:type="dxa"/></w:tcMar></w:tcPr>'+content+'</w:tc>';}
+function buildAndDownloadWord(proj, renderedPlans) {
+  showToast('Building Word report...');
+
+  // ── helpers ──────────────────────────────────────────────
+  var W = 9360, imgs = [];
+  function xe(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function parseImg(d){ var m=d&&d.match(/^data:image\/(png|jpe?g|gif|webp);base64,(.+)$/i); return m?{data:m[2],ext:m[1].replace('jpeg','jpg')}:null; }
+  function addImg(d){ var p=parseImg(d); if(!p)return null; var id=imgs.length+1,rId='rId'+(100+id); imgs.push({id:id,rId:rId,base64:p.data,ext:p.ext}); return{rId:rId,id:id}; }
+  function bn(){ return 'w:val="none" w:sz="0" w:space="0" w:color="FFFFFF"'; }
+  function bs(c,z){ c=c||'CCCCCC';z=z||4; return 'w:color="'+c+'" w:sz="'+z+'" w:space="0" w:val="single"'; }
+  function rn(t,o){ o=o||{}; var p=''; if(o.b)p+='<w:b/>'; if(o.s)p+='<w:sz w:val="'+o.s+'"/><w:szCs w:val="'+o.s+'"/>'; if(o.c)p+='<w:color w:val="'+o.c+'"/>'; if(o.f)p+='<w:rFonts w:ascii="'+o.f+'" w:hAnsi="'+o.f+'"/>'; return '<w:r>'+(p?'<w:rPr>'+p+'</w:rPr>':'')+'<w:t xml:space="preserve">'+xe(t)+'</w:t></w:r>'; }
+  function pa(runs,o){ o=o||{}; var sp=o.after?'<w:spacing w:after="'+o.after+'"/>':''; var jc=o.align?'<w:jc w:val="'+o.align+'"/>':''; return '<w:p>'+(sp||jc?'<w:pPr>'+sp+jc+'</w:pPr>':'')+runs+'</w:p>'; }
+  function ir(rId,iid,wpx,hpx){ var we=wpx*9525,he=hpx*9525; return '<w:r><w:drawing><wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"><wp:extent cx="'+we+'" cy="'+he+'"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:docPr id="'+iid+'" name="I'+iid+'"/><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="'+iid+'" name="I'+iid+'"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="'+rId+'" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="'+we+'" cy="'+he+'"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>'; }
+  function cl(content,o){ o=o||{}; var w=o.w?'<w:tcW w:w="'+o.w+'" w:type="dxa"/>':'<w:tcW w:w="0" w:type="auto"/>'; var bg=o.bg?'<w:shd w:val="clear" w:color="auto" w:fill="'+o.bg+'"/>':""; var sp=o.span?'<w:gridSpan w:val="'+o.span+'"/>':""; var bT=o.bT?'<w:top '+bs(o.bT,o.bTs)+'/>':'<w:top '+bn()+'/>'; var bB=o.bB?'<w:bottom '+bs(o.bB,o.bBs)+'/>':'<w:bottom '+bn()+'/>'; var bL='<w:left '+bn()+'/>'; var bR=o.bR?'<w:right '+bs(o.bR,4)+'/>':'<w:right '+bn()+'/>'; var va=o.va?'<w:vAlign w:val="'+o.va+'"/>':""; return '<w:tc><w:tcPr>'+w+sp+bg+bT+bB+bL+bR+va+'<w:tcMar><w:top w:w="80" w:type="dxa"/><w:left w:w="120" w:type="dxa"/><w:bottom w:w="80" w:type="dxa"/><w:right w:w="120" w:type="dxa"/></w:tcMar></w:tcPr>'+content+'</w:tc>'; }
+  function rw(){ var cells=Array.prototype.slice.call(arguments); return '<w:tr>'+cells.join('')+'</w:tr>'; }
+  function tb(rows,tw){ tw=tw||W; return '<w:tbl><w:tblPr><w:tblW w:w="'+tw+'" w:type="dxa"/><w:tblLayout w:type="fixed"/><w:tblBorders><w:insideH '+bn()+'/><w:insideV '+bn()+'/></w:tblBorders></w:tblPr>'+rows.join('')+'</w:tbl>'; }
+
+  // ── body ─────────────────────────────────────────────────
+  var body = '';
+
+  // AI summary page
+  var aiSummary = (document.getElementById('ai-summary-text') || {}).value;
+  aiSummary = aiSummary ? aiSummary.trim() : '';
+  if (aiSummary) {
+    body += pa(rn('EXECUTIVE SUMMARY', {b:true,s:32,c:'1A1A1A',f:'Arial'}), {after:200});
+    body += pa(rn(aiSummary, {s:22,c:'333333',f:'Arial'}), {after:400});
+    body += '<w:p><w:r><w:br w:type="page"/></w:r></w:p>';
+  }
+
+  // Cover header
+  body += pa(rn('SITE INSPECTION REPORT',{b:true,s:40,c:'1A1A1A',f:'Arial'}),{after:160});
+  var hw = Math.floor(W/4);
+  body += tb([
+    rw(cl(pa(rn('Project',{s:16,c:'AAAAAA',f:'Arial'})),{bg:'1E1E1E',w:hw,bT:'1E1E1E',bTs:8}), cl(pa(rn(proj.name||'',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{bg:'1E1E1E',w:hw,bT:'1E1E1E',bTs:8}), cl(pa(rn('Ref No.',{s:16,c:'AAAAAA',f:'Arial'})),{bg:'1E1E1E',w:hw,bT:'1E1E1E',bTs:8}), cl(pa(rn(proj.ref||'',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{bg:'1E1E1E',w:hw,bT:'1E1E1E',bTs:8})),
+    rw(cl(pa(rn('Inspector',{s:16,c:'AAAAAA',f:'Arial'})),{bg:'1E1E1E',w:hw,bB:'1E1E1E',bBs:8}), cl(pa(rn(CUD||'',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{bg:'1E1E1E',w:hw,bB:'1E1E1E',bBs:8}), cl(pa(rn('Date',{s:16,c:'AAAAAA',f:'Arial'})),{bg:'1E1E1E',w:hw,bB:'1E1E1E',bBs:8}), cl(pa(rn(proj.date||'',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{bg:'1E1E1E',w:hw,bB:'1E1E1E',bBs:8}))
+  ]);
+  body += pa('',{after:200});
+
+  // Items
+  var pW = Math.floor(W*0.25), dW = W - pW*2;
+  for (var i=0; i<ITEMS.length; i++) {
+    var it = ITEMS[i];
+    var sc = it.status==='open' ? 'C0392B' : '27AE60';
+    var hdr = rn('#'+String(it.seq||i+1).padStart(2,'0')+'  ',{b:true,s:24,c:'1E1E1E',f:'Arial'}) + rn((it.location||'No location')+'  ',{b:true,s:22,c:'1A1A1A',f:'Arial'}) + rn((it.date||'')+'  ',{s:18,c:'888888',f:'Arial'}) + rn(it.status.toUpperCase(),{b:true,s:18,c:sc,f:'Arial'});
+    var bCell, aCell;
+    if (it.photo) { var imB=addImg(it.photo); bCell=imB ? cl(pa(rn('BEFORE',{b:true,s:14,c:'AAAAAA',f:'Arial'}),{after:60})+pa(ir(imB.rId,imB.id,150,130),{align:'center'}),{w:pW,bg:'F5F2ED',bB:'CCCCCC',bR:'CCCCCC',va:'top'}) : cl(pa(rn('[Before]',{s:16,c:'CCCCCC',f:'Arial'}),{align:'center'}),{w:pW,bg:'F5F2ED',bB:'CCCCCC',bR:'CCCCCC'}); }
+    else { bCell = cl(pa(rn('BEFORE',{b:true,s:14,c:'AAAAAA',f:'Arial'}),{after:40})+pa(rn('[No Photo]',{s:16,c:'CCCCCC',f:'Arial'}),{align:'center'}),{w:pW,bg:'F5F2ED',bB:'CCCCCC',bR:'CCCCCC'}); }
+    if (it.photoAfter) { var imA=addImg(it.photoAfter); aCell=imA ? cl(pa(rn('AFTER',{b:true,s:14,c:'27AE60',f:'Arial'}),{after:60})+pa(ir(imA.rId,imA.id,150,130),{align:'center'}),{w:pW,bg:'F0FBF4',bB:'CCCCCC',bR:'CCCCCC',va:'top'}) : cl(pa(rn('[After]',{s:16,c:'CCCCCC',f:'Arial'}),{align:'center'}),{w:pW,bg:'F0FBF4',bB:'CCCCCC',bR:'CCCCCC'}); }
+    else { aCell = cl(pa(rn('AFTER',{b:true,s:14,c:'27AE60',f:'Arial'}),{after:40})+pa(rn('[No Photo]',{s:16,c:'CCCCCC',f:'Arial'}),{align:'center'}),{w:pW,bg:'F0FBF4',bB:'CCCCCC',bR:'CCCCCC'}); }
+    var dCell = cl(pa(rn('DESCRIPTION',{b:true,s:14,c:'AAAAAA',f:'Arial'}),{after:80})+pa(rn(it.description||'...',{s:20,c:'1A1A1A',f:'Arial'})),{w:dW,bB:'CCCCCC'});
+    body += tb([rw(cl(pa(hdr),{span:3,bg:'F8F6F3',bT:'1E1E1E',bTs:8,bB:'CCCCCC'})), rw(bCell,aCell,dCell)]);
+    body += pa('',{after:180});
+  }
+
+  // Summary table
+  var oN=ITEMS.filter(function(i){return i.status==='open';}).length;
+  var cN=ITEMS.filter(function(i){return i.status==='closed';}).length;
   var sw=Math.floor(W*0.5),c1=Math.floor(sw*0.6),c2=sw-c1;
-  function tb(rows,tw){return'<w:tbl><w:tblPr><w:tblW w:w="'+(tw||W)+'" w:type="dxa"/><w:tblBorders><w:insideH '+bn()+'/><w:insideV '+bn()+'/></w:tblBorders></w:tblPr>'+rows.join('')+'</w:tbl>';}
-  function rw(){var cells=Array.prototype.slice.call(arguments);return'<w:tr>'+cells.join('')+'</w:tr>';}
-  function rn(t,o){o=o||{};var p='';if(o.b)p+='<w:b/>';if(o.s)p+='<w:sz w:val="'+o.s+'"/><w:szCs w:val="'+o.s+'"/>';if(o.c)p+='<w:color w:val="'+o.c+'"/>';if(o.f)p+='<w:rFonts w:ascii="'+o.f+'" w:hAnsi="'+o.f+'"/>';return'<w:r>'+(p?'<w:rPr>'+p+'</w:rPr>':'')+'<w:t xml:space="preserve">'+xe2(t)+'</w:t></w:r>';}
-  body += tb([rw(cl(pa(rn('SUMMARY',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{span:2,bg:'1E1E1E',bT:'1E1E1E',bTs:8,bB:'CCCCCC'})),rw(cl(pa(rn('Total Items',{s:18,f:'Arial'})),{w:c1,bB:'CCCCCC',bR:'CCCCCC'}),cl(pa(rn(String(ITEMS.length),{b:true,s:18,f:'Arial'})),{w:c2,bB:'CCCCCC'})),rw(cl(pa(rn('Open',{s:18,c:'C0392B',f:'Arial'})),{w:c1,bB:'CCCCCC',bR:'CCCCCC'}),cl(pa(rn(String(oN),{b:true,s:18,c:'C0392B',f:'Arial'})),{w:c2,bB:'CCCCCC'})),rw(cl(pa(rn('Closed',{s:18,c:'27AE60',f:'Arial'})),{w:c1,bB:'1E1E1E',bBs:8,bR:'CCCCCC'}),cl(pa(rn(String(cN),{b:true,s:18,c:'27AE60',f:'Arial'})),{w:c2,bB:'1E1E1E',bBs:8}))],sw);
-  var footerXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:p><w:pPr><w:jc w:val="right"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="16"/><w:szCs w:val="16"/><w:color w:val="1E1E1E"/></w:rPr><w:t>MLA INSPECTION</w:t></w:r><w:r><w:rPr><w:sz w:val="16"/><w:color w:val="888888"/></w:rPr><w:t xml:space="preserve"> | Site Inspection Report</w:t></w:r></w:p></w:ftr>';
+  body += tb([
+    rw(cl(pa(rn('SUMMARY',{b:true,s:20,c:'FFFFFF',f:'Arial'})),{span:2,bg:'1E1E1E',bT:'1E1E1E',bTs:8,bB:'CCCCCC'})),
+    rw(cl(pa(rn('Total Items',{s:18,f:'Arial'})),{w:c1,bB:'CCCCCC',bR:'CCCCCC'}),cl(pa(rn(String(ITEMS.length),{b:true,s:18,f:'Arial'})),{w:c2,bB:'CCCCCC'})),
+    rw(cl(pa(rn('Open',{s:18,c:'C0392B',f:'Arial'})),{w:c1,bB:'CCCCCC',bR:'CCCCCC'}),cl(pa(rn(String(oN),{b:true,s:18,c:'C0392B',f:'Arial'})),{w:c2,bB:'CCCCCC'})),
+    rw(cl(pa(rn('Closed',{s:18,c:'27AE60',f:'Arial'})),{w:c1,bB:'1E1E1E',bBs:8,bR:'CCCCCC'}),cl(pa(rn(String(cN),{b:true,s:18,c:'27AE60',f:'Arial'})),{w:c2,bB:'1E1E1E',bBs:8}))
+  ], sw);
+
+  // Floor plans
+  if (renderedPlans.length) {
+    body += '<w:p><w:r><w:br w:type="page"/></w:r></w:p>';
+    body += pa(rn('FLOOR PLANS',{b:true,s:28,c:'1A1A1A',f:'Arial'}),{after:120});
+    for (var pi=0; pi<renderedPlans.length; pi++) {
+      var rp = renderedPlans[pi];
+      if (!rp || !rp.b64) continue;
+      body += pa(rn(rp.plan.name||'Floor Plan',{b:true,s:22,c:'555555',f:'Arial'}),{after:80});
+      var pm = addImg(rp.b64);
+      if (pm) body += pa(ir(pm.rId, pm.id, 620, 403), {align:'center'});
+      body += pa('',{after:200});
+    }
+  }
+
+  // ── build zip ─────────────────────────────────────────────
+  var footerXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:p><w:pPr><w:jc w:val="right"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="16"/><w:szCs w:val="16"/><w:color w:val="1E1E1E"/></w:rPr><w:t>MLA INSPECTION</w:t></w:r><w:r><w:rPr><w:sz w:val="16"/><w:color w:val="888888"/></w:rPr><w:t xml:space="preserve"> | Site Inspection Report</w:t></w:r></w:p></w:ftr>';
+  var relsEntries = imgs.map(function(m){ return '<Relationship Id="'+m.rId+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/img'+m.id+'.'+m.ext+'"/>'; }).join('');
   var docXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><w:body>'+body+'<w:sectPr><w:footerReference w:type="default" r:id="rId200"/><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/></w:sectPr></w:body></w:document>';
-  var relsXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/><Relationship Id="rId200" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/>'+imgs.map(function(m){return'<Relationship Id="'+m.rId+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/img'+m.id+'.'+m.ext+'"/>';}).join('')+'</Relationships>';
+  var relsXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/><Relationship Id="rId200" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/>'+relsEntries+'</Relationships>';
   var stylesXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr></w:rPrDefault></w:docDefaults></w:styles>';
   var ctXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Default Extension="jpg" ContentType="image/jpeg"/><Default Extension="jpeg" ContentType="image/jpeg"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/></Types>';
   var rootRels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>';
   function sb(s){return new TextEncoder().encode(s);}
   function bb(b){var bin=atob(b),a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a;}
-  function crc32(d){var c=0xFFFFFFFF;var t=crc32.t||(crc32.t=(function(){var x=new Uint32Array(256);for(var i=0;i<256;i++){var v=i;for(var j=0;j<8;j++)v=(v&1)?(0xEDB88320^(v>>>1)):(v>>>1);x[i]=v;}return x;})());for(var i=0;i<d.length;i++)c=t[(c^d[i])&0xFF]^(c>>>8);return(c^0xFFFFFFFF)>>>0;}
-  function u16(n){return[n&0xFF,(n>>8)&0xFF];}function u32(n){return[n&0xFF,(n>>8)&0xFF,(n>>16)&0xFF,(n>>24)&0xFF];}
+  function crc32(d){var c=0xFFFFFFFF;var t=crc32.t||(crc32.t=(function(){var x=new Uint32Array(256);for(var i=0;i<256;i++){var v=i;for(var j=0;j<8;j++)v=v&1?(0xEDB88320^(v>>>1)):(v>>>1);x[i]=v;}return x;})());for(var i=0;i<d.length;i++)c=t[(c^d[i])&0xFF]^(c>>>8);return(c^0xFFFFFFFF)>>>0;}
+  function u16(n){return[n&0xFF,(n>>8)&0xFF];}
+  function u32(n){return[n&0xFF,(n>>8)&0xFF,(n>>16)&0xFF,(n>>24)&0xFF];}
   function makeZip(files){var parts=[],cd=[];var off=0;for(var fi=0;fi<files.length;fi++){var f=files[fi];var nb=new TextEncoder().encode(f.name),d=f.data,crc=crc32(d);var lh=[0x50,0x4B,0x03,0x04,20,0,0,0,0,0,0,0,0,0].concat(u32(crc),u32(d.length),u32(d.length),u16(nb.length),[0,0]).concat(Array.from(nb));var ce=[0x50,0x4B,0x01,0x02,20,0,20,0,0,0,0,0,0,0,0,0].concat(u32(crc),u32(d.length),u32(d.length),u16(nb.length),[0,0,0,0,0,0,0,0,0,0]).concat(u32(off)).concat(Array.from(nb));parts.push(new Uint8Array(lh),d);cd.push(new Uint8Array(ce));off+=lh.length+d.length;}var cs=cd.reduce(function(s,c){return s+c.length;},0);var eocd=[0x50,0x4B,0x05,0x06,0,0,0,0].concat(u16(files.length),u16(files.length),u32(cs),u32(off),[0,0]);var all=parts.concat(cd,[new Uint8Array(eocd)]);var tot=all.reduce(function(s,a){return s+a.length;},0);var out=new Uint8Array(tot);var p=0;for(var i=0;i<all.length;i++){out.set(all[i],p);p+=all[i].length;}return out;}
   var zipFiles=[{name:'[Content_Types].xml',data:sb(ctXml)},{name:'_rels/.rels',data:sb(rootRels)},{name:'word/document.xml',data:sb(docXml)},{name:'word/styles.xml',data:sb(stylesXml)},{name:'word/footer1.xml',data:sb(footerXml)},{name:'word/_rels/document.xml.rels',data:sb(relsXml)}];
   imgs.forEach(function(m){zipFiles.push({name:'word/media/img'+m.id+'.'+m.ext,data:bb(m.base64)});});
   try {
     var zip=makeZip(zipFiles);
     var blob=new Blob([zip],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
-    var url=URL.createObjectURL(blob);var a=document.createElement('a');
-    a.href=url;a.download=((proj.name||'inspection').replace(/\s+/g,'_'))+'_report.docx';
-    document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(url);a.remove();},1000);
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url; a.download=((proj.name||'inspection').replace(/\s+/g,'_'))+'_report.docx';
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){URL.revokeObjectURL(url);a.remove();},1000);
     showToast('Word report downloaded!','ok');
-  } catch(e) { showToast('Export failed','err');console.error(e); }
+  } catch(e) { showToast('Export failed','err'); console.error(e); }
+}
 }
 
 function exportPDF() {
@@ -1863,35 +1880,16 @@ function generateAISummary() {
   var itemLines = ITEMS.map(function(i) {
     return '#' + (i.seq||'?') + ' ' + (i.location||'No location') + ' [' + (i.status||'open').toUpperCase() + ']: ' + (i.description||'No description');
   }).join('\n');
-
   var prompt = 'You are a professional site inspection report writer. Write a formal, concise executive summary paragraph (4-6 sentences) for the following inspection report. Do not use bullet points. Write in third person.\n\nProject: ' + (proj.name||'Unknown') + '\nRef: ' + (proj.ref||'N/A') + '\nDate: ' + (proj.date||'N/A') + '\nInspector: ' + (CUD||'N/A') + '\nTotal Items: ' + ITEMS.length + ' (' + oN + ' open, ' + cN + ' closed)\n\nItems:\n' + itemLines + '\n\nWrite the executive summary now:';
-
   document.getElementById('ai-gen-status').style.display = 'flex';
   document.getElementById('ai-summary-text').value = '';
   document.getElementById('btn-ai-gen').disabled = true;
-
-  fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1000,
-      messages: [{ role: 'user', content: prompt }]
-    })
-  }).then(function(r) { return r.json(); }).then(function(data) {
+  callAPI('POST', '/ai/summary', { prompt: prompt }, function(err, data) {
     document.getElementById('ai-gen-status').style.display = 'none';
     document.getElementById('btn-ai-gen').disabled = false;
-    var text = data.content && data.content[0] && data.content[0].text;
-    if (text) {
-      document.getElementById('ai-summary-text').value = text.trim();
-      showToast('AI summary ready!', 'ok');
-    } else {
-      showToast('AI generation failed', 'err');
-    }
-  }).catch(function(e) {
-    document.getElementById('ai-gen-status').style.display = 'none';
-    document.getElementById('btn-ai-gen').disabled = false;
-    showToast('AI error: ' + e.message, 'err');
+    if (err || !data || !data.summary) { showToast('AI generation failed', 'err'); return; }
+    document.getElementById('ai-summary-text').value = data.summary;
+    showToast('AI summary ready!', 'ok');
   });
 }
 
