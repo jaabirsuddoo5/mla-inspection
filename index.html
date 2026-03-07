@@ -1131,26 +1131,29 @@ function renderPlanWithPins(plan, callback) {
 function exportWord() {
   if (!ITEMS.length) { showToast('No items to export', 'err'); return; }
   var proj = CPJ_DATA || {};
-  var plansWithImages = PLANS.filter(function(p) { return p.image; });
-
-  // Render all plan images first (async), then build doc
-  if (plansWithImages.length) {
-    showLoader(true, 'Rendering floor plans...');
-    var rendered = new Array(plansWithImages.length);
-    var done = 0;
-    plansWithImages.forEach(function(plan, idx) {
-      renderPlanWithPins(plan, function(b64) {
-        rendered[idx] = { plan: plan, b64: b64 };
-        done++;
-        if (done === plansWithImages.length) {
-          showLoader(false);
-          buildAndDownloadWord(proj, rendered);
-        }
+  showLoader(true, 'Loading plans...');
+  callAPI('GET', '/projects/' + CPJ + '/plans', null, function(err, freshPlans) {
+    if (!err && freshPlans) PLANS = freshPlans;
+    var plansWithImages = PLANS.filter(function(p) { return p.image; });
+    if (plansWithImages.length) {
+      showLoader(true, 'Rendering floor plans...');
+      var rendered = new Array(plansWithImages.length);
+      var done = 0;
+      plansWithImages.forEach(function(plan, idx) {
+        renderPlanWithPins(plan, function(b64) {
+          rendered[idx] = { plan: plan, b64: b64 };
+          done++;
+          if (done === plansWithImages.length) {
+            showLoader(false);
+            buildAndDownloadWord(proj, rendered);
+          }
+        });
       });
-    });
-  } else {
-    buildAndDownloadWord(proj, []);
-  }
+    } else {
+      showLoader(false);
+      buildAndDownloadWord(proj, []);
+    }
+  });
 }
 
 function buildAndDownloadWord(proj, renderedPlans) {
@@ -1267,6 +1270,9 @@ function exportPDF() {
   var oN = ITEMS.filter(function(i){return i.status==='open';}).length;
   var cN = ITEMS.filter(function(i){return i.status==='closed';}).length;
   var aiSummary = document.getElementById('ai-summary-text') ? document.getElementById('ai-summary-text').value.trim() : '';
+  var aiHtml = aiSummary
+    ? '<div style="page-break-after:always;padding-bottom:40px;"><div style="font-size:20px;font-weight:900;letter-spacing:2px;margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid #1e1e1e;">EXECUTIVE SUMMARY</div><div style="font-size:14px;line-height:1.9;color:#333;">'+aiSummary+'</div></div>'
+    : '';
 
   var rows = ITEMS.map(function(it,i) {
     var sc = it.status==='open' ? '#c0392b' : '#27ae60';
@@ -1290,39 +1296,41 @@ function exportPDF() {
       '</div></div>';
   }).join('');
 
-  var plansWithImgs = PLANS.filter(function(p) { return p.image; });
-  if (!plansWithImgs.length) {
-    buildPdfOverlay(aiHtml, rows, proj, oN, cN);
-    return;
-  }
-  showLoader(true, 'Rendering floor plans...');
-  var renderedPdfPlans = [];
-  var rem2 = plansWithImgs.length;
-  plansWithImgs.forEach(function(plan, idx) {
-    renderPlanWithPins(plan, function(b64) {
-      renderedPdfPlans[idx] = { plan: plan, b64: b64 };
-      rem2--;
-      if (rem2 === 0) {
-        showLoader(false);
-        var plansHtml = '<div style="margin-bottom:24px;page-break-before:always;"><div style="font-size:16px;font-weight:900;letter-spacing:2px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #1e1e1e;">FLOOR PLANS</div>';
-        renderedPdfPlans.forEach(function(rp) {
-          if (!rp || !rp.b64) return;
-          plansHtml += '<div style="margin-bottom:20px;"><div style="font-size:13px;font-weight:700;color:#555;margin-bottom:8px;">' + (rp.plan.name||'Floor Plan') + '</div>';
-          plansHtml += '<img src="' + rp.b64 + '" style="width:100%;border-radius:8px;border:1px solid #e4e1dc;"/></div>';
-        });
-        plansHtml += '</div>';
-        buildPdfOverlay(aiHtml, rows, proj, oN, cN, plansHtml);
-      }
+  showLoader(true, 'Loading plans...');
+  callAPI('GET', '/projects/' + CPJ + '/plans', null, function(err2, freshPlans2) {
+    if (!err2 && freshPlans2) PLANS = freshPlans2;
+    var plansWithImgs = PLANS.filter(function(p) { return p.image; });
+    if (!plansWithImgs.length) {
+      showLoader(false);
+      buildPdfOverlay(aiHtml, rows, proj, oN, cN, '');
+      return;
+    }
+    showLoader(true, 'Rendering floor plans...');
+    var renderedPdfPlans = [];
+    var rem2 = plansWithImgs.length;
+    plansWithImgs.forEach(function(plan, idx) {
+      renderPlanWithPins(plan, function(b64) {
+        renderedPdfPlans[idx] = { plan: plan, b64: b64 };
+        rem2--;
+        if (rem2 === 0) {
+          showLoader(false);
+          var plansHtml = '<div style="margin-bottom:24px;page-break-before:always;"><div style="font-size:16px;font-weight:900;letter-spacing:2px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #1e1e1e;">FLOOR PLANS</div>';
+          renderedPdfPlans.forEach(function(rp) {
+            if (!rp || !rp.b64) return;
+            plansHtml += '<div style="margin-bottom:20px;"><div style="font-size:13px;font-weight:700;color:#555;margin-bottom:8px;">' + (rp.plan.name||'Floor Plan') + '</div>';
+            plansHtml += '<img src="' + rp.b64 + '" style="width:100%;border-radius:8px;border:1px solid #e4e1dc;"/></div>';
+          });
+          plansHtml += '</div>';
+          buildPdfOverlay(aiHtml, rows, proj, oN, cN, plansHtml);
+        }
+      });
     });
   });
 }
 
 function buildPdfOverlay(aiHtml, rows, proj, oN, cN, plansHtml) {
   plansHtml = plansHtml || '';
-
-  var aiHtml = aiSummary
-    ? '<div style="page-break-after:always;padding-bottom:40px;"><div style="font-size:20px;font-weight:900;letter-spacing:2px;margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid #1e1e1e;">EXECUTIVE SUMMARY</div><div style="font-size:14px;line-height:1.9;color:#333;">'+aiSummary+'</div></div>'
-    : '';
+  aiHtml = aiHtml || '';
 
   var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#fff;padding:32px;}@page{margin:32px 32px 60px 32px;}@media print{footer{position:fixed;bottom:0;left:0;right:0;padding:10px 32px;background:#fff;border-top:1px solid #e4e1dc;display:flex;justify-content:space-between;align-items:center;}}</style></head><body>' +
     aiHtml +
