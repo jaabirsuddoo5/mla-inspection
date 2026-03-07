@@ -1343,19 +1343,27 @@ function buildPdfOverlay(aiHtml, rows, proj, oN, cN, plansHtml) {
   var overlay = document.getElementById('pdf-overlay');
   var frame = document.getElementById('pdf-frame');
   overlay.style.display = 'flex';
-  frame.srcdoc = html;
+  var blob = new Blob([html], {type: 'text/html'});
+  var blobUrl = URL.createObjectURL(blob);
+  frame.src = blobUrl;
+  frame._blobUrl = blobUrl;
   showToast('Tap Print / Save PDF to export', 'ok');
 }
 
 function closePdfOverlay() {
   document.getElementById('pdf-overlay').style.display = 'none';
-  document.getElementById('pdf-frame').srcdoc = '';
+  var frame = document.getElementById('pdf-frame');
+  if (frame._blobUrl) { URL.revokeObjectURL(frame._blobUrl); frame._blobUrl = null; }
+  frame.src = 'about:blank';
 }
 
 function printPdfOverlay() {
   var frame = document.getElementById('pdf-frame');
-  frame.contentWindow.focus();
-  frame.contentWindow.print();
+  if (frame._blobUrl) {
+    window.open(frame._blobUrl, '_blank');
+  } else {
+    try { frame.contentWindow.focus(); frame.contentWindow.print(); } catch(e) {}
+  }
 }
 
 // ═══════════════════════════════════════════════
