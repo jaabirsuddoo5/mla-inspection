@@ -1077,6 +1077,7 @@ select.fi{cursor:pointer}
   <div style="position:absolute;bottom:50px;display:flex;gap:10px;padding:0 20px">
     <button class="cam-retake" id="pv-retake" type="button" onclick="retakeFromViewer()">Retake</button>
     <button class="cam-retake" id="pv-annotate" type="button" onclick="annotateFromViewer()">Annotate</button>
+    <button class="cam-retake" id="pv-rotate" type="button" onclick="rotateFromViewer()">Rotate</button>
   </div>
 </div>
 
@@ -2229,32 +2230,14 @@ document.getElementById('cam-capture').onclick = function() {
   var vw = video.videoWidth;
   var vh = video.videoHeight;
   
-  // Detect landscape: either video is landscape OR phone is held landscape
-  var isVideoLandscape = vw > vh * 1.1; // 10% margin to avoid false positives on near-square
-  var isScreenLandscape = window.innerWidth > window.innerHeight;
-  var needsRotation = isVideoLandscape || isScreenLandscape;
-  
+  // Center crop to square 800x800 — inspector rotates manually if needed
+  var size = Math.min(vw, vh);
   canvas.width = 800;
   canvas.height = 800;
   var ctx = canvas.getContext('2d');
-  
-  if (needsRotation && isVideoLandscape) {
-    // Video feed is actually landscape — rotate 90° and crop center
-    ctx.save();
-    ctx.translate(400, 400);
-    ctx.rotate(-Math.PI / 2);
-    var cropSize = Math.min(vw, vh);
-    var sx = (vw - cropSize) / 2;
-    var sy = (vh - cropSize) / 2;
-    ctx.drawImage(video, sx, sy, cropSize, cropSize, -400, -400, 800, 800);
-    ctx.restore();
-  } else {
-    // Portrait or square — just center crop
-    var size = Math.min(vw, vh);
-    var sx = (vw - size) / 2;
-    var sy = (vh - size) / 2;
-    ctx.drawImage(video, sx, sy, size, size, 0, 0, 800, 800);
-  }
+  var sx = (vw - size) / 2;
+  var sy = (vh - size) / 2;
+  ctx.drawImage(video, sx, sy, size, size, 0, 0, 800, 800);
   
   CAM_CAPTURED = canvas.toDataURL('image/jpeg', 0.6);
   
@@ -2326,26 +2309,13 @@ function compressPhoto(file, callback) {
     var img = new Image();
     img.onload = function() {
       var canvas = document.createElement('canvas');
-      var isLandscape = img.width > img.height * 1.1;
+      var size = Math.min(img.width, img.height);
       canvas.width = 800;
       canvas.height = 800;
       var ctx = canvas.getContext('2d');
-      
-      if (isLandscape) {
-        ctx.save();
-        ctx.translate(400, 400);
-        ctx.rotate(-Math.PI / 2);
-        var cropSize = Math.min(img.width, img.height);
-        var sx = (img.width - cropSize) / 2;
-        var sy = (img.height - cropSize) / 2;
-        ctx.drawImage(img, sx, sy, cropSize, cropSize, -400, -400, 800, 800);
-        ctx.restore();
-      } else {
-        var size = Math.min(img.width, img.height);
-        var sx = (img.width - size) / 2;
-        var sy = (img.height - size) / 2;
-        ctx.drawImage(img, sx, sy, size, size, 0, 0, 800, 800);
-      }
+      var sx = (img.width - size) / 2;
+      var sy = (img.height - size) / 2;
+      ctx.drawImage(img, sx, sy, size, size, 0, 0, 800, 800);
       callback(canvas.toDataURL('image/jpeg', 0.6));
     };
     img.src = e.target.result;
@@ -2392,6 +2362,33 @@ function retakeFromViewer() {
   var targetMap = { photo: 'before', photoAfter: 'after', photoExtra: 'extra' };
   var target = targetMap[VIEWER_FIELD] || 'before';
   openCameraForItem(VIEWER_ITEM_ID, target);
+}
+
+function rotateFromViewer() {
+  // Rotate current photo 90° clockwise and save
+  var img = new Image();
+  img.onload = function() {
+    var canvas = document.createElement('canvas');
+    canvas.width = img.height;
+    canvas.height = img.width;
+    var ctx = canvas.getContext('2d');
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate(Math.PI / 2);
+    ctx.drawImage(img, -img.width / 2, -img.height / 2);
+    var rotated = canvas.toDataURL('image/jpeg', 0.6);
+    
+    // Update viewer immediately
+    document.getElementById('photo-viewer-img').src = rotated;
+    VIEWER_SRC = rotated;
+    
+    // Save to server
+    var update = {};
+    update[VIEWER_FIELD] = rotated;
+    api('PUT', '/items/' + VIEWER_ITEM_ID, update)
+      .then(function() { toast('Rotated', 'ok'); reloadItems(); })
+      .catch(function() { toast('Failed to save rotation', 'err'); });
+  };
+  img.src = VIEWER_SRC;
 }
 
 /* ═══════════════════════════════════════════════
