@@ -486,7 +486,6 @@ select.fi{cursor:pointer}
     <div class="atab on" data-tab="dashboard">Dashboard</div>
     <div class="atab" data-tab="inspectors">Inspectors</div>
     <div class="atab" data-tab="companies">Companies</div>
-    <div class="atab" data-tab="clients">Clients</div>
     <div class="atab" data-tab="categories">Categories</div>
     <div class="atab" data-tab="storage">Storage</div>
     <div class="atab" data-tab="audit">Audit Log</div>
@@ -562,25 +561,6 @@ select.fi{cursor:pointer}
   </div>
 
   <!-- Clients -->
-  <div class="admin-body hidden" id="atab-clients">
-    <div class="acard">
-      <div class="acard-title">Add Client</div>
-      <div class="fi-group" style="margin-bottom:10px"><label class="fi-label">Company Name</label><input class="fi" id="acl-name" type="text" placeholder="Client company" autocomplete="off"/></div>
-      <div class="fi-row" style="margin-bottom:10px">
-        <div class="fi-group"><label class="fi-label">Contact Person</label><input class="fi" id="acl-contact" type="text" placeholder="Name" autocomplete="off"/></div>
-        <div class="fi-group"><label class="fi-label">Email</label><input class="fi" id="acl-email" type="email" placeholder="Email" autocomplete="off"/></div>
-      </div>
-      <div class="fi-row" style="margin-bottom:10px">
-        <div class="fi-group"><label class="fi-label">Phone</label><input class="fi" id="acl-phone" type="text" placeholder="Phone" autocomplete="off"/></div>
-        <div class="fi-group"><label class="fi-label">For Company</label><select class="fi" id="acl-company"></select></div>
-      </div>
-      <div class="fi-group" style="margin-bottom:12px"><label class="fi-label">Address</label><input class="fi" id="acl-addr" type="text" placeholder="Address" autocomplete="off"/></div>
-      <button class="btn btn-green" id="btn-add-client" type="button">+ Add Client</button>
-    </div>
-    <div class="acard-title">Clients</div>
-    <div id="cl-list"></div>
-  </div>
-
   <!-- Categories -->
   <div class="admin-body hidden" id="atab-categories">
     <div class="acard">
@@ -749,10 +729,11 @@ function calcExpiry(dur) {
 
 function expiryStatus(exp) {
   if (exp === 'forever') return { cls: 'tag-forever', text: 'FOREVER' };
-  var d = new Date(exp), now = new Date(), diff = (d - now) / 86400000;
-  if (diff < 0) return { cls: 'tag-expired', text: 'EXPIRED' };
-  if (diff < 7) return { cls: 'tag-expiring', text: 'EXPIRES SOON' };
-  return { cls: 'tag-active', text: 'ACTIVE' };
+  var d = new Date(exp), now = new Date(), diff = Math.ceil((d - now) / 86400000);
+  if (diff < 0) return { cls: 'tag-expired', text: 'EXPIRED ' + Math.abs(diff) + 'd ago' };
+  if (diff === 0) return { cls: 'tag-expiring', text: 'EXPIRES TODAY' };
+  if (diff <= 7) return { cls: 'tag-expiring', text: diff + ' DAY' + (diff !== 1 ? 'S' : '') + ' LEFT' };
+  return { cls: 'tag-active', text: diff + ' DAYS LEFT' };
 }
 
 function initials(name) {
@@ -915,7 +896,6 @@ document.querySelectorAll('#admin-tabs .atab').forEach(function(tab) {
     if (target === 'dashboard') loadAdminDashboard();
     if (target === 'inspectors') loadAdminUsers();
     if (target === 'companies') loadAdminCompanies();
-    if (target === 'clients') loadAdminClients();
     if (target === 'categories') loadAdminCategories();
     if (target === 'storage') loadAdminStorage();
     if (target === 'audit') loadAdminAudit();
@@ -968,7 +948,7 @@ function renderCompanies() {
 
 function updateCompanyDropdowns() {
   var opts = COMPANIES.map(function(c) { return '<option value="' + c._id + '">' + esc(c.name) + '</option>'; }).join('');
-  ['au-company', 'acl-company', 'acat-company'].forEach(function(id) {
+  ['au-company', 'acat-company'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.innerHTML = opts;
   });
@@ -1066,7 +1046,7 @@ function suspendUser(id) {
 }
 
 function deleteUser(id) {
-  if (!confirm('Delete this inspector? This cannot be undone.')) return;
+  if (!confirm('Delete this inspector and ALL their projects, items, plans & clients? This cannot be undone.')) return;
   api('DELETE', '/admin/users/' + id)
     .then(function() { toast('Deleted'); loadAdminUsers(); })
     .catch(function() { toast('Failed', 'err'); });
@@ -1075,55 +1055,6 @@ function deleteUser(id) {
 /* ═══════════════════════════════════════════════
    ADMIN — CLIENTS
 ═══════════════════════════════════════════════ */
-function loadAdminClients() {
-  if (!COMPANIES.length) {
-    api('GET', '/admin/companies').then(function(data) { COMPANIES = data; updateCompanyDropdowns(); loadAdminClientsInner(); });
-  } else { loadAdminClientsInner(); }
-}
-
-function loadAdminClientsInner() {
-  api('GET', '/admin/clients')
-    .then(function(clients) {
-      var el = document.getElementById('cl-list');
-      if (!clients.length) { el.innerHTML = '<div class="empty-msg">No clients yet.</div>'; return; }
-      el.innerHTML = clients.map(function(c) {
-        return '<div class="client-row">' +
-          '<div style="width:40px;height:40px;border-radius:8px;background:var(--bg2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:800;color:var(--text3)">' + initials(c.name) + '</div>' +
-          '<div class="client-info"><div class="client-name">' + esc(c.name) + '</div><div class="client-detail">' + esc(c.contactPerson || '') + (c.email ? ' · ' + esc(c.email) : '') + '</div></div>' +
-          '<button class="urow-btn danger" onclick="deleteClient(\'' + c._id + '\')" type="button"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>' +
-        '</div>';
-      }).join('');
-    })
-    .catch(function() { toast('Failed to load clients', 'err'); });
-}
-
-document.getElementById('btn-add-client').onclick = function() {
-  var name = document.getElementById('acl-name').value.trim();
-  var companyId = document.getElementById('acl-company').value;
-  if (!name) { toast('Enter client name', 'err'); return; }
-  if (!companyId) { toast('Select a company', 'err'); return; }
-  api('POST', '/admin/clients', {
-    companyId: companyId, name: name,
-    contactPerson: document.getElementById('acl-contact').value.trim(),
-    email: document.getElementById('acl-email').value.trim(),
-    phone: document.getElementById('acl-phone').value.trim(),
-    address: document.getElementById('acl-addr').value.trim()
-  })
-    .then(function() {
-      ['acl-name', 'acl-contact', 'acl-email', 'acl-phone', 'acl-addr'].forEach(function(id) { document.getElementById(id).value = ''; });
-      toast('Client added', 'ok');
-      loadAdminClients();
-    })
-    .catch(function() { toast('Failed', 'err'); });
-};
-
-function deleteClient(id) {
-  if (!confirm('Delete this client?')) return;
-  api('DELETE', '/admin/clients/' + id)
-    .then(function() { toast('Deleted'); loadAdminClients(); })
-    .catch(function() { toast('Failed', 'err'); });
-}
-
 /* ═══════════════════════════════════════════════
    ADMIN — CATEGORIES
 ═══════════════════════════════════════════════ */
