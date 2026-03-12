@@ -1708,8 +1708,8 @@ function openProject(pid) {
     document.getElementById('pv-meta').textContent = (CUR_PROJECT.ref || 'No ref') + ' — ' + (CUR_PROJECT.date || '');
     
     // Populate category dropdown in snag modal
-    var catOpts = CUR_CATEGORIES.map(function(c) { return '<option value="' + esc(c.name) + '">' + esc(c.name) + '</option>'; }).join('');
-    document.getElementById('sm-cat').innerHTML = catOpts || '<option value="General">General</option>';
+    var catOpts = '<option value="" disabled selected>Select category...</option>' + CUR_CATEGORIES.map(function(c) { return '<option value="' + esc(c.name) + '">' + esc(c.name) + '</option>'; }).join('');
+    document.getElementById('sm-cat').innerHTML = catOpts;
     
     // Populate filter categories
     var fpCat = '<div class="fp-chip on" data-v="all">All</div>' + CUR_CATEGORIES.map(function(c) { return '<div class="fp-chip" data-v="' + esc(c.name) + '">' + esc(c.name) + '</div>'; }).join('');
@@ -2014,7 +2014,7 @@ function openSnagModal(item) {
   
   document.getElementById('sm-title').textContent = item ? 'Edit INS-' + String(item.seq).padStart(3, '0') : 'New Item';
   document.getElementById('sm-desc').value = item ? (item.description || '') : '';
-  document.getElementById('sm-cat').value = item ? (item.category || 'General') : (CUR_CATEGORIES.length ? CUR_CATEGORIES[0].name : 'General');
+  document.getElementById('sm-cat').value = item ? (item.category || '') : '';
   document.getElementById('sm-pri').value = item ? (item.priority || 'medium') : 'medium';
   document.getElementById('sm-status').value = item ? (item.status || 'open') : 'open';
   document.getElementById('sm-loc').value = item ? (item.location || '') : '';
@@ -2048,10 +2048,12 @@ document.getElementById('sm-close').onclick = function() { document.getElementBy
 document.getElementById('sm-save').onclick = function() {
   var desc = document.getElementById('sm-desc').value.trim();
   if (!desc) { toast('Enter a description', 'err'); return; }
+  var cat = document.getElementById('sm-cat').value;
+  if (!cat) { toast('Select a category', 'err'); return; }
   
   var data = {
     description: desc,
-    category: document.getElementById('sm-cat').value,
+    category: cat,
     priority: document.getElementById('sm-pri').value,
     status: document.getElementById('sm-status').value,
     location: document.getElementById('sm-loc').value.trim(),
@@ -2222,13 +2224,32 @@ function openFilePicker() {
 document.getElementById('cam-capture').onclick = function() {
   var video = document.getElementById('cam-video');
   var canvas = document.getElementById('cam-canvas');
-  var size = Math.min(video.videoWidth, video.videoHeight);
+  var vw = video.videoWidth;
+  var vh = video.videoHeight;
+  var isLandscape = vw > vh;
+  
+  // Always output portrait: crop to center square, then output 800x800
+  // If landscape video, rotate 90° to make it portrait
+  var size = Math.min(vw, vh);
   canvas.width = 800;
   canvas.height = 800;
   var ctx = canvas.getContext('2d');
-  var sx = (video.videoWidth - size) / 2;
-  var sy = (video.videoHeight - size) / 2;
-  ctx.drawImage(video, sx, sy, size, size, 0, 0, 800, 800);
+  
+  if (isLandscape) {
+    // Rotate landscape to portrait
+    ctx.save();
+    ctx.translate(400, 400);
+    ctx.rotate(-Math.PI / 2);
+    // Draw centered crop
+    var sx = (vw - vh) / 2; // crop sides for square
+    ctx.drawImage(video, sx, 0, vh, vh, -400, -400, 800, 800);
+    ctx.restore();
+  } else {
+    var sx = (vw - size) / 2;
+    var sy = (vh - size) / 2;
+    ctx.drawImage(video, sx, sy, size, size, 0, 0, 800, 800);
+  }
+  
   CAM_CAPTURED = canvas.toDataURL('image/jpeg', 0.6);
   
   // Show preview
@@ -2299,13 +2320,25 @@ function compressPhoto(file, callback) {
     var img = new Image();
     img.onload = function() {
       var canvas = document.createElement('canvas');
+      var isLandscape = img.width > img.height;
       var size = Math.min(img.width, img.height);
       canvas.width = 800;
       canvas.height = 800;
       var ctx = canvas.getContext('2d');
-      var sx = (img.width - size) / 2;
-      var sy = (img.height - size) / 2;
-      ctx.drawImage(img, sx, sy, size, size, 0, 0, 800, 800);
+      
+      if (isLandscape) {
+        // Rotate landscape to portrait
+        ctx.save();
+        ctx.translate(400, 400);
+        ctx.rotate(-Math.PI / 2);
+        var sx = (img.width - img.height) / 2;
+        ctx.drawImage(img, sx, 0, img.height, img.height, -400, -400, 800, 800);
+        ctx.restore();
+      } else {
+        var sx = (img.width - size) / 2;
+        var sy = (img.height - size) / 2;
+        ctx.drawImage(img, sx, sy, size, size, 0, 0, 800, 800);
+      }
       callback(canvas.toDataURL('image/jpeg', 0.6));
     };
     img.src = e.target.result;
@@ -2360,11 +2393,21 @@ var ANNO_LINE = null;
 
 function loadKonva(cb) {
   if (window.Konva) return cb();
-  var s = document.createElement('script');
-  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/konva/9.2.0/konva.min.js';
-  s.onload = cb;
-  s.onerror = function() { toast('Failed to load annotation library', 'err'); };
-  document.head.appendChild(s);
+  var cdns = [
+    'https://cdn.jsdelivr.net/npm/konva@9.3.6/konva.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/konva/9.2.0/konva.min.js',
+    'https://unpkg.com/konva@9.3.6/konva.min.js'
+  ];
+  var idx = 0;
+  function tryNext() {
+    if (idx >= cdns.length) { toast('Failed to load annotation library', 'err'); return; }
+    var s = document.createElement('script');
+    s.src = cdns[idx++];
+    s.onload = cb;
+    s.onerror = function() { document.head.removeChild(s); tryNext(); };
+    document.head.appendChild(s);
+  }
+  tryNext();
 }
 
 function openAnnotation(imageSrc, callback) {
