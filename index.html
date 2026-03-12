@@ -1073,7 +1073,8 @@ select.fi{cursor:pointer}
 <div id="photo-viewer">
   <button class="pv-close" onclick="closePhotoViewer()" type="button">✕</button>
   <img id="photo-viewer-img" src=""/>
-  <div style="position:absolute;bottom:20px;display:flex;gap:10px">
+  <div style="position:absolute;bottom:50px;display:flex;gap:10px;padding:0 20px">
+    <button class="cam-retake" id="pv-retake" type="button" onclick="retakeFromViewer()">Retake</button>
     <button class="cam-retake" id="pv-annotate" type="button" onclick="annotateFromViewer()">Annotate</button>
   </div>
 </div>
@@ -2226,25 +2227,29 @@ document.getElementById('cam-capture').onclick = function() {
   var canvas = document.getElementById('cam-canvas');
   var vw = video.videoWidth;
   var vh = video.videoHeight;
-  var isLandscape = vw > vh;
   
-  // Always output portrait: crop to center square, then output 800x800
-  // If landscape video, rotate 90° to make it portrait
-  var size = Math.min(vw, vh);
+  // Detect landscape: either video is landscape OR phone is held landscape
+  var isVideoLandscape = vw > vh * 1.1; // 10% margin to avoid false positives on near-square
+  var isScreenLandscape = window.innerWidth > window.innerHeight;
+  var needsRotation = isVideoLandscape || isScreenLandscape;
+  
   canvas.width = 800;
   canvas.height = 800;
   var ctx = canvas.getContext('2d');
   
-  if (isLandscape) {
-    // Rotate landscape to portrait
+  if (needsRotation && isVideoLandscape) {
+    // Video feed is actually landscape — rotate 90° and crop center
     ctx.save();
     ctx.translate(400, 400);
     ctx.rotate(-Math.PI / 2);
-    // Draw centered crop
-    var sx = (vw - vh) / 2; // crop sides for square
-    ctx.drawImage(video, sx, 0, vh, vh, -400, -400, 800, 800);
+    var cropSize = Math.min(vw, vh);
+    var sx = (vw - cropSize) / 2;
+    var sy = (vh - cropSize) / 2;
+    ctx.drawImage(video, sx, sy, cropSize, cropSize, -400, -400, 800, 800);
     ctx.restore();
   } else {
+    // Portrait or square — just center crop
+    var size = Math.min(vw, vh);
     var sx = (vw - size) / 2;
     var sy = (vh - size) / 2;
     ctx.drawImage(video, sx, sy, size, size, 0, 0, 800, 800);
@@ -2320,21 +2325,22 @@ function compressPhoto(file, callback) {
     var img = new Image();
     img.onload = function() {
       var canvas = document.createElement('canvas');
-      var isLandscape = img.width > img.height;
-      var size = Math.min(img.width, img.height);
+      var isLandscape = img.width > img.height * 1.1;
       canvas.width = 800;
       canvas.height = 800;
       var ctx = canvas.getContext('2d');
       
       if (isLandscape) {
-        // Rotate landscape to portrait
         ctx.save();
         ctx.translate(400, 400);
         ctx.rotate(-Math.PI / 2);
-        var sx = (img.width - img.height) / 2;
-        ctx.drawImage(img, sx, 0, img.height, img.height, -400, -400, 800, 800);
+        var cropSize = Math.min(img.width, img.height);
+        var sx = (img.width - cropSize) / 2;
+        var sy = (img.height - cropSize) / 2;
+        ctx.drawImage(img, sx, sy, cropSize, cropSize, -400, -400, 800, 800);
         ctx.restore();
       } else {
+        var size = Math.min(img.width, img.height);
         var sx = (img.width - size) / 2;
         var sy = (img.height - size) / 2;
         ctx.drawImage(img, sx, sy, size, size, 0, 0, 800, 800);
@@ -2377,6 +2383,14 @@ function annotateFromViewer() {
       .then(function() { loader(false); toast('Annotation saved', 'ok'); reloadItems(); })
       .catch(function() { loader(false); toast('Failed', 'err'); });
   });
+}
+
+function retakeFromViewer() {
+  closePhotoViewer();
+  // Map field back to camera target type
+  var targetMap = { photo: 'before', photoAfter: 'after', photoExtra: 'extra' };
+  var target = targetMap[VIEWER_FIELD] || 'before';
+  openCameraForItem(VIEWER_ITEM_ID, target);
 }
 
 /* ═══════════════════════════════════════════════
