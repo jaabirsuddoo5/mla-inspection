@@ -822,6 +822,25 @@ select.fi{cursor:pointer}
 .exp-btn-word{background:var(--blue);color:#fff}
 .exp-btn svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2}
 
+/* ── STAT GRID (summary tab) ── */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 12px;display:flex;flex-direction:column;gap:4px}
+.stat-card-val{font-size:28px;font-weight:900;line-height:1}
+.stat-card-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text3)}
+.stat-card-sub{font-size:10px;color:var(--text3);margin-top:2px}
+.stat-card.red .stat-card-val{color:var(--red)}
+.stat-card.yellow .stat-card-val{color:var(--yellow)}
+.stat-card.green .stat-card-val{color:var(--green)}
+.stat-card.blue .stat-card-val{color:var(--blue)}
+
+/* ── STATUS DROPDOWN ── */
+#proj-status-drop{position:absolute;top:100%;right:0;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.18);z-index:9999;min-width:160px;overflow:hidden;display:none}
+#proj-status-drop.show{display:block}
+.psd-item{padding:12px 16px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:10px}
+.psd-item:hover{background:var(--bg2)}
+.psd-item.active{color:var(--blue)}
+.psd-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
 /* ── SUMMARY / PROGRESS ── */
 .prog-card{background:var(--card);border-radius:12px;padding:14px;border:1px solid var(--line)}
 .prog-title{font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
@@ -1122,51 +1141,30 @@ select.fi{cursor:pointer}
     <button class="topbar-icon-btn" id="pv-collab-btn" type="button" title="Collaboration">
       <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     </button>
-    <button class="topbar-icon-btn" id="pv-export-btn" type="button" title="Export">
-      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-    </button>
-    <button class="topbar-icon-btn" id="pv-status-btn" type="button" title="Change status">
-      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-    </button>
+    <div style="position:relative">
+      <button class="topbar-icon-btn" id="pv-status-btn" type="button" title="Project status">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+      <div id="proj-status-drop">
+        <div class="psd-item" data-status="draft"><span class="psd-dot" style="background:#888"></span>Draft</div>
+        <div class="psd-item" data-status="in_progress"><span class="psd-dot" style="background:#C78A20"></span>In Progress</div>
+        <div class="psd-item" data-status="complete"><span class="psd-dot" style="background:#2D8653"></span>Complete</div>
+      </div>
+    </div>
   </div>
 
   <div class="pv-tabs" id="pv-tabs">
-    <div class="pvtab on" data-tab="inspection">Inspection</div>
-    <div class="pvtab" data-tab="plan">Plans</div>
-    <div class="pvtab" data-tab="cover">Cover</div>
+    <div class="pvtab on" data-tab="plan">Plan</div>
+    <div class="pvtab" data-tab="inspection">Inspection</div>
+    <div class="pvtab" data-tab="recycle">Recycle</div>
     <div class="pvtab" data-tab="summary">Summary</div>
-    <div class="pvtab" data-tab="capture">Quick Capture</div>
-    <div class="pvtab" data-tab="trash">Trash</div>
+    <div class="pvtab" data-tab="export">Export</div>
     <div class="pvtab" data-tab="about">About</div>
   </div>
 
   <div class="pv-body">
-    <!-- Inspection tab -->
-    <div class="pv-section active" id="pvs-inspection">
-      <!-- Select bar for bulk actions -->
-      <div class="insp-select-bar" id="insp-select-bar">
-        <span class="isb-count" id="isb-count">0 selected</span>
-        <button class="isb-btn" onclick="bulkStatus('open')" type="button">→ Open</button>
-        <button class="isb-btn" onclick="bulkStatus('in_progress')" type="button">→ In Prog</button>
-        <button class="isb-btn" onclick="bulkStatus('closed')" type="button">→ Closed</button>
-        <button class="isb-btn" onclick="cancelSelect()" type="button">✕</button>
-      </div>
-
-      <!-- Filter/action bar -->
-      <div class="insp-bar">
-        <input class="insp-search" id="insp-search" type="text" placeholder="Search items..." autocomplete="off"/>
-        <button class="insp-filter-btn" id="btn-filter" type="button"><svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filter</button>
-        <button class="insp-filter-btn" id="btn-select-mode" type="button"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Select</button>
-        <button class="insp-add-btn" id="btn-add-snag" type="button"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add</button>
-      </div>
-
-      <!-- Snag list -->
-      <div class="insp-list" id="snag-list"></div>
-    </div>
-
-
-    <!-- PLANS TAB -->
-    <div class="pv-section" id="pvs-plan">
+    <!-- PLAN TAB -->
+    <div class="pv-section active" id="pvs-plan">
       <div class="plans-wrap">
         <div class="plan-tabs-row" id="plan-tabs-row">
           <button class="plan-add-btn" id="btn-plan-add" type="button"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
@@ -1190,49 +1188,69 @@ select.fi{cursor:pointer}
       </div>
     </div>
 
-    <!-- COVER TAB -->
-    <div class="pv-section" id="pvs-cover">
-      <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:14px">
-        <div class="acard">
-          <div class="acard-title">Cover Page</div>
-          <div class="fi-group" style="margin-bottom:10px"><label class="fi-label">Project Title (override)</label><input class="fi" id="cv-title" type="text" placeholder="Leave blank to use project name"/></div>
-          <div class="fi-group" style="margin-bottom:10px"><label class="fi-label">Site Address</label><input class="fi" id="cv-address" type="text" placeholder="Full site address"/></div>
-          <div class="fi-group" style="margin-bottom:12px">
-            <label class="fi-label">Client Logo</label>
-            <div style="display:flex;gap:10px;align-items:center">
-              <img id="cv-logo-prev" src="" style="width:56px;height:56px;border-radius:8px;object-fit:contain;background:var(--bg2);border:1px solid var(--line);display:none"/>
-              <input type="file" id="cv-logo-input" accept="image/*" style="display:none"/>
-              <button class="btn btn-outline btn-sm" id="btn-cv-logo" type="button">Upload Logo</button>
-              <button class="btn btn-outline btn-sm" id="btn-cv-logo-rm" type="button" style="display:none;color:var(--red)">Remove</button>
-            </div>
-          </div>
-          <button class="btn" id="btn-save-cover" type="button">Save Cover Page</button>
-        </div>
-        <div id="cover-preview-card" style="display:none;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden">
-          <div class="cover-preview-inner">
-            <img class="cover-logo-img" id="cv-prev-logo"/>
-            <div class="cover-proj-title" id="cv-prev-title"></div>
-            <div class="cover-proj-ref" id="cv-prev-ref"></div>
-            <div class="cover-proj-addr" id="cv-prev-addr"></div>
-          </div>
-          <div style="padding:10px 14px;font-size:10px;color:var(--text4);text-align:center">Cover page preview</div>
-        </div>
+    <!-- INSPECTION TAB -->
+    <div class="pv-section" id="pvs-inspection">
+      <!-- Select bar for bulk actions -->
+      <div class="insp-select-bar" id="insp-select-bar">
+        <span class="isb-count" id="isb-count">0 selected</span>
+        <button class="isb-btn" onclick="bulkStatus('open')" type="button">→ Open</button>
+        <button class="isb-btn" onclick="bulkStatus('in_progress')" type="button">→ In Prog</button>
+        <button class="isb-btn" onclick="bulkStatus('closed')" type="button">→ Closed</button>
+        <button class="isb-btn" onclick="cancelSelect()" type="button">✕</button>
       </div>
+
+      <!-- Filter/action bar -->
+      <div class="insp-bar">
+        <input class="insp-search" id="insp-search" type="text" placeholder="Search items..." autocomplete="off"/>
+        <button class="insp-filter-btn" id="btn-filter" type="button"><svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filter</button>
+        <button class="insp-filter-btn" id="btn-select-mode" type="button"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Select</button>
+        <button class="insp-add-btn" id="btn-add-snag" type="button"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add</button>
+      </div>
+
+      <!-- Snag list -->
+      <div class="insp-list" id="snag-list"></div>
+    </div>
+
+    <!-- RECYCLE TAB -->
+    <div class="pv-section" id="pvs-recycle">
+      <div style="padding:10px 14px;font-size:11px;color:var(--text3);background:var(--card);border-bottom:1px solid var(--line)">Items deleted in the last 24 hours. After that they are permanently removed.</div>
+      <div style="flex:1;overflow-y:auto;padding:10px 14px" id="trash-list"></div>
     </div>
 
     <!-- SUMMARY TAB -->
     <div class="pv-section" id="pvs-summary">
       <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:14px">
-        <div class="prog-card">
-          <div class="prog-title">Item Status Overview</div>
-          <div class="prog-bar-row"><div class="prog-bar-lbl">Open</div><div class="prog-bar-wrap"><div class="prog-bar-fill pbf-open" id="pb-open" style="width:0%"></div></div><div class="prog-bar-num" id="pbn-open">0</div></div>
-          <div class="prog-bar-row"><div class="prog-bar-lbl">In Progress</div><div class="prog-bar-wrap"><div class="prog-bar-fill pbf-prog" id="pb-prog" style="width:0%"></div></div><div class="prog-bar-num" id="pbn-prog">0</div></div>
-          <div class="prog-bar-row"><div class="prog-bar-lbl">Closed</div><div class="prog-bar-wrap"><div class="prog-bar-fill pbf-closed" id="pb-closed" style="width:0%"></div></div><div class="prog-bar-num" id="pbn-closed">0</div></div>
+
+        <!-- Stat cards grid -->
+        <div class="stat-grid">
+          <div class="stat-card red"><div class="stat-card-val" id="sc-open">0</div><div class="stat-card-lbl">Open</div></div>
+          <div class="stat-card yellow"><div class="stat-card-val" id="sc-prog">0</div><div class="stat-card-lbl">In Progress</div></div>
+          <div class="stat-card green"><div class="stat-card-val" id="sc-closed">0</div><div class="stat-card-lbl">Closed</div></div>
+          <div class="stat-card blue"><div class="stat-card-val" id="sc-total">0</div><div class="stat-card-lbl">Total Items</div></div>
         </div>
+
+        <!-- Photo stats -->
+        <div class="stat-grid">
+          <div class="stat-card blue"><div class="stat-card-val" id="sc-photos-before">0</div><div class="stat-card-lbl">Before Photos</div></div>
+          <div class="stat-card green"><div class="stat-card-val" id="sc-photos-after">0</div><div class="stat-card-lbl">After Photos</div></div>
+        </div>
+
+        <!-- Priority breakdown -->
         <div class="prog-card">
-          <div class="prog-title">Before / After per Visit</div>
+          <div class="prog-title">Priority Breakdown</div>
+          <div class="prog-bar-row"><div class="prog-bar-lbl">Critical</div><div class="prog-bar-wrap"><div class="prog-bar-fill" id="pb-crit" style="width:0%;background:var(--red)"></div></div><div class="prog-bar-num" id="pbn-crit">0</div></div>
+          <div class="prog-bar-row"><div class="prog-bar-lbl">High</div><div class="prog-bar-wrap"><div class="prog-bar-fill" id="pb-high" style="width:0%;background:#E05A00"></div></div><div class="prog-bar-num" id="pbn-high">0</div></div>
+          <div class="prog-bar-row"><div class="prog-bar-lbl">Medium</div><div class="prog-bar-wrap"><div class="prog-bar-fill" id="pb-med" style="width:0%;background:var(--yellow)"></div></div><div class="prog-bar-num" id="pbn-med">0</div></div>
+          <div class="prog-bar-row"><div class="prog-bar-lbl">Low</div><div class="prog-bar-wrap"><div class="prog-bar-fill" id="pb-low" style="width:0%;background:var(--text3)"></div></div><div class="prog-bar-num" id="pbn-low">0</div></div>
+        </div>
+
+        <!-- Per-visit breakdown -->
+        <div class="prog-card">
+          <div class="prog-title">Per Visit</div>
           <div id="visit-prog-list"><div class="empty-msg" style="padding:20px">No items yet</div></div>
         </div>
+
+        <!-- Executive summary -->
         <div class="acard">
           <div class="acard-title">Executive Summary</div>
           <textarea class="fi" id="sum-text" rows="5" placeholder="Write an executive summary..." style="resize:vertical"></textarea>
@@ -1246,30 +1264,23 @@ select.fi{cursor:pointer}
       </div>
     </div>
 
-    <!-- QUICK CAPTURE TAB -->
-    <div class="pv-section" id="pvs-capture">
-      <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:12px">
-        <div class="acard">
-          <div class="acard-title">Quick Capture</div>
-          <div class="qc-photo-row">
-            <div class="qc-slot" id="qc-slot-before"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span>Before</span></div>
-            <div class="qc-slot" id="qc-slot-after"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span>After</span></div>
-          </div>
-          <div class="fi-group" style="margin-bottom:10px"><label class="fi-label">Description</label><textarea class="fi" id="qc-desc" rows="2" placeholder="Quick note..." style="resize:vertical"></textarea></div>
-          <div class="fi-row" style="margin-bottom:10px">
-            <div class="fi-group"><label class="fi-label">Category</label><select class="fi" id="qc-cat"></select></div>
-            <div class="fi-group"><label class="fi-label">Priority</label><select class="fi" id="qc-pri"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="critical">Critical</option></select></div>
-          </div>
-          <div class="fi-row" style="margin-bottom:12px">
-            <div class="fi-group"><label class="fi-label">Location</label>
-              <div class="smart-wrap"><input class="fi" id="qc-loc" type="text" placeholder="Location" autocomplete="off"/><div class="smart-dd-btn" id="sdd-btn-qc-loc"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="smart-dropdown" id="sdd-qc-loc"></div></div>
-            </div>
-            <div class="fi-group"><label class="fi-label">Contractor</label>
-              <div class="smart-wrap"><input class="fi" id="qc-con" type="text" placeholder="Contractor" autocomplete="off"/><div class="smart-dd-btn" id="sdd-btn-qc-con"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="smart-dropdown" id="sdd-qc-con"></div></div>
-            </div>
-          </div>
-          <button class="qc-save" id="btn-qc-save" type="button"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Item</button>
+    <!-- EXPORT TAB -->
+    <div class="pv-section" id="pvs-export">
+      <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:14px">
+        <div class="exp-sec">
+          <div class="exp-sec-title">Filter by Contractor</div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:8px">All checked = full report</div>
+          <div class="exp-contractor-list" id="exp-contractor-list"></div>
         </div>
+        <div class="exp-sec">
+          <div class="exp-sec-title">Options</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;font-weight:600"><input type="checkbox" id="exp-incl-closed" checked style="width:16px;height:16px;accent-color:var(--brand)"/> Include Closed Items</label>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;font-weight:600"><input type="checkbox" id="exp-incl-photos" checked style="width:16px;height:16px;accent-color:var(--brand)"/> Include Photos</label>
+          </div>
+        </div>
+        <button class="exp-btn exp-btn-pdf" id="btn-exp-pdf" type="button"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Export PDF (A4)</button>
+        <button class="exp-btn exp-btn-word" id="btn-exp-word" type="button"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Export Word (A4)</button>
       </div>
     </div>
 
@@ -1282,8 +1293,7 @@ select.fi{cursor:pointer}
           <li>Capture Before / After photos from your camera</li>
           <li>Annotate photos with arrows, circles, and text</li>
           <li>Upload floor plans and pin items to exact locations</li>
-          <li><strong>Quick Capture</strong> tab for rapid entry</li>
-          <li>Swipe cards right → Closed &nbsp;|&nbsp; left → In Progress</li>
+          <li>Swipe cards right &rarr; Closed &nbsp;|&nbsp; left &rarr; In Progress</li>
           <li>Group by Location, Category, Contractor, or Priority</li>
           <li>Export A4 PDF or Word report with contractor filter</li>
           <li>Invite collaborators to share a project</li>
@@ -1296,15 +1306,10 @@ select.fi{cursor:pointer}
             <button class="btn btn-outline btn-sm" id="btn-about-exp-logo" type="button">Upload Export Logo</button>
           </div>
         </div>
-        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v3.1 — Phase 3+4 — Always MLA</div>
+        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v3.2 — Phase 3+4 — Always MLA</div>
       </div>
     </div>
 
-    <!-- Trash tab -->
-    <div class="pv-section" id="pvs-trash">
-      <div style="padding:10px 14px;font-size:11px;color:var(--text3);background:var(--card);border-bottom:1px solid var(--line)">Items deleted in the last 24 hours. After that, they're permanently removed.</div>
-      <div style="flex:1;overflow-y:auto;padding:10px 14px" id="trash-list"></div>
-    </div>
   </div>
 </div>
 
@@ -1521,41 +1526,6 @@ select.fi{cursor:pointer}
 </div>
 
 <!-- ══ EXPORT MODAL ══ -->
-<div id="export-modal">
-  <div class="exp-tb">
-    <button class="pv-back" id="btn-export-close" type="button"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
-    <h2>Export Report</h2>
-  </div>
-  <div class="exp-body">
-    <div class="exp-sec">
-      <div class="exp-sec-title">Export Logo</div>
-      <div style="display:flex;align-items:center;gap:12px">
-        <img id="exp-logo-preview" class="exp-logo-preview" src="" style="display:none"/>
-        <div style="flex:1">
-          <button class="btn btn-outline btn-sm" id="btn-exp-logo-pick" type="button" style="width:auto">📂 Upload Logo</button>
-          <input type="file" id="exp-logo-input" accept="image/*" style="display:none"/>
-          <div style="font-size:10px;color:var(--text4);margin-top:4px">Appears on cover page only</div>
-        </div>
-      </div>
-    </div>
-    <div class="exp-sec">
-      <div class="exp-sec-title">Filter by Contractor</div>
-      <div style="font-size:11px;color:var(--text3);margin-bottom:8px">All checked = full report</div>
-      <div class="exp-contractor-list" id="exp-contractor-list"></div>
-    </div>
-    <div class="exp-sec">
-      <div class="exp-sec-title">Options</div>
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;font-weight:600"><input type="checkbox" id="exp-incl-closed" checked style="width:16px;height:16px;accent-color:var(--brand)"/> Include Closed Items</label>
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;font-weight:600"><input type="checkbox" id="exp-incl-photos" checked style="width:16px;height:16px;accent-color:var(--brand)"/> Include Photos</label>
-      </div>
-    </div>
-  </div>
-  <div class="exp-btns">
-    <button class="exp-btn exp-btn-pdf" id="btn-exp-pdf" type="button"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Export PDF (A4)</button>
-    <button class="exp-btn exp-btn-word" id="btn-exp-word" type="button"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Export Word (A4)</button>
-  </div>
-</div>
 
 <!-- ══ TAG PICKER ══ -->
 <div id="tag-picker">
@@ -1761,7 +1731,7 @@ function doLogin() {
     USER = { name: res.name, id: res.id, expiry: res.expiry, companyId: res.companyId, featureTier: res.featureTier, features: res.features, onboardingSeen: res.onboardingSeen, exportLogo: res.exportLogo };
     sessionStorage.setItem('mla_token', TOKEN);
     sessionStorage.setItem('mla_user', JSON.stringify(USER));
-    if (res.exportLogo) { EXPORT_LOGO = res.exportLogo; refreshExportLogoPreviews(); }
+    if (res.exportLogo) { EXPORT_LOGO = res.exportLogo; var prev = document.getElementById('about-exp-logo-prev'); if (prev) { prev.src = EXPORT_LOGO; prev.style.display = 'block'; } }
     if (res.expiryWarning !== null && res.expiryWarning !== undefined) showExpiryBanner(res.expiryWarning);
     if (!USER.onboardingSeen) showOnboarding(function () { goProjects(); showWelcome(USER.name); });
     else { goProjects(); showWelcome(USER.name); }
@@ -2299,9 +2269,8 @@ function openProject(pid) {
     resetFilters();
     renderSnagList();
     goPage('p-project');
-    switchPvTab('inspection');
-    loadCoverTab();
-    if (USER && USER.exportLogo) { EXPORT_LOGO = USER.exportLogo; refreshExportLogoPreviews(); }
+    switchPvTab('plan');
+    if (USER && USER.exportLogo) { EXPORT_LOGO = USER.exportLogo; var prev = document.getElementById('about-exp-logo-prev'); if (prev) { prev.src = EXPORT_LOGO; prev.style.display = 'block'; } }
   }).catch(function () { loader(false); toast('Failed to load project', 'err'); });
 }
 
@@ -2323,16 +2292,35 @@ function switchPvTab(tab) {
   document.querySelectorAll('.pv-section').forEach(function (s) { s.classList.remove('active'); });
   var se = document.getElementById('pvs-' + tab);
   if (se) se.classList.add('active');
-  if (tab === 'trash') loadTrash();
+  if (tab === 'recycle') loadTrash();
   if (tab === 'plan') loadPlansTab();
   if (tab === 'summary') loadSummaryTab();
+  if (tab === 'export') populateExportTab();
 }
 
-document.getElementById('pv-status-btn').onclick = function () {
-  if (!CUR_PROJECT) return;
-  var sts = ['draft', 'in_progress', 'under_review'], cur = CUR_PROJECT.status || 'draft', next = sts[(sts.indexOf(cur) + 1) % sts.length];
-  api('PUT', '/projects/' + CUR_PROJECT._id, { status: next }).then(function (p) { CUR_PROJECT.status = p.status; document.getElementById('pv-meta').textContent = (CUR_PROJECT.ref || 'No ref') + ' \u2014 ' + (CUR_PROJECT.date || '') + ' \u2014 ' + p.status.replace(/_/g, ' '); toast('Status: ' + next.replace(/_/g, ' '), 'ok'); }).catch(function () { toast('Failed', 'err'); });
+document.getElementById('pv-status-btn').onclick = function (e) {
+  e.stopPropagation();
+  var drop = document.getElementById('proj-status-drop');
+  drop.classList.toggle('show');
+  var cur = CUR_PROJECT ? (CUR_PROJECT.status || 'draft') : 'draft';
+  drop.querySelectorAll('.psd-item').forEach(function (el) {
+    el.classList.toggle('active', el.dataset.status === cur);
+  });
 };
+document.querySelectorAll('#proj-status-drop .psd-item').forEach(function (el) {
+  el.onclick = function (e) {
+    e.stopPropagation();
+    if (!CUR_PROJECT) return;
+    var next = this.dataset.status;
+    document.getElementById('proj-status-drop').classList.remove('show');
+    api('PUT', '/projects/' + CUR_PROJECT._id, { status: next }).then(function (p) {
+      CUR_PROJECT.status = p.status;
+      document.getElementById('pv-meta').textContent = (CUR_PROJECT.ref || 'No ref') + ' \u2014 ' + (CUR_PROJECT.date || '') + ' \u2014 ' + p.status.replace(/_/g, ' ');
+      toast('Status: ' + next.replace(/_/g, ' '), 'ok');
+    }).catch(function () { toast('Failed', 'err'); });
+  };
+});
+document.addEventListener('click', function () { var d = document.getElementById('proj-status-drop'); if (d) d.classList.remove('show'); });
 
 /* SNAG LIST */
 function renderSnagList() {
@@ -2670,9 +2658,9 @@ function compressPhoto(file, cb) {
 }
 
 /* QUICK CAPTURE */
-document.getElementById('qc-slot-before').addEventListener('click', function () { openCameraQC('before'); });
-document.getElementById('qc-slot-after').addEventListener('click', function () { openCameraQC('after'); });
-document.getElementById('btn-qc-save').onclick = function () {
+if (document.getElementById('qc-slot-before')) document.getElementById('qc-slot-before').addEventListener('click', function () { openCameraQC('before'); });
+if (document.getElementById('qc-slot-after')) document.getElementById('qc-slot-after').addEventListener('click', function () { openCameraQC('after'); });
+if (document.getElementById('btn-qc-save')) document.getElementById('btn-qc-save').onclick = function () {
   var desc = document.getElementById('qc-desc').value.trim();
   if (!desc) { toast('Enter a description', 'err'); return; }
   var cat = document.getElementById('qc-cat').value;
@@ -2727,7 +2715,7 @@ function rotateFromViewer() {
 
 /* ANNOTATION */
 var ANNO_STAGE = null, ANNO_LAYER = null, ANNO_TOOL = 'freehand', ANNO_COLOR = '#D94141', ANNO_CB = null, ANNO_HIST = [], ANNO_DRAW = false, ANNO_LINE = null;
-function loadDocx(cb) { if (window.docx) return cb(); var s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/docx@9.5.0/build/index.umd.js'; s.onload = cb; s.onerror = function () { toast('Failed to load Word library', 'err'); }; document.head.appendChild(s); }
+function loadDocx(cb) { if (window.docx) return cb(); var cdns = ['https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js','https://unpkg.com/docx@8.5.0/build/index.umd.js']; var idx = 0; function tryNext() { if (idx >= cdns.length) { toast('Failed to load Word library', 'err'); return; } var s = document.createElement('script'); s.src = cdns[idx++]; s.onload = cb; s.onerror = function () { document.head.removeChild(s); tryNext(); }; document.head.appendChild(s); } tryNext(); }
 function loadKonva(cb) { if (window.Konva) return cb(); var cdns = ['https://cdn.jsdelivr.net/npm/konva@9.3.6/konva.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/konva/9.2.0/konva.min.js']; var idx = 0; function tryNext() { if (idx >= cdns.length) { toast('Failed to load annotation library', 'err'); return; } var s = document.createElement('script'); s.src = cdns[idx++]; s.onload = cb; s.onerror = function () { document.head.removeChild(s); tryNext(); }; document.head.appendChild(s); } tryNext(); }
 function openAnnotation(imageSrc, cb) {
   ANNO_CB = cb; loadKonva(function () {
@@ -2865,56 +2853,36 @@ document.getElementById('btn-plan-zin').onclick = function () { PLAN_SCALE *= 1.
 document.getElementById('btn-plan-zout').onclick = function () { PLAN_SCALE = Math.max(0.2, PLAN_SCALE / 1.2); drawPlan(); };
 document.getElementById('btn-plan-fit').onclick = function () { if (!PLAN_IMG) return; var wrap = document.getElementById('plan-canvas-wrap'); PLAN_SCALE = Math.min(wrap.clientWidth / PLAN_IMG.width, wrap.clientHeight / PLAN_IMG.height); PLAN_OFFSET = { x: 0, y: 0 }; drawPlan(); };
 
-/* COVER TAB */
-function loadCoverTab() {
-  if (!CUR_PROJECT) return;
-  var cv = CUR_PROJECT.cover || {};
-  document.getElementById('cv-title').value = cv.projectTitle || '';
-  document.getElementById('cv-address').value = cv.siteAddress || '';
-  if (cv.clientLogo) { document.getElementById('cv-logo-prev').src = cv.clientLogo; document.getElementById('cv-logo-prev').style.display = 'block'; document.getElementById('btn-cv-logo-rm').style.display = 'inline-block'; }
-  updateCoverPreview();
-}
-document.getElementById('btn-cv-logo').onclick = function () { document.getElementById('cv-logo-input').click(); };
-document.getElementById('cv-logo-input').onchange = function () { if (!this.files[0]) return; var r = new FileReader(); r.onload = function (e) { document.getElementById('cv-logo-prev').src = e.target.result; document.getElementById('cv-logo-prev').style.display = 'block'; document.getElementById('btn-cv-logo-rm').style.display = 'inline-block'; updateCoverPreview(); }; r.readAsDataURL(this.files[0]); };
-document.getElementById('btn-cv-logo-rm').onclick = function () { document.getElementById('cv-logo-prev').src = ''; document.getElementById('cv-logo-prev').style.display = 'none'; this.style.display = 'none'; updateCoverPreview(); };
-document.getElementById('btn-save-cover').onclick = function () {
-  if (!CUR_PROJECT) return;
-  var logo = document.getElementById('cv-logo-prev');
-  api('PUT', '/projects/' + CUR_PROJECT._id, { cover: { clientLogo: logo.style.display !== 'none' ? logo.src : undefined, projectTitle: document.getElementById('cv-title').value.trim(), siteAddress: document.getElementById('cv-address').value.trim() } })
-    .then(function (p) { CUR_PROJECT = p; toast('Cover saved', 'ok'); updateCoverPreview(); }).catch(function () { toast('Failed', 'err'); });
-};
-function updateCoverPreview() {
-  var card = document.getElementById('cover-preview-card'); if (!card) return;
-  var title = document.getElementById('cv-title').value || (CUR_PROJECT ? CUR_PROJECT.name : '');
-  var ref = (CUR_PROJECT ? ((CUR_PROJECT.ref || '') + (CUR_PROJECT.date ? ' \u2014 ' + CUR_PROJECT.date : '')) : '');
-  var addr = document.getElementById('cv-address').value;
-  var logo = document.getElementById('cv-logo-prev');
-  document.getElementById('cv-prev-title').textContent = title;
-  document.getElementById('cv-prev-ref').textContent = ref;
-  document.getElementById('cv-prev-addr').textContent = addr;
-  var pl = document.getElementById('cv-prev-logo');
-  if (logo && logo.src && logo.style.display !== 'none') { pl.src = logo.src; pl.style.display = 'block'; } else pl.style.display = 'none';
-  card.style.display = 'block';
-}
-document.getElementById('cv-title').oninput = updateCoverPreview;
-document.getElementById('cv-address').oninput = updateCoverPreview;
-
 /* SUMMARY TAB */
 function loadSummaryTab() {
   if (!CUR_PROJECT) return;
   var total = CUR_ITEMS.length, open = 0, prog = 0, closed = 0;
-  CUR_ITEMS.forEach(function (i) { if (i.status === 'open') open++; else if (i.status === 'in_progress') prog++; else if (i.status === 'closed') closed++; });
+  var crit = 0, high = 0, med = 0, low = 0;
+  var photosBefore = 0, photosAfter = 0;
+  CUR_ITEMS.forEach(function (i) {
+    if (i.status === 'open') open++; else if (i.status === 'in_progress') prog++; else if (i.status === 'closed') closed++;
+    if (i.priority === 'critical') crit++; else if (i.priority === 'high') high++; else if (i.priority === 'medium') med++; else if (i.priority === 'low') low++;
+    if (i.photo) photosBefore++;
+    if (i.photoAfter) photosAfter++;
+  });
   function pct(n) { return total ? Math.round(n / total * 100) : 0; }
   var el = function (id) { return document.getElementById(id); };
-  if (el('pb-open')) { el('pb-open').style.width = pct(open) + '%'; el('pbn-open').textContent = open; }
-  if (el('pb-prog')) { el('pb-prog').style.width = pct(prog) + '%'; el('pbn-prog').textContent = prog; }
-  if (el('pb-closed')) { el('pb-closed').style.width = pct(closed) + '%'; el('pbn-closed').textContent = closed; }
+  if (el('sc-open')) el('sc-open').textContent = open;
+  if (el('sc-prog')) el('sc-prog').textContent = prog;
+  if (el('sc-closed')) el('sc-closed').textContent = closed;
+  if (el('sc-total')) el('sc-total').textContent = total;
+  if (el('sc-photos-before')) el('sc-photos-before').textContent = photosBefore;
+  if (el('sc-photos-after')) el('sc-photos-after').textContent = photosAfter;
+  if (el('pb-crit')) { el('pb-crit').style.width = pct(crit) + '%'; el('pbn-crit').textContent = crit; }
+  if (el('pb-high')) { el('pb-high').style.width = pct(high) + '%'; el('pbn-high').textContent = high; }
+  if (el('pb-med')) { el('pb-med').style.width = pct(med) + '%'; el('pbn-med').textContent = med; }
+  if (el('pb-low')) { el('pb-low').style.width = pct(low) + '%'; el('pbn-low').textContent = low; }
   var visits = {};
   CUR_ITEMS.forEach(function (i) { var v = i.visitNumber || 1; if (!visits[v]) visits[v] = { before: 0, after: 0, total: 0 }; visits[v].total++; if (i.photo) visits[v].before++; if (i.photoAfter) visits[v].after++; });
   var vl = el('visit-prog-list');
   if (vl) {
     if (!Object.keys(visits).length) { vl.innerHTML = '<div class="empty-msg" style="padding:20px">No items yet</div>'; }
-    else { vl.innerHTML = Object.keys(visits).sort(function (a, b) { return a - b; }).map(function (v) { var vd = visits[v]; return '<div class="visit-row"><span style="font-weight:800">Visit ' + v + '</span><span style="color:var(--text3)">' + vd.total + ' items</span><span style="color:var(--blue);font-weight:700">\uD83D\uDCF7 ' + vd.before + ' before</span><span style="color:var(--green);font-weight:700">\u2713 ' + vd.after + ' after</span></div>'; }).join(''); }
+    else { vl.innerHTML = Object.keys(visits).sort(function (a, b) { return a - b; }).map(function (v) { var vd = visits[v]; return '<div class="visit-row"><span style="font-weight:800">Visit ' + v + '</span><span style="color:var(--text3)">' + vd.total + ' items</span><span style="color:var(--blue);font-weight:700">\uD83D\uDCF7 ' + vd.before + '</span><span style="color:var(--green);font-weight:700">\u2713 ' + vd.after + '</span></div>'; }).join(''); }
   }
   if (el('sum-text')) el('sum-text').value = CUR_PROJECT.summary || '';
   if (el('sum-appendix')) el('sum-appendix').value = CUR_PROJECT.appendix || '';
@@ -2923,12 +2891,13 @@ document.getElementById('btn-save-sum').onclick = function () { api('PUT', '/pro
 document.getElementById('btn-save-appendix').onclick = function () { api('PUT', '/projects/' + CUR_PROJECT._id, { appendix: document.getElementById('sum-appendix').value.trim() }).then(function () { toast('Appendix saved', 'ok'); }).catch(function () { toast('Failed', 'err'); }); };
 
 /* EXPORT */
-document.getElementById('pv-export-btn').onclick = function () { openExportModal(); };
-function openExportModal() {
+/* EXPORT */
+function populateExportTab() {
   if (!CUR_PROJECT) return;
   var contractors = [];
   CUR_ITEMS.forEach(function (i) { if (i.contractor && contractors.indexOf(i.contractor) < 0) contractors.push(i.contractor); });
   var list = document.getElementById('exp-contractor-list');
+  if (!list) return;
   list.innerHTML = '';
   if (!contractors.length) { list.innerHTML = '<div style="font-size:12px;color:var(--text3)">No contractors assigned \u2014 all items included.</div>'; }
   else {
@@ -2942,21 +2911,15 @@ function openExportModal() {
       list.appendChild(row);
     });
   }
-  refreshExportLogoPreviews();
-  document.getElementById('export-modal').classList.add('show');
 }
-document.getElementById('btn-export-close').onclick = function () { document.getElementById('export-modal').classList.remove('show'); };
-document.getElementById('btn-exp-logo-pick').onclick = function () { document.getElementById('exp-logo-input').click(); };
-document.getElementById('exp-logo-input').onchange = function () { if (!this.files[0]) return; var r = new FileReader(); r.onload = function (e) { EXPORT_LOGO = e.target.result; refreshExportLogoPreviews(); api('PUT', '/user/export-logo', { logo: EXPORT_LOGO }).then(function () { toast('Logo saved', 'ok'); }).catch(function () {}); }; r.readAsDataURL(this.files[0]); };
 document.getElementById('btn-about-exp-logo').onclick = function () { document.getElementById('about-exp-logo-input').click(); };
-document.getElementById('about-exp-logo-input').onchange = function () { if (!this.files[0]) return; var r = new FileReader(); r.onload = function (e) { EXPORT_LOGO = e.target.result; refreshExportLogoPreviews(); api('PUT', '/user/export-logo', { logo: EXPORT_LOGO }).then(function () { toast('Export logo saved', 'ok'); }).catch(function () {}); }; r.readAsDataURL(this.files[0]); };
-function refreshExportLogoPreviews() { ['exp-logo-preview', 'about-exp-logo-prev'].forEach(function (id) { var el = document.getElementById(id); if (el) { if (EXPORT_LOGO) { el.src = EXPORT_LOGO; el.style.display = 'block'; } else el.style.display = 'none'; } }); }
+document.getElementById('about-exp-logo-input').onchange = function () { if (!this.files[0]) return; var r = new FileReader(); r.onload = function (e) { EXPORT_LOGO = e.target.result; var prev = document.getElementById('about-exp-logo-prev'); if (prev) { prev.src = EXPORT_LOGO; prev.style.display = 'block'; } api('PUT', '/user/export-logo', { logo: EXPORT_LOGO }).then(function () { toast('Export logo saved', 'ok'); }).catch(function () {}); }; r.readAsDataURL(this.files[0]); };
 
 function getExportData() {
   var contractors = [];
   document.querySelectorAll('#exp-contractor-list input[type=checkbox]:checked').forEach(function (cb) { if (cb.dataset.contractor) contractors.push(cb.dataset.contractor); });
-  var inclClosed = document.getElementById('exp-incl-closed').checked;
-  var inclPhotos = document.getElementById('exp-incl-photos').checked;
+  var inclClosed = document.getElementById('exp-incl-closed') ? document.getElementById('exp-incl-closed').checked : true;
+  var inclPhotos = document.getElementById('exp-incl-photos') ? document.getElementById('exp-incl-photos').checked : true;
   var items = CUR_ITEMS.filter(function (i) { if (i.deleted) return false; if (!inclClosed && i.status === 'closed') return false; if (contractors.length && i.contractor && contractors.indexOf(i.contractor) < 0) return false; return true; });
   return { items: items, inclPhotos: inclPhotos };
 }
@@ -2971,19 +2934,36 @@ function doExport(type) {
   var stC = { open: '#D94141', in_progress: '#C78A20', closed: '#2D8653' };
 
   if (type === 'pdf') {
-    var logoHtml = EXPORT_LOGO ? '<img src="' + EXPORT_LOGO + '" style="max-width:120px;max-height:80px;object-fit:contain;margin-bottom:16px"/>' : '';
-    var coverHtml = '<div style="page-break-after:always;background:#4A4A4A;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;padding:60px;text-align:center">' + logoHtml + '<div style="font-size:32px;font-weight:900;letter-spacing:0.5px;margin-bottom:8px">' + esc(title) + '</div><div style="font-size:14px;opacity:0.6">' + esc(ref) + (ref && date ? ' \u2014 ' : '') + esc(date) + '</div>' + (addr ? '<div style="font-size:12px;opacity:0.4;margin-top:12px">' + esc(addr) + '</div>' : '') + '<div style="position:absolute;bottom:40px;font-size:10px;opacity:0.3;letter-spacing:2px">MLA INSPECTION REPORT</div></div>';
-    var sumHtml = CUR_PROJECT.summary ? '<div style="page-break-after:always;padding:40px;font-family:Arial,sans-serif"><h2 style="font-size:18px;color:#4A4A4A;margin-bottom:16px">Executive Summary</h2><p style="font-size:13px;line-height:1.8;color:#333">' + esc(CUR_PROJECT.summary) + '</p></div>' : '';
+    var logoHtml = EXPORT_LOGO ? '<img src="' + EXPORT_LOGO + '" style="max-width:120px;max-height:80px;object-fit:contain;margin-bottom:20px"/>' : '';
+    var coverHtml = '<div style="page-break-after:always;background:#4A4A4A;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;padding:60px;text-align:center;position:relative">' + logoHtml + '<div style="font-size:32px;font-weight:900;letter-spacing:0.5px;margin-bottom:8px">' + esc(title) + '</div><div style="font-size:14px;opacity:0.6;margin-bottom:6px">' + esc(ref) + (ref && date ? ' \u2014 ' : '') + esc(date) + '</div>' + (addr ? '<div style="font-size:12px;opacity:0.4;margin-top:8px">' + esc(addr) + '</div>' : '') + '<div style="position:absolute;bottom:40px;font-size:10px;opacity:0.3;letter-spacing:2px">MLA INSPECTION REPORT</div></div>';
+    var sumHtml = CUR_PROJECT.summary ? '<div style="page-break-after:always;padding:40px 40px 20px"><h2 style="font-size:16px;color:#4A4A4A;margin-bottom:12px;border-bottom:1px solid #ddd;padding-bottom:8px">Executive Summary</h2><p style="font-size:12px;line-height:1.8;color:#333">' + esc(CUR_PROJECT.summary) + '</p></div>' : '';
     var itemsHtml = items.map(function (item) {
-      var seq = 'INS-' + String(item.seq || 0).padStart(3, '0');
-      var photos = '';
+      var seq = 'INS_' + String(item.seq || 0).padStart(3, '0');
+      var stColor = stC[item.status] || '#888';
+      var leftCell = '';
       if (inclPhotos) {
-        if (item.photo) photos += '<div style="display:inline-block;margin-right:8px"><img src="' + item.photo + '" style="width:160px;height:160px;object-fit:cover;border-radius:6px"/><div style="font-size:9px;text-align:center;color:#888;margin-top:3px">BEFORE</div></div>';
-        if (item.photoAfter) photos += '<div style="display:inline-block;margin-right:8px"><img src="' + item.photoAfter + '" style="width:160px;height:160px;object-fit:cover;border-radius:6px"/><div style="font-size:9px;text-align:center;color:#888;margin-top:3px">AFTER</div></div>';
+        if (item.photo) leftCell += '<div style="margin-bottom:8px"><img src="' + item.photo + '" style="width:160px;height:160px;object-fit:cover;border-radius:4px;display:block"/><div style="font-size:9px;color:#999;text-align:center;margin-top:3px;font-weight:700">BEFORE</div></div>';
+        if (item.photoAfter) leftCell += '<div style="margin-bottom:8px"><img src="' + item.photoAfter + '" style="width:160px;height:160px;object-fit:cover;border-radius:4px;display:block"/><div style="font-size:9px;color:#999;text-align:center;margin-top:3px;font-weight:700">AFTER</div></div>';
+        if (item.photoExtra) leftCell += '<div style="margin-bottom:8px"><img src="' + item.photoExtra + '" style="width:160px;height:160px;object-fit:cover;border-radius:4px;display:block"/><div style="font-size:9px;color:#999;text-align:center;margin-top:3px;font-weight:700">EXTRA</div></div>';
       }
-      return '<div style="padding:20px 0;border-bottom:1px solid #eee;font-family:Arial,sans-serif"><div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><span style="background:' + (stC[item.status] || '#888') + ';color:#fff;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700">' + seq + '</span><span style="font-size:13px;font-weight:700;flex:1">' + esc(item.description || '') + '</span><span style="font-size:10px;color:' + (priC[item.priority] || '#888') + ';font-weight:700;text-transform:uppercase">' + esc(item.priority || '') + '</span></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:11px;color:#666;margin-bottom:10px"><div><strong>Location:</strong> ' + esc(item.location || '\u2014') + '</div><div><strong>Contractor:</strong> ' + esc(item.contractor || '\u2014') + '</div><div><strong>Visit:</strong> #' + (item.visitNumber || 1) + '</div></div>' + (photos ? '<div style="margin-top:10px">' + photos + '</div>' : '') + '</div>';
+      var rightCell = '<div style="font-size:11px;font-weight:700;color:#999;margin-bottom:4px">' + seq + '</div>' +
+        '<div style="font-size:15px;font-weight:800;color:#222;margin-bottom:12px">' + esc(item.description || '') + '</div>' +
+        '<div style="font-size:11px;margin-bottom:5px"><span style="font-weight:700;color:#666">Status:</span> <span style="font-weight:700;color:' + stColor + '">' + esc((item.status || '').replace(/_/g,' ')) + '</span></div>' +
+        '<div style="font-size:11px;margin-bottom:5px"><span style="font-weight:700;color:#666">Priority:</span> <span style="color:' + (priC[item.priority] || '#888') + ';font-weight:700">' + esc(item.priority || '\u2014') + '</span></div>' +
+        '<div style="font-size:11px;margin-bottom:5px"><span style="font-weight:700;color:#666">Category:</span> ' + esc(item.category || '\u2014') + '</div>' +
+        '<div style="font-size:11px;margin-bottom:5px"><span style="font-weight:700;color:#666">Location:</span> ' + esc(item.location || '\u2014') + '</div>' +
+        '<div style="font-size:11px;margin-bottom:5px"><span style="font-weight:700;color:#666">Contractor:</span> ' + esc(item.contractor || '\u2014') + '</div>' +
+        '<div style="font-size:11px;margin-bottom:5px"><span style="font-weight:700;color:#666">Visit:</span> ' + (item.visitNumber || 1) + '</div>' +
+        '<div style="font-size:11px"><span style="font-weight:700;color:#666">Date:</span> ' + esc(item.date || date || '\u2014') + '</div>';
+      return '<table style="width:100%;border-collapse:collapse;margin-bottom:12px;border:1px solid #ddd"><tr>' +
+        '<td style="width:44%;vertical-align:top;padding:12px;border-right:1px solid #ddd;background:#fafafa">' + (leftCell || '<span style="color:#ccc;font-size:11px">No photos</span>') + '</td>' +
+        '<td style="vertical-align:top;padding:14px 16px">' + rightCell + '</td>' +
+        '</tr></table>';
     }).join('');
-    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>@page{size:A4;margin:20mm}body{font-family:Arial,sans-serif;margin:0}</style></head><body>' + coverHtml + sumHtml + '<div style="padding:40px"><h2 style="font-size:16px;color:#4A4A4A;margin-bottom:4px">Inspection Report</h2><div style="font-size:11px;color:#888;margin-bottom:24px">' + items.length + ' items | Generated ' + new Date().toLocaleDateString() + '</div>' + itemsHtml + '</div></body></html>';
+    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>@page{size:A4;margin:15mm}body{font-family:Arial,sans-serif;margin:0}table{page-break-inside:avoid}</style></head><body>' +
+      coverHtml + sumHtml +
+      '<div style="padding:20px 0"><h2 style="font-size:14px;color:#4A4A4A;margin-bottom:4px;font-weight:800">Observations &amp; Findings</h2><div style="font-size:10px;color:#999;margin-bottom:16px">' + items.length + ' items \u2014 Generated ' + new Date().toLocaleDateString() + '</div>' +
+      itemsHtml + '</div></body></html>';
     var w = window.open('', '_blank'); w.document.write(html); w.document.close(); setTimeout(function () { w.print(); }, 500);
     toast('PDF opened \u2014 use browser print', 'ok');
   } else {
