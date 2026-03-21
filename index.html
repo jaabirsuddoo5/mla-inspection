@@ -916,6 +916,7 @@ select.fi{cursor:pointer}
     <div class="login-logo">
       <img src="logo.png" alt="MLA" class="login-logo-img"/>
       <div class="login-subtitle">Inspection</div>
+      <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:4px">v3.3</div>
     </div>
 
     <div class="server-status" id="server-status">
@@ -1268,6 +1269,20 @@ select.fi{cursor:pointer}
     <div class="pv-section" id="pvs-export">
       <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:14px">
         <div class="exp-sec">
+          <div class="exp-sec-title">Filter by Status</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap" id="exp-status-filters">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:600;padding:6px 12px;border-radius:8px;background:var(--bg2);border:1px solid var(--line)"><input type="checkbox" data-status="open" checked style="accent-color:var(--red)"/> <span style="color:var(--red)">Open</span></label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:600;padding:6px 12px;border-radius:8px;background:var(--bg2);border:1px solid var(--line)"><input type="checkbox" data-status="in_progress" checked style="accent-color:var(--yellow)"/> <span style="color:var(--yellow)">In Progress</span></label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:600;padding:6px 12px;border-radius:8px;background:var(--bg2);border:1px solid var(--line)"><input type="checkbox" data-status="closed" checked style="accent-color:var(--green)"/> <span style="color:var(--green)">Closed</span></label>
+          </div>
+        </div>
+        <div class="exp-sec">
+          <div class="exp-sec-title">Filter by Category</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap" id="exp-category-filters">
+            <div style="font-size:11px;color:var(--text3)">Loading...</div>
+          </div>
+        </div>
+        <div class="exp-sec">
           <div class="exp-sec-title">Filter by Contractor</div>
           <div style="font-size:11px;color:var(--text3);margin-bottom:8px">All checked = full report</div>
           <div class="exp-contractor-list" id="exp-contractor-list"></div>
@@ -1275,7 +1290,6 @@ select.fi{cursor:pointer}
         <div class="exp-sec">
           <div class="exp-sec-title">Options</div>
           <div style="display:flex;flex-direction:column;gap:10px">
-            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;font-weight:600"><input type="checkbox" id="exp-incl-closed" checked style="width:16px;height:16px;accent-color:var(--brand)"/> Include Closed Items</label>
             <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;font-weight:600"><input type="checkbox" id="exp-incl-photos" checked style="width:16px;height:16px;accent-color:var(--brand)"/> Include Photos</label>
           </div>
         </div>
@@ -1306,7 +1320,7 @@ select.fi{cursor:pointer}
             <button class="btn btn-outline btn-sm" id="btn-about-exp-logo" type="button">Upload Export Logo</button>
           </div>
         </div>
-        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v3.2 — Phase 3+4 — Always MLA</div>
+        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v3.3 — Phase 3+4 — Always MLA</div>
       </div>
     </div>
 
@@ -2627,8 +2641,11 @@ function startCamera() {
 }
 function openFilePicker() { var inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.capture = 'environment'; inp.onchange = function () { if (!inp.files[0]) return; compressPhoto(inp.files[0], handleCapturedPhoto); }; inp.click(); }
 document.getElementById('cam-capture').onclick = function () {
-  var v = document.getElementById('cam-video'), c = document.getElementById('cam-canvas'), sz = Math.min(v.videoWidth, v.videoHeight);
-  c.width = 800; c.height = 800; c.getContext('2d').drawImage(v, (v.videoWidth - sz) / 2, (v.videoHeight - sz) / 2, sz, sz, 0, 0, 800, 800);
+  var v = document.getElementById('cam-video'), c = document.getElementById('cam-canvas');
+  var vw = v.videoWidth, vh = v.videoHeight, MAX = 1200;
+  var w = vw, h = vh;
+  if (w > MAX || h > MAX) { var ratio = Math.min(MAX / w, MAX / h); w = Math.round(w * ratio); h = Math.round(h * ratio); }
+  c.width = w; c.height = h; c.getContext('2d').drawImage(v, 0, 0, w, h);
   CAM_CAPTURED = c.toDataURL('image/jpeg', 0.6);
   var p = document.getElementById('cam-preview'); p.src = CAM_CAPTURED; p.classList.add('show');
   document.getElementById('cam-controls').style.display = 'none'; document.getElementById('cam-preview-btns').classList.add('show'); v.style.display = 'none';
@@ -2654,7 +2671,14 @@ function handleCapturedPhoto(dataUrl) {
   } else { SNAG_PHOTOS[CAM_TARGET] = dataUrl; updatePhotoSlots(); }
 }
 function compressPhoto(file, cb) {
-  var r = new FileReader(); r.onload = function (e) { var img = new Image(); img.onload = function () { var c = document.createElement('canvas'), sz = Math.min(img.width, img.height); c.width = 800; c.height = 800; c.getContext('2d').drawImage(img, (img.width - sz) / 2, (img.height - sz) / 2, sz, sz, 0, 0, 800, 800); cb(c.toDataURL('image/jpeg', 0.6)); }; img.src = e.target.result; }; r.readAsDataURL(file);
+  var r = new FileReader(); r.onload = function (e) { var img = new Image(); img.onload = function () {
+    var MAX = 1200;
+    var w = img.width, h = img.height;
+    if (w > MAX || h > MAX) { var ratio = Math.min(MAX / w, MAX / h); w = Math.round(w * ratio); h = Math.round(h * ratio); }
+    var c = document.createElement('canvas'); c.width = w; c.height = h;
+    c.getContext('2d').drawImage(img, 0, 0, w, h);
+    cb(c.toDataURL('image/jpeg', 0.75));
+  }; img.src = e.target.result; }; r.readAsDataURL(file);
 }
 
 /* QUICK CAPTURE */
@@ -2755,7 +2779,30 @@ document.getElementById('anno-toolbar').addEventListener('click', function (e) {
   if (tool) { var t = tool.dataset.tool; if (t === 'undo') { var last = ANNO_HIST.pop(); if (last) { last.destroy(); ANNO_LAYER.draw(); } return; } if (t === 'clear') { ANNO_LAYER.destroyChildren(); ANNO_LAYER.draw(); ANNO_HIST = []; return; } ANNO_TOOL = t; document.querySelectorAll('.anno-tool').forEach(function (el) { el.classList.remove('on'); }); tool.classList.add('on'); }
   if (color) { ANNO_COLOR = color.dataset.color; document.querySelectorAll('.anno-color').forEach(function (el) { el.classList.remove('on'); }); color.classList.add('on'); }
 });
-document.getElementById('anno-done').onclick = function () { if (!ANNO_STAGE) return; var dataUrl = ANNO_STAGE.toDataURL({ pixelRatio: 1, mimeType: 'image/jpeg', quality: 0.7 }); document.getElementById('anno-modal').classList.remove('show'); if (ANNO_CB) ANNO_CB(dataUrl); ANNO_STAGE.destroy(); ANNO_STAGE = null; };
+document.getElementById('anno-done').onclick = function () {
+  if (!ANNO_STAGE) return;
+  var bgLayer = ANNO_STAGE.getLayers()[0];
+  var bgImg = bgLayer.getChildren()[0];
+  var dataUrl;
+  if (bgImg) {
+    var x = Math.round(bgImg.x()), y = Math.round(bgImg.y());
+    var iw = Math.round(bgImg.width()), ih = Math.round(bgImg.height());
+    var fullUrl = ANNO_STAGE.toDataURL({ pixelRatio: 1, mimeType: 'image/jpeg', quality: 0.85 });
+    var tmp = new Image(); tmp.onload = function () {
+      var c = document.createElement('canvas'); c.width = iw; c.height = ih;
+      c.getContext('2d').drawImage(tmp, x, y, iw, ih, 0, 0, iw, ih);
+      var cropped = c.toDataURL('image/jpeg', 0.85);
+      document.getElementById('anno-modal').classList.remove('show');
+      if (ANNO_CB) ANNO_CB(cropped);
+      ANNO_STAGE.destroy(); ANNO_STAGE = null;
+    }; tmp.src = fullUrl;
+  } else {
+    dataUrl = ANNO_STAGE.toDataURL({ pixelRatio: 1, mimeType: 'image/jpeg', quality: 0.85 });
+    document.getElementById('anno-modal').classList.remove('show');
+    if (ANNO_CB) ANNO_CB(dataUrl);
+    ANNO_STAGE.destroy(); ANNO_STAGE = null;
+  }
+};
 document.getElementById('anno-cancel').onclick = function () { document.getElementById('anno-modal').classList.remove('show'); if (ANNO_STAGE) { ANNO_STAGE.destroy(); ANNO_STAGE = null; } };
 
 /* PLANS */
@@ -2894,6 +2941,7 @@ document.getElementById('btn-save-appendix').onclick = function () { api('PUT', 
 /* EXPORT */
 function populateExportTab() {
   if (!CUR_PROJECT) return;
+  // Contractors
   var contractors = [];
   CUR_ITEMS.forEach(function (i) { if (i.contractor && contractors.indexOf(i.contractor) < 0) contractors.push(i.contractor); });
   var list = document.getElementById('exp-contractor-list');
@@ -2911,6 +2959,24 @@ function populateExportTab() {
       list.appendChild(row);
     });
   }
+  // Categories
+  var catWrap = document.getElementById('exp-category-filters');
+  if (catWrap) {
+    var cats = [];
+    CUR_ITEMS.forEach(function (i) { if (i.category && cats.indexOf(i.category) < 0) cats.push(i.category); });
+    catWrap.innerHTML = '';
+    if (!cats.length) { catWrap.innerHTML = '<div style="font-size:11px;color:var(--text3)">No categories used.</div>'; }
+    else {
+      cats.forEach(function (c) {
+        var lbl = document.createElement('label');
+        lbl.style.cssText = 'display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:600;padding:6px 12px;border-radius:8px;background:var(--bg2);border:1px solid var(--line)';
+        var cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = true; cb.dataset.category = c; cb.style.accentColor = 'var(--brand)';
+        var span = document.createElement('span'); span.textContent = c;
+        lbl.appendChild(cb); lbl.appendChild(span);
+        catWrap.appendChild(lbl);
+      });
+    }
+  }
 }
 document.getElementById('btn-about-exp-logo').onclick = function () { document.getElementById('about-exp-logo-input').click(); };
 document.getElementById('about-exp-logo-input').onchange = function () { if (!this.files[0]) return; var r = new FileReader(); r.onload = function (e) { EXPORT_LOGO = e.target.result; var prev = document.getElementById('about-exp-logo-prev'); if (prev) { prev.src = EXPORT_LOGO; prev.style.display = 'block'; } api('PUT', '/user/export-logo', { logo: EXPORT_LOGO }).then(function () { toast('Export logo saved', 'ok'); }).catch(function () {}); }; r.readAsDataURL(this.files[0]); };
@@ -2918,9 +2984,18 @@ document.getElementById('about-exp-logo-input').onchange = function () { if (!th
 function getExportData() {
   var contractors = [];
   document.querySelectorAll('#exp-contractor-list input[type=checkbox]:checked').forEach(function (cb) { if (cb.dataset.contractor) contractors.push(cb.dataset.contractor); });
-  var inclClosed = document.getElementById('exp-incl-closed') ? document.getElementById('exp-incl-closed').checked : true;
+  var statuses = [];
+  document.querySelectorAll('#exp-status-filters input[type=checkbox]:checked').forEach(function (cb) { if (cb.dataset.status) statuses.push(cb.dataset.status); });
+  var categories = [];
+  document.querySelectorAll('#exp-category-filters input[type=checkbox]:checked').forEach(function (cb) { if (cb.dataset.category) categories.push(cb.dataset.category); });
   var inclPhotos = document.getElementById('exp-incl-photos') ? document.getElementById('exp-incl-photos').checked : true;
-  var items = CUR_ITEMS.filter(function (i) { if (i.deleted) return false; if (!inclClosed && i.status === 'closed') return false; if (contractors.length && i.contractor && contractors.indexOf(i.contractor) < 0) return false; return true; });
+  var items = CUR_ITEMS.filter(function (i) {
+    if (i.deleted) return false;
+    if (statuses.length && statuses.indexOf(i.status) < 0) return false;
+    if (categories.length && i.category && categories.indexOf(i.category) < 0) return false;
+    if (contractors.length && i.contractor && contractors.indexOf(i.contractor) < 0) return false;
+    return true;
+  });
   return { items: items, inclPhotos: inclPhotos };
 }
 
@@ -2942,9 +3017,10 @@ function doExport(type) {
       var stColor = stC[item.status] || '#888';
       var leftCell = '';
       if (inclPhotos) {
-        if (item.photo) leftCell += '<div style="margin-bottom:8px"><img src="' + item.photo + '" style="width:160px;height:160px;object-fit:cover;border-radius:4px;display:block"/><div style="font-size:9px;color:#999;text-align:center;margin-top:3px;font-weight:700">BEFORE</div></div>';
-        if (item.photoAfter) leftCell += '<div style="margin-bottom:8px"><img src="' + item.photoAfter + '" style="width:160px;height:160px;object-fit:cover;border-radius:4px;display:block"/><div style="font-size:9px;color:#999;text-align:center;margin-top:3px;font-weight:700">AFTER</div></div>';
-        if (item.photoExtra) leftCell += '<div style="margin-bottom:8px"><img src="' + item.photoExtra + '" style="width:160px;height:160px;object-fit:cover;border-radius:4px;display:block"/><div style="font-size:9px;color:#999;text-align:center;margin-top:3px;font-weight:700">EXTRA</div></div>';
+        var photoDateStr = item.date ? '<div style="font-size:8px;color:#bbb;text-align:center;margin-bottom:8px">Taken on: ' + esc(item.date) + '</div>' : '';
+        if (item.photo) leftCell += '<div style="margin-bottom:4px"><img src="' + item.photo + '" style="max-width:180px;width:100%;height:auto;border-radius:4px;display:block"/><div style="font-size:9px;color:#999;text-align:center;margin-top:3px;font-weight:700">BEFORE</div>' + photoDateStr + '</div>';
+        if (item.photoAfter) leftCell += '<div style="margin-bottom:4px"><img src="' + item.photoAfter + '" style="max-width:180px;width:100%;height:auto;border-radius:4px;display:block"/><div style="font-size:9px;color:#999;text-align:center;margin-top:3px;font-weight:700">AFTER</div>' + photoDateStr + '</div>';
+        if (item.photoExtra) leftCell += '<div style="margin-bottom:4px"><img src="' + item.photoExtra + '" style="max-width:180px;width:100%;height:auto;border-radius:4px;display:block"/><div style="font-size:9px;color:#999;text-align:center;margin-top:3px;font-weight:700">EXTRA</div>' + photoDateStr + '</div>';
       }
       var rightCell = '<div style="font-size:11px;font-weight:700;color:#999;margin-bottom:4px">' + seq + '</div>' +
         '<div style="font-size:15px;font-weight:800;color:#222;margin-bottom:12px">' + esc(item.description || '') + '</div>' +
@@ -2989,13 +3065,22 @@ function doExport(type) {
           var m = dataUrl.match(/^data:image\/([a-zA-Z+]+);/);
           return m ? m[1].replace('jpeg','jpg') : 'jpg';
         }
-        // Helper: make an ImageRun if data URL present, else null
-        function makeImgRun(dataUrl, widthPt) {
+        // Helper: make an ImageRun with correct aspect ratio
+        function makeImgRun(dataUrl, maxWidthPt) {
           if (!dataUrl) return null;
           try {
             var buf = dataUrlToUint8(dataUrl);
-            var emu = Math.round(widthPt * 9144); // 1pt = 9144 EMU, square crop
-            return new D.ImageRun({ data: buf, transformation: { width: widthPt, height: widthPt }, type: imgType(dataUrl) });
+            // Read dimensions from the data URL synchronously via a temp Image
+            var tmpImg = new Image();
+            tmpImg.src = dataUrl;
+            var natW = tmpImg.naturalWidth || maxWidthPt;
+            var natH = tmpImg.naturalHeight || maxWidthPt;
+            var ratio = natH / (natW || 1);
+            var w = maxWidthPt;
+            var h = Math.round(w * ratio);
+            // Cap height so it doesn't overflow the cell
+            if (h > 180) { h = 180; w = Math.round(h / ratio); }
+            return new D.ImageRun({ data: buf, transformation: { width: w, height: h }, type: imgType(dataUrl) });
           } catch(e) { return null; }
         }
 
@@ -3073,8 +3158,9 @@ function doExport(type) {
               if (item[field]) {
                 var imgRun = makeImgRun(item[field], 140);
                 if (imgRun) {
-                  leftCellChildren.push(p([imgRun], { spacing: { after: 40 } }));
-                  leftCellChildren.push(p([t(photoLabels[fi].toUpperCase(), { size: 14, color: '999999', bold: true })], { alignment: AlignmentType.CENTER, spacing: { after: 160 } }));
+                  leftCellChildren.push(p([imgRun], { spacing: { after: 20 } }));
+                  leftCellChildren.push(p([t(photoLabels[fi].toUpperCase(), { size: 14, color: '999999', bold: true })], { alignment: AlignmentType.CENTER, spacing: { after: 20 } }));
+                  if (item.date) leftCellChildren.push(p([t('Taken on: ' + item.date, { size: 13, color: 'AAAAAA' })], { alignment: AlignmentType.CENTER, spacing: { after: 140 } }));
                   hasAnyPhoto = true;
                 }
               }
