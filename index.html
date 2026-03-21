@@ -1696,7 +1696,7 @@ select.fi{cursor:pointer}
     </div>
   </div>
 </div>
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script></body>
+
 <script>
 /* ═══════════════════════════════════════════════
    MLA Inspection — Phase 3+4 Complete JS
@@ -3299,4 +3299,14 @@ document.getElementById('btn-export-word').onclick = function () {
   document.addEventListener('touchend', function (e) {
     if (e.target.closest('#photo-viewer') || e.target.closest('#anno-container') || e.target.closest('#plan-canvas-wrap')) return;
     var now = Date.now();
-    if (now - last <= 300) e.prevent
+        if (now - last <= 300) e.preventDefault();
+    last = now;
+  }, false);
+  document.addEventListener('gesturestart', function (e) {
+    if (!e.target.closest('#photo-viewer') && !e.target.closest('#anno-container')) e.preventDefault();
+  });
+}());
+
+</script>
+</body>
+</html>
