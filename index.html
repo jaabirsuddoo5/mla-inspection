@@ -747,7 +747,7 @@ select.fi{cursor:pointer}
 .plan-add-btn{flex-shrink:0;width:32px;height:32px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
 .plan-add-btn svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5}
 .plan-canvas-wrap{flex:1;position:relative;overflow:hidden;background:var(--bg3)}
-#plan-canvas{position:absolute;top:0;left:0;touch-action:none;display:none}
+#plan-canvas{position:absolute;top:0;left:0;touch-action:none;display:none;pointer-events:none}
 .plan-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--text4)}
 .plan-empty svg{width:40px;height:40px;stroke:currentColor;fill:none;stroke-width:1.5;opacity:0.4}
 .plan-pin{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.6)}
@@ -1222,8 +1222,7 @@ select.fi{cursor:pointer}
     </div>
 
     <!-- COVER TAB -->
-    <div class="pv-section" id="pvs-cover">
-      <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:14px">
+    <div class="pv-section" id="pvs-cover" style="padding:16px;gap:14px;overflow-y:auto">
         <div class="acard">
           <div class="acard-title">Cover Page</div>
           <div class="fi-group" style="margin-bottom:10px">
@@ -1264,7 +1263,6 @@ select.fi{cursor:pointer}
           <textarea class="fi" id="sum-appendix" rows="4" placeholder="Additional notes... (leave blank to omit from export)" style="resize:vertical"></textarea>
           <button class="btn btn-outline" id="btn-save-appendix" type="button" style="margin-top:10px">Save Appendix</button>
         </div>
-      </div>
     </div>
 
     <!-- EXPORT TAB -->
@@ -1276,6 +1274,10 @@ select.fi{cursor:pointer}
           <div class="fi-group" style="margin-bottom:12px">
             <label class="fi-label">Filter by Contractor (optional)</label>
             <select class="fi" id="exp-contractor-filter"><option value="">All contractors</option></select>
+          </div>
+          <div class="fi-group" style="margin-bottom:12px">
+            <label class="fi-label">Filter by Category (optional)</label>
+            <select class="fi" id="exp-category-filter"><option value="">All categories</option></select>
           </div>
           <div class="fi-group" style="margin-bottom:16px">
             <label class="fi-label">Filter by Status (optional)</label>
@@ -1336,7 +1338,7 @@ select.fi{cursor:pointer}
         </ul></div>
         <div class="about-card" style="background:var(--bg2)"><h3>Contact &amp; Support</h3>
           <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:8px">Found a bug? Something broken? Drop us a line.</p>
-          <p style="font-size:13px;font-weight:700;color:var(--text)">jaabirsuddoo5@gmail.com</p>
+          <p style="font-size:13px;font-weight:700;color:var(--text)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6d070c0c0f041f1e1809090202582d0a000c0401430e0200">[email&#160;protected]</a></p>
           <p style="font-size:11px;color:var(--text3);margin-top:8px">Happy inspecting! 🏗️ May your snag list always get shorter.</p>
         </div>
         <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v4.0 — Always MLA</div>
@@ -1679,7 +1681,6 @@ select.fi{cursor:pointer}
     </div>
   </div>
 </div>
-</body>
 <script>
 /* ═══════════════════════════════════════════════
    MLA Inspection — Phase 3+4 Complete JS
@@ -2968,9 +2969,18 @@ document.getElementById('btn-pin-unpin').onclick = function () {
   api('PUT', '/items/' + PIN_INFO_ITEM._id, { pins: pins }).then(function () { closePinInfo(); toast('Pin removed', 'ok'); reloadItems(); setTimeout(renderPlanPins, 400); }).catch(function () { toast('Failed', 'err'); });
 };
 document.addEventListener('click', function (e) { var popup = document.getElementById('pin-info-popup'); if (popup && popup.style.display !== 'none' && !popup.contains(e.target)) closePinInfo(); });
-document.getElementById('plan-canvas').addEventListener('click', function (e) {
+document.getElementById('plan-canvas-wrap').addEventListener('click', function (e) {
+  // Upload trigger
+  if (e.target.id === 'plan-empty' || e.target.closest('#plan-empty')) {
+    if (CUR_PLAN && !CUR_PLAN.image) document.getElementById('plan-img-input').click();
+    return;
+  }
+  // Skip if clicking on a pin or pin popup
+  if (e.target.closest('.plan-pin') || e.target.closest('#pin-info-popup')) return;
+  // Pin placement
   if (!PLAN_PIN_MODE || !CUR_PLAN || !PLAN_IMG) return;
-  var rect = this.getBoundingClientRect();
+  var canvas = document.getElementById('plan-canvas');
+  var rect = canvas.getBoundingClientRect();
   PIN_PENDING_X = (e.clientX - rect.left - PLAN_OFFSET.x) / PLAN_SCALE;
   PIN_PENDING_Y = (e.clientY - rect.top - PLAN_OFFSET.y) / PLAN_SCALE;
   var unpinned = CUR_ITEMS.filter(function (i) { return !i.deleted && (!i.pins || !i.pins.some(function (p) { return p.planId === CUR_PLAN._id; })); });
@@ -2994,12 +3004,10 @@ function openPinPicker(unpinned) {
   });
   sheet.classList.add('show');
 }
-function closePinPicker() { document.getElementById('pin-picker-sheet').classList.remove('show'); }
+function closePinPicker() { var s = document.getElementById('pin-picker-sheet'); if (s) s.classList.remove('show'); }
 document.getElementById('btn-pin-picker-close').onclick = closePinPicker;
 document.getElementById('pin-picker-sheet').addEventListener('click', function (e) { if (e.target === this) closePinPicker(); });
-document.getElementById('plan-canvas-wrap').addEventListener('click', function (e) {
-  if (e.target.id === 'plan-empty' || e.target.closest('#plan-empty')) { if (CUR_PLAN && !CUR_PLAN.image) document.getElementById('plan-img-input').click(); }
-});
+
 document.getElementById('plan-img-input').onchange = function () {
   if (!this.files[0] || !CUR_PLAN) return;
   var file = this.files[0];
@@ -3109,10 +3117,15 @@ document.getElementById('btn-save-appendix').onclick = function () {
 /* EXPORT TAB */
 function loadExportTab() {
   if (!CUR_PROJECT) return;
-  var contractors = [];
-  CUR_ITEMS.forEach(function (i) { if (i.contractor && contractors.indexOf(i.contractor) < 0) contractors.push(i.contractor); });
+  var contractors = [], categories = [];
+  CUR_ITEMS.forEach(function (i) {
+    if (i.contractor && contractors.indexOf(i.contractor) < 0) contractors.push(i.contractor);
+    if (i.category && categories.indexOf(i.category) < 0) categories.push(i.category);
+  });
   var sel = document.getElementById('exp-contractor-filter');
   if (sel) { sel.innerHTML = '<option value="">All contractors</option>'; contractors.forEach(function (c) { sel.innerHTML += '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }); }
+  var catSel = document.getElementById('exp-category-filter');
+  if (catSel) { catSel.innerHTML = '<option value="">All categories</option>'; categories.sort().forEach(function (c) { catSel.innerHTML += '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }); }
 }
 document.getElementById('btn-export-word').onclick = function () {
   if (!CUR_PROJECT) return;
@@ -3121,7 +3134,10 @@ document.getElementById('btn-export-word').onclick = function () {
   var wallpaper = document.getElementById('cv-wallpaper-prev');
   var body = {
     logo: (logo && logo.style.display !== 'none' && logo.src && !logo.src.endsWith('/')) ? logo.src : null,
-    wallpaper: (wallpaper && wallpaper.style.display !== 'none' && wallpaper.src && !wallpaper.src.endsWith('/')) ? wallpaper.src : null
+    wallpaper: (wallpaper && wallpaper.style.display !== 'none' && wallpaper.src && !wallpaper.src.endsWith('/')) ? wallpaper.src : null,
+    contractorFilter: document.getElementById('exp-contractor-filter').value || null,
+    categoryFilter: document.getElementById('exp-category-filter').value || null,
+    statusFilter: document.getElementById('exp-status-filter').value || null
   };
   loader(true, 'Generating Word report...');
   fetch(API + '/projects/' + CUR_PROJECT._id + '/export/word', {
@@ -3144,7 +3160,7 @@ document.getElementById('btn-export-word').onclick = function () {
   document.addEventListener('touchend', function (e) {
     if (e.target.closest('#photo-viewer') || e.target.closest('#anno-container') || e.target.closest('#plan-canvas-wrap')) return;
     var now = Date.now();
-    if (now - last <= 300) e.preventDefault();
+        if (now - last <= 300) e.preventDefault();
     last = now;
   }, false);
   document.addEventListener('gesturestart', function (e) {
@@ -3153,4 +3169,5 @@ document.getElementById('btn-export-word').onclick = function () {
 }());
 
 </script>
+</body>
 </html>
