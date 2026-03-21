@@ -2262,7 +2262,7 @@ function openProject(pid) {
     document.getElementById('pv-meta').textContent = (CUR_PROJECT.ref || 'No ref') + ' \u2014 ' + (CUR_PROJECT.date || '');
     var catOpts = '<option value="" disabled selected>Select category...</option>' + CUR_CATEGORIES.map(function (c) { return '<option value="' + esc(c.name) + '">' + esc(c.name) + '</option>'; }).join('');
     document.getElementById('sm-cat').innerHTML = catOpts;
-    document.getElementById('qc-cat').innerHTML = catOpts;
+    var qcCat = document.getElementById('qc-cat'); if (qcCat) qcCat.innerHTML = catOpts;
     var fpCat = '<div class="fp-chip on" data-v="all">All</div>' + CUR_CATEGORIES.map(function (c) { return '<div class="fp-chip" data-v="' + esc(c.name) + '">' + esc(c.name) + '</div>'; }).join('');
     document.getElementById('fp-category').innerHTML = fpCat;
     populateVisitDD();
