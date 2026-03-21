@@ -747,10 +747,10 @@ select.fi{cursor:pointer}
 .plan-add-btn{flex-shrink:0;width:32px;height:32px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
 .plan-add-btn svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5}
 .plan-canvas-wrap{flex:1;position:relative;overflow:hidden;background:var(--bg3)}
-#plan-canvas{position:absolute;top:0;left:0;touch-action:none;display:none}
+#plan-canvas{position:absolute;top:0;left:0;touch-action:none;display:none;pointer-events:none}
 .plan-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--text4)}
 .plan-empty svg{width:40px;height:40px;stroke:currentColor;fill:none;stroke-width:1.5;opacity:0.4}
-.plan-pin{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.6)}
+.plan-pin{position:absolute;transform:translate(-50%,-50%);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:2.5px solid #fff;z-index:20;pointer-events:auto}
 .plan-pin.open{background:var(--red)}.plan-pin.closed{background:var(--green)}.plan-pin.in_progress{background:var(--yellow)}
 .plan-ctrls{position:absolute;bottom:16px;right:16px;display:flex;flex-direction:column;gap:8px}
 .plan-ctrl{width:36px;height:36px;border-radius:8px;background:var(--card);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer}
@@ -868,21 +868,18 @@ select.fi{cursor:pointer}
 #new-client-sheet,#tag-picker{position:fixed;inset:0;z-index:9400;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center}
 .pv-status-wrap{position:relative;flex-shrink:0}
 .pv-status-pill{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:50px;border:none;cursor:pointer;font-size:11px;font-weight:700;letter-spacing:0.3px;font-family:'Montserrat',Arial,sans-serif;transition:opacity 0.15s}
-.pv-status-pill:active{opacity:0.75}
 .pv-status-pill.st-draft{background:rgba(255,255,255,0.15);color:#fff}
 .pv-status-pill.st-in_progress{background:#3B82F6;color:#fff}
 .pv-status-pill.st-under_review{background:#C78A20;color:#fff}
 .pv-status-pill.st-completed{background:#2D8653;color:#fff}
 .pv-status-dropdown{position:absolute;top:calc(100% + 6px);right:0;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.15);min-width:140px;z-index:200;overflow:hidden;display:none}
 .pv-status-dropdown.open{display:block}
-.pv-status-opt{padding:11px 16px;font-size:12px;font-weight:700;cursor:pointer;color:var(--text2);transition:background 0.15s}
+.pv-status-opt{padding:11px 16px;font-size:12px;font-weight:700;cursor:pointer;transition:background 0.15s}
 .pv-status-opt:hover{background:var(--bg2)}
 .pv-status-opt[data-val="draft"]{color:#888}
 .pv-status-opt[data-val="in_progress"]{color:#3B82F6}
 .pv-status-opt[data-val="under_review"]{color:#C78A20}
 .pv-status-opt[data-val="completed"]{color:#2D8653}
-#pin-picker-sheet.show{display:flex}
-.plan-pin{position:absolute;transform:translate(-50%,-50%);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.45);border:2.5px solid #fff;z-index:10;line-height:1;user-select:none}
 </style>
 </head>
 <body>
@@ -1140,16 +1137,8 @@ select.fi{cursor:pointer}
       <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     </button>
     <div class="pv-status-wrap" id="pv-status-wrap">
-      <button class="pv-status-pill" id="pv-status-btn" type="button">
-        <span id="pv-status-label">Draft</span>
-        <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="pv-status-dropdown" id="pv-status-dropdown">
-        <div class="pv-status-opt" data-val="draft">Draft</div>
-        <div class="pv-status-opt" data-val="in_progress">In Progress</div>
-        <div class="pv-status-opt" data-val="under_review">Under Review</div>
-        <div class="pv-status-opt" data-val="completed">Completed</div>
-      </div>
+      <button class="pv-status-pill" id="pv-status-btn" type="button"><span id="pv-status-label">Draft</span><svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="pv-status-dropdown" id="pv-status-dropdown"><div class="pv-status-opt" data-val="draft">Draft</div><div class="pv-status-opt" data-val="in_progress">In Progress</div><div class="pv-status-opt" data-val="under_review">Under Review</div><div class="pv-status-opt" data-val="completed">Completed</div></div>
     </div>
   </div>
 
@@ -1207,32 +1196,18 @@ select.fi{cursor:pointer}
             <button class="plan-ctrl" id="btn-plan-fit" type="button"><svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
           </div>
           <button class="plan-mode-btn" id="plan-mode-btn" type="button">📍 Pin Mode</button>
-          <input type="file" id="plan-img-input" accept="image/*,application/pdf" style="display:none"/>
-        </div>
-      </div>
-        <!-- Plan note field -->
-        <div id="plan-note-bar" style="display:none;padding:8px 14px;background:var(--card);border-top:1px solid var(--line);gap:8px;align-items:center;flex-shrink:0;display:none">
-          <input class="fi" id="plan-note-input" type="text" placeholder="Plan note (e.g. Ground Floor)" style="flex:1;font-size:12px;padding:8px 12px" autocomplete="off"/>
-          <button class="btn btn-outline btn-sm" id="btn-plan-note-save" type="button">Save</button>
-        </div>
-        <div id="plan-upload-hint" style="display:none;padding:6px 14px;font-size:10px;color:var(--text4);background:var(--bg2);border-top:1px solid var(--line);flex-shrink:0">
-          Tap above to upload. Image or PDF accepted — max 5MB.
+          <input type="file" id="plan-img-input" accept="image/*" style="display:none"/>
         </div>
       </div>
     </div>
 
     <!-- COVER TAB -->
-    <div class="pv-section" id="pvs-cover" style="padding:16px;gap:14px;overflow-y:auto;align-content:flex-start">
-        <div class="acard">
+    <div class="pv-section" id="pvs-cover" style="background:var(--bg)">
+      <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:14px;padding-top:0;margin-top:0">
+        <div class="acard" style="margin-top:16px">
           <div class="acard-title">Cover Page</div>
-          <div class="fi-group" style="margin-bottom:10px">
-            <label class="fi-label">Project Title (leave blank to use project name)</label>
-            <input class="fi" id="cv-title" type="text" placeholder="Leave blank to use project name"/>
-          </div>
-          <div class="fi-group" style="margin-bottom:10px">
-            <label class="fi-label">Site Address</label>
-            <input class="fi" id="cv-address" type="text" placeholder="Full site address"/>
-          </div>
+          <div class="fi-group" style="margin-bottom:10px"><label class="fi-label">Project Title (leave blank to use project name)</label><input class="fi" id="cv-title" type="text" placeholder="Leave blank to use project name"/></div>
+          <div class="fi-group" style="margin-bottom:10px"><label class="fi-label">Site Address</label><input class="fi" id="cv-address" type="text" placeholder="Full site address"/></div>
           <div class="fi-group" style="margin-bottom:12px">
             <label class="fi-label">Cover Wallpaper</label>
             <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
@@ -1260,86 +1235,45 @@ select.fi{cursor:pointer}
         </div>
         <div class="acard">
           <div class="acard-title">Appendix / Notes</div>
-          <textarea class="fi" id="sum-appendix" rows="4" placeholder="Additional notes... (leave blank to omit from export)" style="resize:vertical"></textarea>
+          <textarea class="fi" id="sum-appendix" rows="4" placeholder="Additional notes..." style="resize:vertical"></textarea>
           <button class="btn btn-outline" id="btn-save-appendix" type="button" style="margin-top:10px">Save Appendix</button>
         </div>
+      </div>
     </div>
-
     <!-- EXPORT TAB -->
-    <div class="pv-section" id="pvs-export">
+    <div class="pv-section" id="pvs-export" style="background:var(--bg)">
       <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:14px">
         <div class="acard">
           <div class="acard-title">Export Report</div>
-          <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6">Generate a professional Word document (.docx) with cover page, table of contents, plans and all items. Open in Word to adjust formatting.</p>
-          <div class="fi-group" style="margin-bottom:12px">
-            <label class="fi-label">Filter by Contractor (optional)</label>
-            <select class="fi" id="exp-contractor-filter"><option value="">All contractors</option></select>
-          </div>
-          <div class="fi-group" style="margin-bottom:12px">
-            <label class="fi-label">Filter by Category (optional)</label>
-            <select class="fi" id="exp-category-filter"><option value="">All categories</option></select>
-          </div>
-          <div class="fi-group" style="margin-bottom:16px">
-            <label class="fi-label">Filter by Status (optional)</label>
-            <select class="fi" id="exp-status-filter">
-              <option value="">All statuses</option>
-              <option value="open">Open only</option>
-              <option value="in_progress">In Progress only</option>
-              <option value="closed">Closed only</option>
-            </select>
-          </div>
+          <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6">Generate a professional Word document (.docx). Open in Word to adjust formatting.</p>
+          <div class="fi-group" style="margin-bottom:12px"><label class="fi-label">Filter by Contractor (optional)</label><select class="fi" id="exp-contractor-filter"><option value="">All contractors</option></select></div>
+          <div class="fi-group" style="margin-bottom:12px"><label class="fi-label">Filter by Category (optional)</label><select class="fi" id="exp-category-filter"><option value="">All categories</option></select></div>
+          <div class="fi-group" style="margin-bottom:16px"><label class="fi-label">Filter by Status (optional)</label><select class="fi" id="exp-status-filter"><option value="">All statuses</option><option value="open">Open only</option><option value="in_progress">In Progress only</option><option value="closed">Closed only</option></select></div>
           <button class="btn btn-green" id="btn-export-word" type="button" style="width:100%;padding:14px;font-size:15px">
             <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;display:inline;vertical-align:middle;margin-right:8px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Download Word Report
           </button>
         </div>
-        <div class="acard" style="background:var(--bg2)">
-          <div class="acard-title">What's included</div>
-          <ul style="font-size:12px;color:var(--text2);line-height:2;padding-left:16px">
-            <li>Cover page with wallpaper, logo &amp; project info</li>
-            <li>Table of contents</li>
-            <li>Executive summary (if filled)</li>
-            <li>Floor plans with name &amp; notes</li>
-            <li>All items: photo left, details right — clean card layout</li>
-            <li>Header &amp; footer on every page</li>
-          </ul>
-        </div>
       </div>
     </div>
     <!-- ABOUT TAB -->
-    <div class="pv-section" id="pvs-about">
+    <div class="pv-section" id="pvs-about" style="background:var(--bg)">
       <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:14px">
         <div class="about-logo-wrap"><img src="logo.png" alt="MLA"/><h2>MLA Inspection</h2><p>Professional Snagging &amp; Defect Management</p></div>
-        <div class="about-card"><h3>Getting Started</h3><ul>
-          <li>Create a project — <strong>Name</strong> and <strong>Ref No.</strong> are required</li>
-          <li>Open the project and go to <strong>Inspection</strong> tab to add items</li>
-          <li>Each item needs a <strong>Category</strong> before saving</li>
-        </ul></div>
-        <div class="about-card"><h3>Inspection Items</h3><ul>
+        <div class="about-card"><h3>How to Use</h3><ul>
           <li>Tap <strong>+ Add</strong> to create a snag item</li>
-          <li>Capture <strong>Before</strong> and <strong>After</strong> photos from your camera</li>
-          <li>Add up to <strong>10 additional photos</strong> per item</li>
+          <li>Capture Before / After photos from your camera</li>
           <li>Annotate photos with arrows, circles, and text</li>
-          <li>Swipe right → <strong>Closed</strong> &nbsp;|&nbsp; left → <strong>In Progress</strong></li>
+          <li>Upload floor plans and pin items to exact locations</li>
+          <li>Swipe cards right → Closed &nbsp;|&nbsp; left → In Progress</li>
           <li>Group by Location, Category, Contractor, or Priority</li>
-        </ul></div>
-        <div class="about-card"><h3>Floor Plans</h3><ul>
-          <li>Go to <strong>Plans</strong> tab and tap <strong>+</strong> to add a plan</li>
-          <li>Upload an image or PDF (max 5MB)</li>
-          <li>Add a note to each plan for reference</li>
-          <li>Enable <strong>Pin Mode</strong> to drop pins on the plan</li>
-          <li>Tap a pin to see item info or remove it</li>
-        </ul></div>
-        <div class="about-card"><h3>Cover &amp; Export</h3><ul>
-          <li>Go to <strong>Cover</strong> tab — upload wallpaper, logo, fill project info</li>
-          <li>Add an Executive Summary and Appendix notes</li>
-          <li>Go to <strong>Export</strong> tab and tap <strong>Download Word Report</strong></li>
-          <li>Open in Word to tweak formatting 🏗️</li>
+          <li>Use the <strong>Export</strong> tab to download a Word report</li>
+          <li>Invite collaborators to share a project</li>
         </ul></div>
         <div class="about-card" style="background:var(--bg2)"><h3>Contact &amp; Support</h3>
-          <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:8px">Found a bug? Something broken? Drop us a line.</p>
-          <p style="font-size:13px;font-weight:700;color:var(--text)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6d070c0c0f041f1e1809090202582d0a000c0401430e0200">[email&#160;protected]</a></p>
-          <p style="font-size:11px;color:var(--text3);margin-top:8px">Happy inspecting! 🏗️ May your snag list always get shorter.</p>
+          <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:8px">Found a bug? Drop us a line.</p>
+          <p style="font-size:13px;font-weight:700;color:var(--text)">jaabirsuddoo5@gmail.com</p>
+          <p style="font-size:11px;color:var(--text3);margin-top:8px">Happy inspecting! 🏗️</p>
         </div>
         <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v4.0 — Always MLA</div>
       </div>
@@ -1358,10 +1292,7 @@ select.fi{cursor:pointer}
 ═══════════════════════════════════ -->
 <div id="snag-modal">
   <div class="sm-topbar">
-    <div style="display:flex;flex-direction:column;gap:2px">
-      <h2 id="sm-title">New Item</h2>
-      <span id="sm-ref" style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:0.5px;display:none"></span>
-    </div>
+    <h2 id="sm-title">New Item</h2>
     <button class="sm-close" id="sm-close" type="button">✕</button>
   </div>
   <div class="sm-body">
@@ -1405,12 +1336,11 @@ select.fi{cursor:pointer}
           <div class="sd-photo-add" id="sm-photo-after" onclick="openCamera('after')"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span>After</span></div>
           <span class="sd-photo-label">AFTER</span>
         </div>
+        <div class="sd-photo-wrap">
+          <div class="sd-photo-add" id="sm-photo-extra" onclick="openCamera('extra')"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span>Additional</span></div>
+          <span class="sd-photo-label">ADDITIONAL</span>
+        </div>
       </div>
-      <div id="sm-extras-row" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
-      <button class="btn btn-outline btn-sm" id="btn-add-extra-photo" type="button" style="margin-top:8px;display:flex;align-items:center;gap:6px" onclick="addExtraPhoto()">
-        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Add Photo <span id="sm-extras-count" style="font-size:10px;color:var(--text3)">(0/10)</span>
-      </button>
     </div>
     <button class="btn btn-green sm-save" id="sm-save" type="button">Save Item</button>
   </div>
@@ -1607,25 +1537,13 @@ select.fi{cursor:pointer}
 </div>
 
 <!-- PIN INFO POPUP -->
-<div id="pin-info-popup" style="position:fixed;z-index:9070;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:0 8px 24px rgba(0,0,0,0.2);min-width:200px;max-width:280px;display:none">
-  <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">
+<div id="pin-info-popup" style="position:fixed;z-index:9500;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:0 8px 24px rgba(0,0,0,0.2);min-width:220px;max-width:280px;display:none">
+  <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px">
     <div id="pin-info-ref" style="font-size:11px;font-weight:800;padding:3px 10px;border-radius:50px;background:var(--brand);color:#fff;flex-shrink:0"></div>
     <div id="pin-info-desc" style="font-size:13px;font-weight:600;color:var(--text);line-height:1.4;flex:1"></div>
   </div>
-  <div id="pin-info-meta" style="font-size:11px;color:var(--text3);margin-bottom:12px;line-height:1.7"></div>
+  <div id="pin-info-meta" style="font-size:11px;color:var(--text3);margin-bottom:12px;line-height:1.8"></div>
   <button id="btn-pin-unpin" type="button" style="width:100%;padding:8px;background:var(--red-bg);color:var(--red);border:1px solid var(--red-light);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:Montserrat,sans-serif">Remove Pin</button>
-</div>
-
-<!-- PIN PICKER SHEET -->
-<div id="pin-picker-sheet" style="position:fixed;inset:0;z-index:9060;background:rgba(0,0,0,0.5);display:none;align-items:flex-end;justify-content:center">
-  <div style="background:var(--card);border-radius:16px 16px 0 0;width:100%;max-width:500px;max-height:65vh;display:flex;flex-direction:column">
-    <div class="lp-handle"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px 10px">
-      <div class="lp-title" style="margin:0;padding:0">Pin which item?</div>
-      <button id="btn-pin-picker-close" type="button" style="background:none;border:none;font-size:18px;color:var(--text3);cursor:pointer;padding:4px">✕</button>
-    </div>
-    <div id="pin-picker-list" style="overflow-y:auto;padding:0 8px 16px;display:flex;flex-direction:column;gap:4px"></div>
-  </div>
 </div>
 
 <!-- ══ TAG PICKER ══ -->
@@ -1681,6 +1599,7 @@ select.fi{cursor:pointer}
     </div>
   </div>
 </div>
+</body>
 <script>
 /* ═══════════════════════════════════════════════
    MLA Inspection — Phase 3+4 Complete JS
@@ -1921,7 +1840,7 @@ document.addEventListener('click', function (e) {
   var id = btn.id; // sdd-btn-{inputId}
   if (!id) return;
   var suffix = id.replace('sdd-btn-', '');
-  var fieldMap = { 'sm-loc': 'location', 'sm-con': 'contractor' };
+  var fieldMap = { 'sm-loc': 'location', 'sm-con': 'contractor', 'qc-loc': 'location', 'qc-con': 'contractor' };
   var field = fieldMap[suffix] || suffix;
   openSmartDD(suffix, 'sdd-' + suffix, field);
 });
@@ -2249,17 +2168,7 @@ document.getElementById('btn-create-proj').onclick = function () {
     .catch(function () { loader(false); toast('Failed', 'err'); });
 };
 function duplicateProject(pid) { loader(true, 'Duplicating...'); api('POST', '/projects/' + pid + '/duplicate').then(function () { loader(false); toast('Duplicated', 'ok'); loadProjects(); }).catch(function () { loader(false); toast('Failed', 'err'); }); }
-function deleteProject(pid) {
-  if (!confirm('Delete this project and all its items?')) return;
-  loader(true, 'Deleting...');
-  api('DELETE', '/projects/' + pid)
-    .then(function () { loader(false); toast('Project deleted'); loadProjects(); })
-    .catch(function (e) {
-      loader(false);
-      if (e.error === 'not_owner') { alert("You can't delete this project.\nIt was created by " + (e.ownerName || 'another user') + '.'); }
-      else { toast('Failed', 'err'); }
-    });
-}
+function deleteProject(pid) { if (!confirm('Delete this project and all its items?')) return; loader(true, 'Deleting...'); api('DELETE', '/projects/' + pid).then(function () { loader(false); toast('Project deleted'); loadProjects(); }).catch(function (e) { loader(false); if (e.error === 'not_owner') { alert("You can't delete this project.\nIt was created by " + (e.ownerName || 'another user') + '.'); } else { toast('Failed', 'err'); } }); }
 
 /* CHAT (Inspector) */
 document.getElementById('btn-chat-open').onclick = function () { openChat(); };
@@ -2407,22 +2316,19 @@ function switchPvTab(tab) {
   if (tab === 'export') loadExportTab();
 }
 
-// Status dropdown
 var statusPill = document.getElementById('pv-status-btn');
 var statusDrop = document.getElementById('pv-status-dropdown');
 function updateStatusPill(status) {
-  var label = document.getElementById('pv-status-label');
   var map = { draft: 'Draft', in_progress: 'In Progress', under_review: 'Under Review', completed: 'Completed' };
-  if (label) label.textContent = map[status] || status;
+  var lbl = document.getElementById('pv-status-label'); if (lbl) lbl.textContent = map[status] || status;
   if (statusPill) statusPill.className = 'pv-status-pill st-' + (status || 'draft');
 }
-if (statusPill) statusPill.onclick = function (e) { e.stopPropagation(); statusDrop.classList.toggle('open'); };
+if (statusPill) statusPill.onclick = function (e) { e.stopPropagation(); if (statusDrop) statusDrop.classList.toggle('open'); };
 document.querySelectorAll('.pv-status-opt').forEach(function (opt) {
   opt.addEventListener('click', function (e) {
     e.stopPropagation();
-    var val = this.dataset.val;
-    if (!CUR_PROJECT) return;
-    statusDrop.classList.remove('open');
+    var val = this.dataset.val; if (!CUR_PROJECT) return;
+    if (statusDrop) statusDrop.classList.remove('open');
     api('PUT', '/projects/' + CUR_PROJECT._id, { status: val }).then(function (p) {
       CUR_PROJECT.status = p.status; updateStatusPill(p.status);
       document.getElementById('pv-meta').textContent = (CUR_PROJECT.ref || 'No ref') + ' \u2014 ' + (CUR_PROJECT.date || '');
@@ -2613,7 +2519,7 @@ function bulkStatus(status) { var ids = Object.keys(SELECTED); if (!ids.length) 
 function reloadItems() { if (!CUR_PROJECT) return; api('GET', '/projects/' + CUR_PROJECT._id + '/items').then(function (items) { CUR_ITEMS = items; renderSnagList(); populateVisitDD(); }); }
 
 /* SNAG MODAL */
-var EDITING_ITEM = null, SNAG_PHOTOS = { before: null, after: null }, SM_EXTRAS = [];
+var EDITING_ITEM = null, SNAG_PHOTOS = { before: null, after: null, extra: null };
 document.getElementById('btn-add-snag').onclick = function () { openSnagModal(null); };
 document.getElementById('sm-cat').onchange = function () {
   var cat = CUR_CATEGORIES.find(function (c) { return c.name === this.value; }.bind(this));
@@ -2630,12 +2536,8 @@ document.getElementById('sm-cat').onchange = function () {
 };
 function openSnagModal(item) {
   EDITING_ITEM = item;
-  SM_EXTRAS = item && item.photoExtras ? item.photoExtras.slice() : [];
-  SNAG_PHOTOS = { before: item ? item.photo : null, after: item ? item.photoAfter : null };
-  document.getElementById('sm-title').textContent = item ? 'Edit Item' : 'New Item';
-  var refEl = document.getElementById('sm-ref');
-  if (item && refEl) { refEl.textContent = 'INS_' + String(item.seq).padStart(3, '0'); refEl.style.display = 'block'; }
-  else if (refEl) { refEl.textContent = ''; refEl.style.display = 'none'; }
+  SNAG_PHOTOS = { before: item ? item.photo : null, after: item ? item.photoAfter : null, extra: item ? item.photoExtra : null };
+  document.getElementById('sm-title').textContent = item ? 'Edit INS_' + String(item.seq).padStart(3, '0') : 'New Item';
   document.getElementById('sm-desc').value = item ? (item.description || '') : '';
   document.getElementById('sm-cat').value = item ? (item.category || '') : '';
   document.getElementById('sm-pri').value = item ? (item.priority || 'medium') : 'medium';
@@ -2646,11 +2548,10 @@ function openSnagModal(item) {
   document.getElementById('sm-notes').value = item ? (item.notes || '') : '';
   document.getElementById('tpl-picker').classList.remove('show');
   updatePhotoSlots();
-  renderExtrasRow();
   document.getElementById('snag-modal').classList.add('show');
 }
 function updatePhotoSlots() {
-  ['before', 'after'].forEach(function (t) {
+  ['before', 'after', 'extra'].forEach(function (t) {
     var el = document.getElementById('sm-photo-' + t);
     if (!el) return;
     if (SNAG_PHOTOS[t]) {
@@ -2658,35 +2559,13 @@ function updatePhotoSlots() {
       el.className = 'sd-photo-wrap'; el.style.cursor = 'pointer';
       el.onclick = (function (type) { return function () { openCamera(type); }; }(t));
     } else {
-      var labels = { before: 'Before', after: 'After' };
+      var labels = { before: 'Before', after: 'After', extra: 'Additional' };
       el.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span>' + labels[t] + '</span>';
       el.className = 'sd-photo-add';
       el.onclick = (function (type) { return function () { openCamera(type); }; }(t));
     }
   });
 }
-function renderExtrasRow() {
-  var row = document.getElementById('sm-extras-row');
-  var countEl = document.getElementById('sm-extras-count');
-  var btn = document.getElementById('btn-add-extra-photo');
-  if (!row) return;
-  row.innerHTML = '';
-  SM_EXTRAS.forEach(function (src, idx) {
-    var wrap = document.createElement('div'); wrap.style.cssText = 'position:relative;display:inline-block';
-    var img = document.createElement('img'); img.src = src; img.style.cssText = 'width:80px;height:80px;border-radius:8px;object-fit:cover;display:block';
-    var rm = document.createElement('button'); rm.type = 'button'; rm.innerHTML = '&times;';
-    rm.style.cssText = 'position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.6);color:#fff;border:none;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1';
-    rm.addEventListener('click', (function (i) { return function () { SM_EXTRAS.splice(i, 1); renderExtrasRow(); }; }(idx)));
-    wrap.appendChild(img); wrap.appendChild(rm); row.appendChild(wrap);
-  });
-  if (countEl) countEl.textContent = '(' + SM_EXTRAS.length + '/10)';
-  if (btn) btn.style.display = SM_EXTRAS.length >= 10 ? 'none' : 'flex';
-}
-function addExtraPhoto() {
-  if (SM_EXTRAS.length >= 10) { toast('Max 10 additional photos', 'err'); return; }
-  openCamera('extra_new');
-}
-
 document.getElementById('sm-close').onclick = function () { document.getElementById('snag-modal').classList.remove('show'); };
 document.getElementById('sm-save').onclick = function () {
   var desc = document.getElementById('sm-desc').value.trim();
@@ -2694,7 +2573,7 @@ document.getElementById('sm-save').onclick = function () {
   var cat = document.getElementById('sm-cat').value;
   if (!cat) { toast('Select a category', 'err'); return; }
   var loc = document.getElementById('sm-loc').value.trim(), con = document.getElementById('sm-contractor').value.trim();
-  var data = { description: desc, category: cat, priority: document.getElementById('sm-pri').value, status: document.getElementById('sm-status').value, location: loc, contractor: con, visitNumber: parseInt(document.getElementById('sm-visit').value) || 1, notes: document.getElementById('sm-notes').value.trim(), photo: SNAG_PHOTOS.before, photoAfter: SNAG_PHOTOS.after, photoExtras: SM_EXTRAS };
+  var data = { description: desc, category: cat, priority: document.getElementById('sm-pri').value, status: document.getElementById('sm-status').value, location: loc, contractor: con, visitNumber: parseInt(document.getElementById('sm-visit').value) || 1, notes: document.getElementById('sm-notes').value.trim(), photo: SNAG_PHOTOS.before, photoAfter: SNAG_PHOTOS.after, photoExtra: SNAG_PHOTOS.extra };
   loader(true, 'Saving...');
   var done = function () { loader(false); document.getElementById('snag-modal').classList.remove('show'); toast(EDITING_ITEM ? 'Item updated' : 'Item created', 'ok'); if (con) saveSmartDD('contractor', con); if (loc) saveSmartDD('location', loc); reloadItems(); };
   if (EDITING_ITEM) {
@@ -2753,9 +2632,10 @@ function loadTrash() {
 }
 
 /* CAMERA */
-var CAM_STREAM = null, CAM_TARGET = null, CAM_ITEM_ID = null, CAM_FACING = 'environment', CAM_CAPTURED = null;
-function openCamera(t) { CAM_TARGET = t; CAM_ITEM_ID = null; startCamera(); }
-function openCameraForItem(id, t) { CAM_TARGET = t; CAM_ITEM_ID = id; startCamera(); }
+var CAM_STREAM = null, CAM_TARGET = null, CAM_ITEM_ID = null, CAM_FACING = 'environment', CAM_CAPTURED = null, CAM_QC = false;
+function openCamera(t) { CAM_TARGET = t; CAM_ITEM_ID = null; CAM_QC = false; startCamera(); }
+function openCameraForItem(id, t) { CAM_TARGET = t; CAM_ITEM_ID = id; CAM_QC = false; startCamera(); }
+function openCameraQC(t) { CAM_TARGET = t; CAM_ITEM_ID = null; CAM_QC = true; startCamera(); }
 function startCamera() {
   var modal = document.getElementById('camera-modal'), video = document.getElementById('cam-video'), preview = document.getElementById('cam-preview'), controls = document.getElementById('cam-controls'), pb = document.getElementById('cam-preview-btns');
   preview.classList.remove('show'); pb.classList.remove('show'); controls.style.display = 'flex'; video.style.display = 'block'; modal.classList.add('show');
@@ -2777,19 +2657,43 @@ function closeCamera() { stopCamStream(); document.getElementById('camera-modal'
 function stopCamStream() { if (CAM_STREAM) { CAM_STREAM.getTracks().forEach(function (t) { t.stop(); }); CAM_STREAM = null; } }
 function handleCapturedPhoto(dataUrl) {
   closeCamera();
+  if (CAM_QC) {
+    QC_PHOTOS[CAM_TARGET] = dataUrl;
+    var slot = document.getElementById('qc-slot-' + CAM_TARGET);
+    if (slot) { slot.innerHTML = '<img src="' + dataUrl + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px"/>'; slot.addEventListener('click', (function (t) { return function () { openCameraQC(t); }; }(CAM_TARGET))); }
+    return;
+  }
   if (CAM_ITEM_ID) {
-    var fm = { before: 'photo', after: 'photoAfter' }, upd = {};
+    var fm = { before: 'photo', after: 'photoAfter', extra: 'photoExtra' }, upd = {};
     upd[fm[CAM_TARGET]] = dataUrl;
     loader(true, 'Saving photo...'); api('PUT', '/items/' + CAM_ITEM_ID, upd).then(function () { loader(false); toast('Photo added', 'ok'); reloadItems(); }).catch(function () { loader(false); toast('Failed', 'err'); });
-  } else if (CAM_TARGET === 'extra_new') {
-    if (SM_EXTRAS.length < 10) { SM_EXTRAS.push(dataUrl); renderExtrasRow(); }
-    else { toast('Max 10 additional photos', 'err'); }
   } else { SNAG_PHOTOS[CAM_TARGET] = dataUrl; updatePhotoSlots(); }
 }
 function compressPhoto(file, cb) {
   var r = new FileReader(); r.onload = function (e) { var img = new Image(); img.onload = function () { var c = document.createElement('canvas'), sz = Math.min(img.width, img.height); c.width = 800; c.height = 800; c.getContext('2d').drawImage(img, (img.width - sz) / 2, (img.height - sz) / 2, sz, sz, 0, 0, 800, 800); cb(c.toDataURL('image/jpeg', 0.6)); }; img.src = e.target.result; }; r.readAsDataURL(file);
 }
 
+/* QUICK CAPTURE */
+document.getElementById('qc-slot-before').addEventListener('click', function () { openCameraQC('before'); });
+document.getElementById('qc-slot-after').addEventListener('click', function () { openCameraQC('after'); });
+document.getElementById('btn-qc-save').onclick = function () {
+  var desc = document.getElementById('qc-desc').value.trim();
+  if (!desc) { toast('Enter a description', 'err'); return; }
+  var cat = document.getElementById('qc-cat').value;
+  if (!cat) { toast('Select a category', 'err'); return; }
+  var loc = document.getElementById('qc-loc').value.trim(), con = document.getElementById('qc-con').value.trim();
+  loader(true, 'Saving...');
+  api('GET', '/projects/' + CUR_PROJECT._id + '/items/next-seq').then(function (res) {
+    return api('POST', '/projects/' + CUR_PROJECT._id + '/items', { seq: res.nextSeq, description: desc, category: cat, priority: document.getElementById('qc-pri').value, status: 'open', location: loc, contractor: con, date: today(), photo: QC_PHOTOS.before, photoAfter: QC_PHOTOS.after });
+  }).then(function () {
+    loader(false); toast('Item captured', 'ok');
+    document.getElementById('qc-desc').value = ''; document.getElementById('qc-loc').value = ''; document.getElementById('qc-con').value = '';
+    QC_PHOTOS = { before: null, after: null };
+    ['before', 'after'].forEach(function (t) { var sl = document.getElementById('qc-slot-' + t); if (sl) { sl.innerHTML = '<svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span>' + t.charAt(0).toUpperCase() + t.slice(1) + '</span>'; } });
+    if (con) saveSmartDD('contractor', con); if (loc) saveSmartDD('location', loc);
+    reloadItems();
+  }).catch(function () { loader(false); toast('Failed', 'err'); });
+};
 
 /* PHOTO VIEWER with pinch zoom */
 var VIEWER_ID = null, VIEWER_FIELD = null, VIEWER_SRC = null, PV_PINCH_SCALE = 1, PV_PAN = { x: 0, y: 0 };
@@ -2831,19 +2735,11 @@ function loadKonva(cb) { if (window.Konva) return cb(); var cdns = ['https://cdn
 function openAnnotation(imageSrc, cb) {
   ANNO_CB = cb; loadKonva(function () {
     var modal = document.getElementById('anno-modal'); modal.classList.add('show');
-    var container = document.getElementById('anno-container');
-    var screenW = container.clientWidth, screenH = container.clientHeight;
+    var container = document.getElementById('anno-container'), w = container.clientWidth, h = container.clientHeight;
     if (ANNO_STAGE) ANNO_STAGE.destroy(); ANNO_HIST = [];
-    var img = new Image();
-    img.onload = function () {
-      var scale = Math.min(screenW / img.width, screenH / img.height);
-      var stageW = Math.round(img.width * scale), stageH = Math.round(img.height * scale);
-      ANNO_STAGE = new Konva.Stage({ container: 'anno-container', width: stageW, height: stageH });
-      var bgLayer = new Konva.Layer(); ANNO_LAYER = new Konva.Layer(); ANNO_STAGE.add(bgLayer); ANNO_STAGE.add(ANNO_LAYER);
-      var kImg = new Konva.Image({ image: img, x: 0, y: 0, width: stageW, height: stageH });
-      bgLayer.add(kImg); bgLayer.draw(); setupAnnoDrawing();
-    };
-    img.src = imageSrc;
+    ANNO_STAGE = new Konva.Stage({ container: 'anno-container', width: w, height: h });
+    var bgLayer = new Konva.Layer(); ANNO_LAYER = new Konva.Layer(); ANNO_STAGE.add(bgLayer); ANNO_STAGE.add(ANNO_LAYER);
+    var img = new Image(); img.onload = function () { var scale = Math.min(w / img.width, h / img.height), kImg = new Konva.Image({ image: img, x: (w - img.width * scale) / 2, y: (h - img.height * scale) / 2, width: img.width * scale, height: img.height * scale }); bgLayer.add(kImg); bgLayer.draw(); setupAnnoDrawing(); }; img.src = imageSrc;
   });
 }
 function setupAnnoDrawing() {
@@ -2881,234 +2777,128 @@ document.getElementById('anno-cancel').onclick = function () { document.getEleme
 function loadPlansTab() {
   if (!CUR_PROJECT) return;
   api('GET', '/projects/' + CUR_PROJECT._id + '/plans').then(function (plans) {
-    CUR_PLANS = plans; renderPlanTabs();
-    if (plans.length) selectPlan(plans[0]);
-    else { document.getElementById('plan-empty').style.display = 'flex'; document.getElementById('plan-canvas').style.display = 'none'; var nb = document.getElementById('plan-note-bar'); if (nb) nb.style.display = 'none'; }
+    CUR_PLANS = plans;
+    renderPlanTabs();
+    if (plans.length) selectPlan(plans[0]); else { document.getElementById('plan-empty').style.display = 'flex'; document.getElementById('plan-canvas').style.display = 'none'; }
   }).catch(function () { toast('Failed to load plans', 'err'); });
 }
 function renderPlanTabs() {
-  var row = document.getElementById('plan-tabs-row'); row.innerHTML = '';
+  var row = document.getElementById('plan-tabs-row');
+  row.innerHTML = '';
   CUR_PLANS.forEach(function (p) {
-    var tab = document.createElement('div'); tab.className = 'plan-tab' + (CUR_PLAN && CUR_PLAN._id === p._id ? ' on' : '');
-    tab.textContent = p.name; tab.addEventListener('click', function () { selectPlan(p); }); row.appendChild(tab);
+    var tab = document.createElement('div');
+    tab.className = 'plan-tab' + (CUR_PLAN && CUR_PLAN._id === p._id ? ' on' : '');
+    tab.textContent = p.name;
+    tab.addEventListener('click', function () { selectPlan(p); });
+    row.appendChild(tab);
   });
   var addBtn = document.createElement('button'); addBtn.className = 'plan-add-btn'; addBtn.type = 'button';
   addBtn.innerHTML = '<svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
-  addBtn.addEventListener('click', addPlan); row.appendChild(addBtn);
+  addBtn.addEventListener('click', addPlan);
+  row.appendChild(addBtn);
 }
 function selectPlan(plan) {
   CUR_PLAN = plan;
   document.querySelectorAll('.plan-tab').forEach(function (t) { t.classList.toggle('on', t.textContent === plan.name); });
-  var noteBar = document.getElementById('plan-note-bar');
-  var noteInput = document.getElementById('plan-note-input');
-  var hintEl = document.getElementById('plan-upload-hint');
-  if (noteBar) { noteBar.style.display = 'flex'; }
-  if (noteInput) noteInput.value = plan.note || '';
-  if (plan.image) {
-    document.getElementById('plan-empty').style.display = 'none';
-    document.getElementById('plan-canvas').style.display = 'block';
-    if (hintEl) hintEl.style.display = 'none';
-    renderPlanCanvas(plan);
-  } else {
-    document.getElementById('plan-empty').style.display = 'flex';
-    document.getElementById('plan-canvas').style.display = 'none';
-    if (hintEl) hintEl.style.display = 'block';
-    document.getElementById('plan-canvas-wrap').querySelectorAll('.plan-pin').forEach(function (p) { p.remove(); });
-  }
+  if (plan.image) { document.getElementById('plan-empty').style.display = 'none'; renderPlanCanvas(plan); }
+  else { document.getElementById('plan-empty').style.display = 'flex'; document.getElementById('plan-canvas').style.display = 'none'; }
 }
 function addPlan() {
   var name = prompt('Plan name:', 'Floor Plan ' + (CUR_PLANS.length + 1)); if (!name) return;
   api('POST', '/projects/' + CUR_PROJECT._id + '/plans', { name: name, order: CUR_PLANS.length }).then(function () { loadPlansTab(); toast('Plan added', 'ok'); }).catch(function () { toast('Failed', 'err'); });
 }
-var btnPlanNoteSave = document.getElementById('btn-plan-note-save');
-if (btnPlanNoteSave) btnPlanNoteSave.onclick = function () {
-  if (!CUR_PLAN) return;
-  var note = document.getElementById('plan-note-input').value.trim();
-  api('PUT', '/plans/' + CUR_PLAN._id, { note: note }).then(function () { CUR_PLAN.note = note; toast('Note saved', 'ok'); }).catch(function () { toast('Failed', 'err'); });
-};
 function renderPlanCanvas(plan) {
   var wrap = document.getElementById('plan-canvas-wrap'), canvas = document.getElementById('plan-canvas');
-  canvas.style.display = 'block'; canvas.width = wrap.clientWidth; canvas.height = wrap.clientHeight;
-  PLAN_IMG = new Image(); PLAN_IMG.onload = function () { PLAN_SCALE = Math.min(canvas.width / PLAN_IMG.width, canvas.height / PLAN_IMG.height); PLAN_OFFSET = { x: 0, y: 0 }; drawPlan(); }; PLAN_IMG.src = plan.image;
+  canvas.style.display = 'block';
+  canvas.width = wrap.clientWidth; canvas.height = wrap.clientHeight;
+  PLAN_IMG = new Image();
+  PLAN_IMG.onload = function () {
+    PLAN_SCALE = Math.min(canvas.width / PLAN_IMG.width, canvas.height / PLAN_IMG.height);
+    PLAN_OFFSET = { x: 0, y: 0 };
+    drawPlan();
+  };
+  PLAN_IMG.src = plan.image;
 }
 function drawPlan() {
   var canvas = document.getElementById('plan-canvas'); if (!canvas || !PLAN_IMG) return;
-  var ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, canvas.width, canvas.height);
+  var ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(PLAN_IMG, PLAN_OFFSET.x, PLAN_OFFSET.y, PLAN_IMG.width * PLAN_SCALE, PLAN_IMG.height * PLAN_SCALE);
   renderPlanPins();
 }
 function renderPlanPins() {
   var wrap = document.getElementById('plan-canvas-wrap');
   wrap.querySelectorAll('.plan-pin').forEach(function (p) { p.remove(); });
-  if (!CUR_PLAN || !CUR_PLAN.image) return;
+  if (!CUR_PLAN) return;
   CUR_ITEMS.filter(function (i) { return !i.deleted && i.pins && i.pins.some(function (pin) { return pin.planId === CUR_PLAN._id; }); }).forEach(function (item) {
     var pin = item.pins.find(function (p) { return p.planId === CUR_PLAN._id; }); if (!pin) return;
     var el = document.createElement('div'); el.className = 'plan-pin ' + (item.status || 'open');
-    el.textContent = String(item.seq || '?');
-    el.style.left = (pin.x * PLAN_SCALE + PLAN_OFFSET.x) + 'px'; el.style.top = (pin.y * PLAN_SCALE + PLAN_OFFSET.y) + 'px';
-    el.addEventListener('click', function (e) { e.stopPropagation(); showPinInfo(item, e.clientX, e.clientY); });
+    el.textContent = item.seq || '?';
+    el.style.left = (pin.x * PLAN_SCALE + PLAN_OFFSET.x) + 'px';
+    el.style.top = (pin.y * PLAN_SCALE + PLAN_OFFSET.y) + 'px';
+    el.addEventListener('click', function (e) {
+      e.stopPropagation();
+      showPinInfoPopup(item, e.clientX, e.clientY);
+    });
     wrap.appendChild(el);
   });
 }
-var PIN_INFO_ITEM = null, PIN_PENDING_X = null, PIN_PENDING_Y = null;
-function showPinInfo(item, cx, cy) {
+
+var PIN_INFO_ITEM = null;
+function showPinInfoPopup(item, cx, cy) {
   PIN_INFO_ITEM = item;
   var popup = document.getElementById('pin-info-popup');
   document.getElementById('pin-info-ref').textContent = 'INS_' + String(item.seq || 0).padStart(3, '0');
   document.getElementById('pin-info-desc').textContent = item.description || 'No description';
-  var meta = []; if (item.location) meta.push('\uD83D\uDCCD ' + item.location); if (item.category) meta.push(item.category); if (item.priority) meta.push(item.priority.charAt(0).toUpperCase() + item.priority.slice(1)); if (item.status) meta.push((item.status || '').replace('_', ' '));
-  document.getElementById('pin-info-meta').textContent = meta.join('  ·  ');
+  var meta = [];
+  if (item.status) meta.push('Status: ' + item.status.replace('_',' '));
+  if (item.priority) meta.push('Priority: ' + item.priority);
+  if (item.location) meta.push('Location: ' + item.location);
+  if (item.category) meta.push('Category: ' + item.category);
+  document.getElementById('pin-info-meta').innerHTML = meta.join('<br>');
   popup.style.display = 'block';
-  var pw = popup.offsetWidth || 260, ph = popup.offsetHeight || 120, vw = window.innerWidth, vh = window.innerHeight;
-  popup.style.left = Math.min(cx + 10, vw - pw - 12) + 'px'; popup.style.top = Math.min(cy - 10, vh - ph - 12) + 'px';
+  var vw = window.innerWidth, vh = window.innerHeight;
+  var pw = 280, ph = 150;
+  popup.style.left = Math.min(cx + 12, vw - pw - 8) + 'px';
+  popup.style.top = Math.min(cy - 10, vh - ph - 8) + 'px';
 }
-function closePinInfo() { document.getElementById('pin-info-popup').style.display = 'none'; PIN_INFO_ITEM = null; }
 document.getElementById('btn-pin-unpin').onclick = function () {
   if (!PIN_INFO_ITEM || !CUR_PLAN) return;
   var pins = (PIN_INFO_ITEM.pins || []).filter(function (p) { return p.planId !== CUR_PLAN._id; });
-  api('PUT', '/items/' + PIN_INFO_ITEM._id, { pins: pins }).then(function () { closePinInfo(); toast('Pin removed', 'ok'); reloadItems(); setTimeout(renderPlanPins, 400); }).catch(function () { toast('Failed', 'err'); });
+  api('PUT', '/items/' + PIN_INFO_ITEM._id, { pins: pins })
+    .then(function () { document.getElementById('pin-info-popup').style.display = 'none'; PIN_INFO_ITEM = null; toast('Pin removed', 'ok'); reloadItems(); setTimeout(renderPlanPins, 400); })
+    .catch(function () { toast('Failed', 'err'); });
 };
-document.addEventListener('click', function (e) { var popup = document.getElementById('pin-info-popup'); if (popup && popup.style.display !== 'none' && !popup.contains(e.target)) closePinInfo(); });
-// ── Plan touch: pan + tap detection ──────────────
-var PLAN_TOUCH_START = null, PLAN_PANNING = false, PLAN_PAN_START = null;
-var planWrap = document.getElementById('plan-canvas-wrap');
-var planCanvas = document.getElementById('plan-canvas');
-
-planCanvas.addEventListener('touchstart', function (e) {
-  if (e.touches.length === 1) {
-    PLAN_TOUCH_START = { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now(), ox: PLAN_OFFSET.x, oy: PLAN_OFFSET.y };
-    PLAN_PANNING = false;
+document.addEventListener('click', function (e) {
+  var popup = document.getElementById('pin-info-popup');
+  if (popup && popup.style.display !== 'none' && !popup.contains(e.target) && !e.target.closest('.plan-pin')) {
+    popup.style.display = 'none'; PIN_INFO_ITEM = null;
   }
-}, { passive: true });
-
-planCanvas.addEventListener('touchmove', function (e) {
-  if (e.touches.length === 1 && PLAN_TOUCH_START && PLAN_IMG) {
-    var dx = e.touches[0].clientX - PLAN_TOUCH_START.x;
-    var dy = e.touches[0].clientY - PLAN_TOUCH_START.y;
-    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) { PLAN_PANNING = true; }
-    if (PLAN_PANNING) {
-      PLAN_OFFSET.x = PLAN_PAN_START ? PLAN_PAN_START.ox + dx : PLAN_TOUCH_START.ox + dx;
-      PLAN_OFFSET.y = PLAN_PAN_START ? PLAN_PAN_START.oy + dy : PLAN_TOUCH_START.oy + dy;
-      drawPlan();
-    }
-  }
-}, { passive: true });
-
-planCanvas.addEventListener('touchend', function (e) {
-  if (!PLAN_TOUCH_START) return;
-  var dt = Date.now() - PLAN_TOUCH_START.t;
-  var dx = (e.changedTouches[0] ? e.changedTouches[0].clientX : PLAN_TOUCH_START.x) - PLAN_TOUCH_START.x;
-  var dy = (e.changedTouches[0] ? e.changedTouches[0].clientY : PLAN_TOUCH_START.y) - PLAN_TOUCH_START.y;
-  var isTap = !PLAN_PANNING && dt < 300 && Math.abs(dx) < 10 && Math.abs(dy) < 10;
-  if (isTap) {
-    var cx = e.changedTouches[0] ? e.changedTouches[0].clientX : PLAN_TOUCH_START.x;
-    var cy = e.changedTouches[0] ? e.changedTouches[0].clientY : PLAN_TOUCH_START.y;
-    handlePlanTap(cx, cy);
-  }
-  PLAN_TOUCH_START = null; PLAN_PANNING = false;
-}, { passive: true });
-
-// Mouse pan for desktop
-var PLAN_MOUSE_DOWN = false, PLAN_MOUSE_START = null;
-planCanvas.addEventListener('mousedown', function (e) {
-  if (e.button !== 0) return;
-  PLAN_MOUSE_DOWN = true;
-  PLAN_MOUSE_START = { x: e.clientX, y: e.clientY, ox: PLAN_OFFSET.x, oy: PLAN_OFFSET.y };
 });
-planCanvas.addEventListener('mousemove', function (e) {
-  if (!PLAN_MOUSE_DOWN || !PLAN_MOUSE_START) return;
-  PLAN_OFFSET.x = PLAN_MOUSE_START.ox + (e.clientX - PLAN_MOUSE_START.x);
-  PLAN_OFFSET.y = PLAN_MOUSE_START.oy + (e.clientY - PLAN_MOUSE_START.y);
-  drawPlan();
-});
-planCanvas.addEventListener('mouseup', function (e) {
-  var dx = e.clientX - (PLAN_MOUSE_START ? PLAN_MOUSE_START.x : e.clientX);
-  var dy = e.clientY - (PLAN_MOUSE_START ? PLAN_MOUSE_START.y : e.clientY);
-  if (Math.abs(dx) < 5 && Math.abs(dy) < 5) handlePlanTap(e.clientX, e.clientY);
-  PLAN_MOUSE_DOWN = false; PLAN_MOUSE_START = null;
-});
-planCanvas.addEventListener('mouseleave', function () { PLAN_MOUSE_DOWN = false; });
-
-function handlePlanTap(cx, cy) {
-  // Check if tap is on a pin
-  if (CUR_PLAN && CUR_PLAN.image) {
-    var hitPin = null;
-    CUR_ITEMS.forEach(function (item) {
-      if (!item.pins) return;
-      var pin = item.pins.find(function (p) { return p.planId === CUR_PLAN._id; });
-      if (!pin) return;
-      var px = pin.x * PLAN_SCALE + PLAN_OFFSET.x;
-      var py = pin.y * PLAN_SCALE + PLAN_OFFSET.y;
-      var rect = planCanvas.getBoundingClientRect();
-      var tapX = cx - rect.left, tapY = cy - rect.top;
-      if (Math.abs(tapX - px) < 20 && Math.abs(tapY - py) < 20) hitPin = item;
-    });
-    if (hitPin) { showPinInfo(hitPin, cx, cy); return; }
-  }
-  // Upload empty plan
-  if (!CUR_PLAN || !CUR_PLAN.image) { document.getElementById('plan-img-input').click(); return; }
-  // Pin placement mode
-  if (!PLAN_PIN_MODE || !CUR_PLAN || !PLAN_IMG) return;
-  var rect = planCanvas.getBoundingClientRect();
-  PIN_PENDING_X = (cx - rect.left - PLAN_OFFSET.x) / PLAN_SCALE;
-  PIN_PENDING_Y = (cy - rect.top - PLAN_OFFSET.y) / PLAN_SCALE;
-  var unpinned = CUR_ITEMS.filter(function (i) { return !i.deleted && (!i.pins || !i.pins.some(function (p) { return p.planId === CUR_PLAN._id; })); });
-  if (!unpinned.length) { toast('All items already pinned', 'err'); return; }
-  openPinPicker(unpinned);
-}
-
-planWrap.addEventListener('click', function (e) {
+document.getElementById('plan-canvas-wrap').addEventListener('click', function (e) {
   if (e.target.id === 'plan-empty' || e.target.closest('#plan-empty')) {
     if (CUR_PLAN && !CUR_PLAN.image) document.getElementById('plan-img-input').click();
+    return;
   }
+  if (e.target.closest('.plan-pin') || e.target.closest('#pin-info-popup')) return;
+  if (!PLAN_PIN_MODE || !CUR_PLAN || !PLAN_IMG) return;
+  var canvas = document.getElementById('plan-canvas');
+  var rect = canvas.getBoundingClientRect();
+  var x = (e.clientX - rect.left - PLAN_OFFSET.x) / PLAN_SCALE;
+  var y = (e.clientY - rect.top - PLAN_OFFSET.y) / PLAN_SCALE;
+  var unpinned = CUR_ITEMS.filter(function (i) { return !i.deleted && (!i.pins || !i.pins.some(function (p) { return p.planId === CUR_PLAN._id; })); });
+  if (!unpinned.length) { toast('No unpinned items', 'err'); return; }
+  var choice = prompt('Pin which item?\n' + unpinned.map(function (i, idx) { return (idx + 1) + '. INS_' + String(i.seq || 0).padStart(3, '0') + ': ' + (i.description || '').substring(0, 30); }).join('\n'));
+  if (!choice) return;
+  var idx = parseInt(choice) - 1; if (idx < 0 || idx >= unpinned.length) return;
+  var item = unpinned[idx];
+  var pins = (item.pins || []).filter(function (p) { return p.planId !== CUR_PLAN._id; });
+  pins.push({ planId: CUR_PLAN._id, x: x, y: y });
+  api('PUT', '/items/' + item._id, { pins: pins }).then(function () { toast('Pinned', 'ok'); reloadItems(); setTimeout(renderPlanPins, 500); }).catch(function () { toast('Failed', 'err'); });
 });
-
-function openPinPicker(unpinned) {
-  var sheet = document.getElementById('pin-picker-sheet'), list = document.getElementById('pin-picker-list');
-  list.innerHTML = '';
-  unpinned.forEach(function (item) {
-    var row = document.createElement('div'); row.className = 'lp-item';
-    var ref = 'INS_' + String(item.seq || 0).padStart(3, '0');
-    row.innerHTML = '<div class="scard-seq ' + (item.status || 'open') + '" style="font-size:10px;padding:2px 8px;flex-shrink:0">' + ref + '</div><div class="lp-item-desc" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(item.description || 'No description') + '</div>';
-    row.addEventListener('click', function () {
-      closePinPicker();
-      var pins = (item.pins || []).filter(function (p) { return p.planId !== CUR_PLAN._id; });
-      pins.push({ planId: CUR_PLAN._id, x: PIN_PENDING_X, y: PIN_PENDING_Y });
-      api('PUT', '/items/' + item._id, { pins: pins }).then(function () { toast('Pinned ' + ref, 'ok'); reloadItems(); setTimeout(renderPlanPins, 400); }).catch(function () { toast('Failed', 'err'); });
-    });
-    list.appendChild(row);
-  });
-  sheet.classList.add('show');
-}
-function closePinPicker() { var s = document.getElementById('pin-picker-sheet'); if (s) s.classList.remove('show'); }
-document.getElementById('btn-pin-picker-close').onclick = closePinPicker;
-document.getElementById('pin-picker-sheet').addEventListener('click', function (e) { if (e.target === this) closePinPicker(); });
-
 document.getElementById('plan-img-input').onchange = function () {
   if (!this.files[0] || !CUR_PLAN) return;
-  var file = this.files[0];
-  if (file.size > 5 * 1024 * 1024) { toast('File too large — max 5MB', 'err'); this.value = ''; return; }
-  if (file.type === 'application/pdf') {
-    function doPdfRender() {
-      var reader = new FileReader(); reader.onload = function (ev) {
-        var pdfData = new Uint8Array(ev.target.result);
-        if (typeof pdfjsLib === 'undefined') { toast('PDF reader not loaded', 'err'); return; }
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-        pdfjsLib.getDocument({ data: pdfData }).promise.then(function (pdf) { return pdf.getPage(1); }).then(function (page) {
-          var viewport = page.getViewport({ scale: 2 }), tmpCanvas = document.createElement('canvas');
-          tmpCanvas.width = viewport.width; tmpCanvas.height = viewport.height;
-          return page.render({ canvasContext: tmpCanvas.getContext('2d'), viewport: viewport }).promise.then(function () { return tmpCanvas.toDataURL('image/jpeg', 0.85); });
-        }).then(function (dataUrl) {
-          loader(true, 'Uploading plan...'); api('PUT', '/plans/' + CUR_PLAN._id, { image: dataUrl }).then(function () { loader(false); toast('PDF plan uploaded', 'ok'); CUR_PLAN.image = dataUrl; selectPlan(CUR_PLAN); }).catch(function () { loader(false); toast('Failed', 'err'); });
-        }).catch(function (err) { toast('Could not read PDF', 'err'); console.error(err); });
-      }; reader.readAsArrayBuffer(file);
-    }
-    if (typeof pdfjsLib === 'undefined') { var s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js'; s.onload = doPdfRender; s.onerror = function () { toast('Could not load PDF reader', 'err'); }; document.head.appendChild(s); } else { doPdfRender(); }
-  } else {
-    var reader2 = new FileReader(); reader2.onload = function (ev) {
-      loader(true, 'Uploading plan...'); api('PUT', '/plans/' + CUR_PLAN._id, { image: ev.target.result }).then(function () { loader(false); toast('Plan uploaded', 'ok'); CUR_PLAN.image = ev.target.result; selectPlan(CUR_PLAN); }).catch(function () { loader(false); toast('Failed', 'err'); });
-    }; reader2.readAsDataURL(file);
-  }
+  var reader = new FileReader(); reader.onload = function (e) { loader(true, 'Uploading plan...'); api('PUT', '/plans/' + CUR_PLAN._id, { image: e.target.result }).then(function () { loader(false); toast('Plan uploaded', 'ok'); CUR_PLAN.image = e.target.result; selectPlan(CUR_PLAN); }).catch(function () { loader(false); toast('Failed', 'err'); }); }; reader.readAsDataURL(this.files[0]);
 };
 document.getElementById('plan-mode-btn').onclick = function () { PLAN_PIN_MODE = !PLAN_PIN_MODE; this.textContent = PLAN_PIN_MODE ? '\uD83D\uDC41 View Mode' : '\uD83D\uDCCD Pin Mode'; this.style.background = PLAN_PIN_MODE ? 'var(--green)' : 'var(--brand)'; };
 document.getElementById('btn-plan-zin').onclick = function () { PLAN_SCALE *= 1.2; drawPlan(); };
@@ -3150,6 +2940,27 @@ document.getElementById('cv-title').oninput = updateCoverPreview;
 document.getElementById('cv-address').oninput = updateCoverPreview;
 
 /* SUMMARY TAB */
+function loadSummaryTab() {
+  if (!CUR_PROJECT) return;
+  var total = CUR_ITEMS.length, open = 0, prog = 0, closed = 0;
+  CUR_ITEMS.forEach(function (i) { if (i.status === 'open') open++; else if (i.status === 'in_progress') prog++; else if (i.status === 'closed') closed++; });
+  function pct(n) { return total ? Math.round(n / total * 100) : 0; }
+  var el = function (id) { return document.getElementById(id); };
+  if (el('pb-open')) { el('pb-open').style.width = pct(open) + '%'; el('pbn-open').textContent = open; }
+  if (el('pb-prog')) { el('pb-prog').style.width = pct(prog) + '%'; el('pbn-prog').textContent = prog; }
+  if (el('pb-closed')) { el('pb-closed').style.width = pct(closed) + '%'; el('pbn-closed').textContent = closed; }
+  var visits = {};
+  CUR_ITEMS.forEach(function (i) { var v = i.visitNumber || 1; if (!visits[v]) visits[v] = { before: 0, after: 0, total: 0 }; visits[v].total++; if (i.photo) visits[v].before++; if (i.photoAfter) visits[v].after++; });
+  var vl = el('visit-prog-list');
+  if (vl) {
+    if (!Object.keys(visits).length) { vl.innerHTML = '<div class="empty-msg" style="padding:20px">No items yet</div>'; }
+    else { vl.innerHTML = Object.keys(visits).sort(function (a, b) { return a - b; }).map(function (v) { var vd = visits[v]; return '<div class="visit-row"><span style="font-weight:800">Visit ' + v + '</span><span style="color:var(--text3)">' + vd.total + ' items</span><span style="color:var(--blue);font-weight:700">\uD83D\uDCF7 ' + vd.before + ' before</span><span style="color:var(--green);font-weight:700">\u2713 ' + vd.after + ' after</span></div>'; }).join(''); }
+  }
+  if (el('sum-text')) el('sum-text').value = CUR_PROJECT.summary || '';
+  if (el('sum-appendix')) el('sum-appendix').value = CUR_PROJECT.appendix || '';
+}
+document.getElementById('btn-save-sum').onclick = function () { api('PUT', '/projects/' + CUR_PROJECT._id, { summary: document.getElementById('sum-text').value.trim() }).then(function () { toast('Summary saved', 'ok'); }).catch(function () { toast('Failed', 'err'); }); };
+document.getElementById('btn-save-appendix').onclick = function () { api('PUT', '/projects/' + CUR_PROJECT._id, { appendix: document.getElementById('sum-appendix').value.trim() }).then(function () { toast('Appendix saved', 'ok'); }).catch(function () { toast('Failed', 'err'); }); };
 
 /* COVER TAB */
 function loadCoverTab() {
@@ -3157,86 +2968,66 @@ function loadCoverTab() {
   var cv = CUR_PROJECT.cover || {};
   document.getElementById('cv-title').value = cv.projectTitle || '';
   document.getElementById('cv-address').value = cv.siteAddress || '';
-  if (cv.logo) { var lp = document.getElementById('cv-logo-prev'); lp.src = cv.logo; lp.style.display = 'block'; document.getElementById('btn-cv-logo-rm').style.display = 'inline-block'; }
-  if (cv.wallpaper) { var wp = document.getElementById('cv-wallpaper-prev'); wp.src = cv.wallpaper; wp.style.display = 'block'; document.getElementById('btn-cv-wallpaper-rm').style.display = 'inline-block'; }
+  var lp = document.getElementById('cv-logo-prev');
+  if (cv.logo && lp) { lp.src = cv.logo; lp.style.display = 'block'; var rm = document.getElementById('btn-cv-logo-rm'); if (rm) rm.style.display = 'inline-block'; }
+  var wp = document.getElementById('cv-wallpaper-prev');
+  if (cv.wallpaper && wp) { wp.src = cv.wallpaper; wp.style.display = 'block'; var wrm = document.getElementById('btn-cv-wallpaper-rm'); if (wrm) wrm.style.display = 'inline-block'; }
   var st = document.getElementById('sum-text'); if (st) st.value = CUR_PROJECT.summary || '';
   var sa = document.getElementById('sum-appendix'); if (sa) sa.value = CUR_PROJECT.appendix || '';
 }
 document.getElementById('btn-cv-logo').onclick = function () { document.getElementById('cv-logo-input').click(); };
 document.getElementById('cv-logo-input').onchange = function () {
-  if (!this.files[0]) return;
-  var r = new FileReader(); r.onload = function (e) { var lp = document.getElementById('cv-logo-prev'); lp.src = e.target.result; lp.style.display = 'block'; document.getElementById('btn-cv-logo-rm').style.display = 'inline-block'; }; r.readAsDataURL(this.files[0]);
+  if (!this.files[0]) return; var r = new FileReader(); r.onload = function (e) { var lp = document.getElementById('cv-logo-prev'); lp.src = e.target.result; lp.style.display = 'block'; document.getElementById('btn-cv-logo-rm').style.display = 'inline-block'; }; r.readAsDataURL(this.files[0]);
 };
 document.getElementById('btn-cv-logo-rm').onclick = function () { var lp = document.getElementById('cv-logo-prev'); lp.src = ''; lp.style.display = 'none'; this.style.display = 'none'; };
 document.getElementById('btn-cv-wallpaper').onclick = function () { document.getElementById('cv-wallpaper-input').click(); };
 document.getElementById('cv-wallpaper-input').onchange = function () {
-  if (!this.files[0]) return;
-  var r = new FileReader(); r.onload = function (e) { var wp = document.getElementById('cv-wallpaper-prev'); wp.src = e.target.result; wp.style.display = 'block'; document.getElementById('btn-cv-wallpaper-rm').style.display = 'inline-block'; }; r.readAsDataURL(this.files[0]);
+  if (!this.files[0]) return; var r = new FileReader(); r.onload = function (e) { var wp = document.getElementById('cv-wallpaper-prev'); wp.src = e.target.result; wp.style.display = 'block'; document.getElementById('btn-cv-wallpaper-rm').style.display = 'inline-block'; }; r.readAsDataURL(this.files[0]);
 };
 document.getElementById('btn-cv-wallpaper-rm').onclick = function () { var wp = document.getElementById('cv-wallpaper-prev'); wp.src = ''; wp.style.display = 'none'; this.style.display = 'none'; };
 document.getElementById('btn-save-cover').onclick = function () {
   if (!CUR_PROJECT) return;
   var logo = document.getElementById('cv-logo-prev');
   var wallpaper = document.getElementById('cv-wallpaper-prev');
-  var coverData = { projectTitle: document.getElementById('cv-title').value.trim(), siteAddress: document.getElementById('cv-address').value.trim(), logo: logo.style.display !== 'none' ? logo.src : null, wallpaper: wallpaper.style.display !== 'none' ? wallpaper.src : null };
-  api('PUT', '/projects/' + CUR_PROJECT._id, { cover: coverData }).then(function (p) { CUR_PROJECT = p; toast('Cover saved', 'ok'); }).catch(function () { toast('Failed', 'err'); });
+  var cv = { projectTitle: document.getElementById('cv-title').value.trim(), siteAddress: document.getElementById('cv-address').value.trim(), logo: (logo && logo.style.display !== 'none') ? logo.src : null, wallpaper: (wallpaper && wallpaper.style.display !== 'none') ? wallpaper.src : null };
+  api('PUT', '/projects/' + CUR_PROJECT._id, { cover: cv }).then(function (p) { CUR_PROJECT = p; toast('Cover saved', 'ok'); }).catch(function () { toast('Failed', 'err'); });
 };
-document.getElementById('btn-save-sum').onclick = function () {
-  if (!CUR_PROJECT) return;
-  api('PUT', '/projects/' + CUR_PROJECT._id, { summary: document.getElementById('sum-text').value.trim() }).then(function () { toast('Summary saved', 'ok'); }).catch(function () { toast('Failed', 'err'); });
-};
-document.getElementById('btn-save-appendix').onclick = function () {
-  if (!CUR_PROJECT) return;
-  api('PUT', '/projects/' + CUR_PROJECT._id, { appendix: document.getElementById('sum-appendix').value.trim() }).then(function () { toast('Appendix saved', 'ok'); }).catch(function () { toast('Failed', 'err'); });
-};
+document.getElementById('btn-save-sum').onclick = function () { if (!CUR_PROJECT) return; api('PUT', '/projects/' + CUR_PROJECT._id, { summary: document.getElementById('sum-text').value.trim() }).then(function () { toast('Summary saved', 'ok'); }).catch(function () { toast('Failed', 'err'); }); };
+document.getElementById('btn-save-appendix').onclick = function () { if (!CUR_PROJECT) return; api('PUT', '/projects/' + CUR_PROJECT._id, { appendix: document.getElementById('sum-appendix').value.trim() }).then(function () { toast('Appendix saved', 'ok'); }).catch(function () { toast('Failed', 'err'); }); };
 
 /* EXPORT TAB */
 function loadExportTab() {
   if (!CUR_PROJECT) return;
   var contractors = [], categories = [];
-  CUR_ITEMS.forEach(function (i) {
-    if (i.contractor && contractors.indexOf(i.contractor) < 0) contractors.push(i.contractor);
-    if (i.category && categories.indexOf(i.category) < 0) categories.push(i.category);
-  });
-  var sel = document.getElementById('exp-contractor-filter');
-  if (sel) { sel.innerHTML = '<option value="">All contractors</option>'; contractors.forEach(function (c) { sel.innerHTML += '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }); }
-  var catSel = document.getElementById('exp-category-filter');
-  if (catSel) { catSel.innerHTML = '<option value="">All categories</option>'; categories.sort().forEach(function (c) { catSel.innerHTML += '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }); }
+  CUR_ITEMS.forEach(function (i) { if (i.contractor && contractors.indexOf(i.contractor) < 0) contractors.push(i.contractor); if (i.category && categories.indexOf(i.category) < 0) categories.push(i.category); });
+  var s = document.getElementById('exp-contractor-filter'); if (s) { s.innerHTML = '<option value="">All contractors</option>'; contractors.forEach(function (c) { s.innerHTML += '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }); }
+  var cs = document.getElementById('exp-category-filter'); if (cs) { cs.innerHTML = '<option value="">All categories</option>'; categories.sort().forEach(function (c) { cs.innerHTML += '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }); }
 }
 document.getElementById('btn-export-word').onclick = function () {
   if (!CUR_PROJECT) return;
-  var cv = CUR_PROJECT.cover || {};
   var logo = document.getElementById('cv-logo-prev');
   var wallpaper = document.getElementById('cv-wallpaper-prev');
   var body = {
-    logo: (logo && logo.style.display !== 'none' && logo.src && !logo.src.endsWith('/')) ? logo.src : null,
-    wallpaper: (wallpaper && wallpaper.style.display !== 'none' && wallpaper.src && !wallpaper.src.endsWith('/')) ? wallpaper.src : null,
-    contractorFilter: document.getElementById('exp-contractor-filter').value || null,
-    categoryFilter: document.getElementById('exp-category-filter').value || null,
-    statusFilter: document.getElementById('exp-status-filter').value || null
+    logo: (logo && logo.style.display !== 'none' && logo.src && logo.src.length > 10) ? logo.src : null,
+    wallpaper: (wallpaper && wallpaper.style.display !== 'none' && wallpaper.src && wallpaper.src.length > 10) ? wallpaper.src : null,
+    contractorFilter: document.getElementById('exp-contractor-filter') ? document.getElementById('exp-contractor-filter').value || null : null,
+    categoryFilter: document.getElementById('exp-category-filter') ? document.getElementById('exp-category-filter').value || null : null,
+    statusFilter: document.getElementById('exp-status-filter') ? document.getElementById('exp-status-filter').value || null : null
   };
   loader(true, 'Generating Word report...');
-  fetch(API + '/projects/' + CUR_PROJECT._id + '/export/word', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
-    body: JSON.stringify(body)
-  }).then(function (res) {
-    if (!res.ok) return res.json().then(function (e) { throw e; });
-    return res.blob();
-  }).then(function (blob) {
-    loader(false);
-    var safeName = (CUR_PROJECT.name || 'report').replace(/[^a-zA-Z0-9]/g, '_');
-    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = safeName + '_Inspection.docx'; a.click();
-    toast('Word report downloaded', 'ok');
-  }).catch(function (err) { loader(false); toast((err && err.error) || 'Export failed', 'err'); });
+  fetch(API + '/projects/' + CUR_PROJECT._id + '/export/word', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN }, body: JSON.stringify(body) })
+    .then(function (res) { if (!res.ok) return res.json().then(function (e) { throw e; }); return res.blob(); })
+    .then(function (blob) { loader(false); var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = (CUR_PROJECT.name || 'report').replace(/[^a-zA-Z0-9]/g, '_') + '_Inspection.docx'; a.click(); toast('Word report downloaded', 'ok'); })
+    .catch(function (err) { loader(false); toast((err && err.error) || 'Export failed', 'err'); });
 };
+
 /* PREVENT DOUBLE-TAP ZOOM (but allow pinch zoom in viewer and annotation) */
 (function () {
   var last = 0;
   document.addEventListener('touchend', function (e) {
     if (e.target.closest('#photo-viewer') || e.target.closest('#anno-container') || e.target.closest('#plan-canvas-wrap')) return;
     var now = Date.now();
-        if (now - last <= 300) e.preventDefault();
+    if (now - last <= 300) e.preventDefault();
     last = now;
   }, false);
   document.addEventListener('gesturestart', function (e) {
@@ -3245,5 +3036,4 @@ document.getElementById('btn-export-word').onclick = function () {
 }());
 
 </script>
-</body>
 </html>
