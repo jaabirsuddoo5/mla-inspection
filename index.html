@@ -785,7 +785,7 @@ select.fi{cursor:pointer}
 #plan-canvas{position:absolute;top:0;left:0;touch-action:none;display:none}
 .plan-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--text4)}
 .plan-empty svg{width:40px;height:40px;stroke:currentColor;fill:none;stroke-width:1.5;opacity:0.4}
-.plan-pin{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.6)}
+.plan-pin{position:absolute;transform:translate(-50%,-50%);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.45);border:2.5px solid #fff;z-index:10;line-height:1;user-select:none}
 .plan-pin.open{background:var(--red)}.plan-pin.closed{background:var(--green)}.plan-pin.in_progress{background:var(--yellow)}
 .plan-ctrls{position:absolute;bottom:16px;right:16px;display:flex;flex-direction:column;gap:8px}
 .plan-ctrl{width:36px;height:36px;border-radius:8px;background:var(--card);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer}
@@ -1387,7 +1387,7 @@ select.fi{cursor:pointer}
         <div class="about-card" style="background:var(--bg2)">
           <h3>Contact &amp; Support</h3>
           <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:8px">Found a bug? Something not working the way you expected? Drop us a line — we actually read them.</p>
-          <p style="font-size:13px;font-weight:700;color:var(--text)">jaabirsuddoo5@gmail.com</p>
+          <p style="font-size:13px;font-weight:700;color:var(--text)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4e242f2f2c273c3d3b2a2a21217b0e29232f2722602d2123">[email&#160;protected]</a></p>
           <p style="font-size:11px;color:var(--text3);margin-top:8px">Happy inspecting! 🏗️ May your snag list always get shorter.</p>
         </div>
 
@@ -1621,6 +1621,18 @@ select.fi{cursor:pointer}
 </div>
 
 
+<!-- ══ PIN INFO POPUP ══ -->
+<div id="pin-info-popup" style="position:fixed;z-index:9070;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:0 8px 24px rgba(0,0,0,0.2);min-width:200px;max-width:280px;display:none">
+  <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">
+    <div id="pin-info-ref" style="font-size:11px;font-weight:800;padding:3px 10px;border-radius:50px;background:var(--brand);color:#fff;flex-shrink:0"></div>
+    <div id="pin-info-desc" style="font-size:13px;font-weight:600;color:var(--text);line-height:1.4;flex:1"></div>
+  </div>
+  <div id="pin-info-meta" style="font-size:11px;color:var(--text3);margin-bottom:12px;line-height:1.7"></div>
+  <button id="btn-pin-unpin" type="button" style="width:100%;padding:8px;background:var(--red-bg);color:var(--red);border:1px solid var(--red-light);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:Montserrat,sans-serif">
+    Remove Pin
+  </button>
+</div>
+
 <!-- ══ PIN PICKER SHEET ══ -->
 <div id="pin-picker-sheet" style="position:fixed;inset:0;z-index:9060;background:rgba(0,0,0,0.5);display:none;align-items:flex-end;justify-content:center">
   <div style="background:var(--card);border-radius:16px 16px 0 0;width:100%;max-width:500px;max-height:65vh;display:flex;flex-direction:column">
@@ -1686,7 +1698,7 @@ select.fi{cursor:pointer}
     </div>
   </div>
 </div>
-</body>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script></body>
 <script>
 /* ═══════════════════════════════════════════════
    MLA Inspection — Phase 3+4 Complete JS
@@ -2859,11 +2871,24 @@ function loadKonva(cb) { if (window.Konva) return cb(); var cdns = ['https://cdn
 function openAnnotation(imageSrc, cb) {
   ANNO_CB = cb; loadKonva(function () {
     var modal = document.getElementById('anno-modal'); modal.classList.add('show');
-    var container = document.getElementById('anno-container'), w = container.clientWidth, h = container.clientHeight;
+    var container = document.getElementById('anno-container');
+    var screenW = container.clientWidth, screenH = container.clientHeight;
     if (ANNO_STAGE) ANNO_STAGE.destroy(); ANNO_HIST = [];
-    ANNO_STAGE = new Konva.Stage({ container: 'anno-container', width: w, height: h });
-    var bgLayer = new Konva.Layer(); ANNO_LAYER = new Konva.Layer(); ANNO_STAGE.add(bgLayer); ANNO_STAGE.add(ANNO_LAYER);
-    var img = new Image(); img.onload = function () { var scale = Math.min(w / img.width, h / img.height), kImg = new Konva.Image({ image: img, x: (w - img.width * scale) / 2, y: (h - img.height * scale) / 2, width: img.width * scale, height: img.height * scale }); bgLayer.add(kImg); bgLayer.draw(); setupAnnoDrawing(); }; img.src = imageSrc;
+    var img = new Image();
+    img.onload = function () {
+      // Scale image to fit screen while preserving aspect ratio
+      var scale = Math.min(screenW / img.width, screenH / img.height);
+      var stageW = Math.round(img.width * scale);
+      var stageH = Math.round(img.height * scale);
+      // Stage matches scaled image exactly — no offset, no stretch
+      ANNO_STAGE = new Konva.Stage({ container: 'anno-container', width: stageW, height: stageH });
+      var bgLayer = new Konva.Layer(); ANNO_LAYER = new Konva.Layer();
+      ANNO_STAGE.add(bgLayer); ANNO_STAGE.add(ANNO_LAYER);
+      var kImg = new Konva.Image({ image: img, x: 0, y: 0, width: stageW, height: stageH });
+      bgLayer.add(kImg); bgLayer.draw();
+      setupAnnoDrawing();
+    };
+    img.src = imageSrc;
   });
 }
 function setupAnnoDrawing() {
@@ -2987,19 +3012,55 @@ function drawPlan() {
 function renderPlanPins() {
   var wrap = document.getElementById('plan-canvas-wrap');
   wrap.querySelectorAll('.plan-pin').forEach(function (p) { p.remove(); });
-  // Only render pins if a plan with an image is active
   if (!CUR_PLAN || !CUR_PLAN.image) return;
   CUR_ITEMS.filter(function (i) { return !i.deleted && i.pins && i.pins.some(function (pin) { return pin.planId === CUR_PLAN._id; }); }).forEach(function (item) {
     var pin = item.pins.find(function (p) { return p.planId === CUR_PLAN._id; }); if (!pin) return;
     var el = document.createElement('div'); el.className = 'plan-pin ' + (item.status || 'open');
-    el.textContent = item.seq || '?';
+    el.textContent = String(item.seq || '?');
     el.style.left = (pin.x * PLAN_SCALE + PLAN_OFFSET.x) + 'px';
-    el.style.top = (pin.y * PLAN_SCALE + PLAN_OFFSET.y) + 'px';
-    el.title = 'INS_' + String(item.seq || 0).padStart(3, '0') + ': ' + (item.description || '');
-    el.addEventListener('click', function () { toast('INS_' + String(item.seq || 0).padStart(3, '0') + ': ' + (item.description || ''), 'ok'); });
+    el.style.top  = (pin.y * PLAN_SCALE + PLAN_OFFSET.y) + 'px';
+    el.addEventListener('click', function (e) {
+      e.stopPropagation();
+      showPinInfo(item, e.clientX, e.clientY);
+    });
     wrap.appendChild(el);
   });
 }
+
+var PIN_INFO_ITEM = null;
+function showPinInfo(item, cx, cy) {
+  PIN_INFO_ITEM = item;
+  var popup = document.getElementById('pin-info-popup');
+  document.getElementById('pin-info-ref').textContent = 'INS_' + String(item.seq || 0).padStart(3, '0');
+  document.getElementById('pin-info-desc').textContent = item.description || 'No description';
+  var meta = [];
+  if (item.location) meta.push('📍 ' + item.location);
+  if (item.category) meta.push('🏷 ' + item.category);
+  if (item.priority) meta.push('⚡ ' + item.priority.charAt(0).toUpperCase() + item.priority.slice(1));
+  if (item.status)   meta.push('● ' + item.status.replace('_', ' ').replace(/\b\w/g, function(c){ return c.toUpperCase(); }));
+  document.getElementById('pin-info-meta').textContent = meta.join('  ·  ');
+  // Position popup near tap but keep within viewport
+  popup.style.display = 'block';
+  var pw = popup.offsetWidth || 260, ph = popup.offsetHeight || 120;
+  var vw = window.innerWidth, vh = window.innerHeight;
+  var left = Math.min(cx + 10, vw - pw - 12);
+  var top  = Math.min(cy - 10, vh - ph - 12);
+  if (top < 60) top = cy + 20;
+  popup.style.left = left + 'px';
+  popup.style.top  = top  + 'px';
+}
+function closePinInfo() { document.getElementById('pin-info-popup').style.display = 'none'; PIN_INFO_ITEM = null; }
+document.getElementById('btn-pin-unpin').onclick = function () {
+  if (!PIN_INFO_ITEM || !CUR_PLAN) return;
+  var pins = (PIN_INFO_ITEM.pins || []).filter(function (p) { return p.planId !== CUR_PLAN._id; });
+  api('PUT', '/items/' + PIN_INFO_ITEM._id, { pins: pins })
+    .then(function () { closePinInfo(); toast('Pin removed', 'ok'); reloadItems(); setTimeout(renderPlanPins, 400); })
+    .catch(function () { toast('Failed', 'err'); });
+};
+document.addEventListener('click', function (e) {
+  var popup = document.getElementById('pin-info-popup');
+  if (popup && popup.style.display !== 'none' && !popup.contains(e.target)) closePinInfo();
+});
 
 // Pin picker — bottom sheet instead of native prompt
 var PIN_PENDING_X = null, PIN_PENDING_Y = null;
@@ -3228,13 +3289,4 @@ document.getElementById('btn-export-word').onclick = function () {
   document.addEventListener('touchend', function (e) {
     if (e.target.closest('#photo-viewer') || e.target.closest('#anno-container') || e.target.closest('#plan-canvas-wrap')) return;
     var now = Date.now();
-    if (now - last <= 300) e.preventDefault();
-    last = now;
-  }, false);
-  document.addEventListener('gesturestart', function (e) {
-    if (!e.target.closest('#photo-viewer') && !e.target.closest('#anno-container')) e.preventDefault();
-  });
-}());
-
-</script>
-</html>
+    if (now - last <= 300) e.prevent
