@@ -747,7 +747,7 @@ select.fi{cursor:pointer}
 .plan-add-btn{flex-shrink:0;width:32px;height:32px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
 .plan-add-btn svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5}
 .plan-canvas-wrap{flex:1;position:relative;overflow:hidden;background:var(--bg3)}
-#plan-canvas{position:absolute;top:0;left:0;touch-action:none;display:none;pointer-events:none}
+#plan-canvas{position:absolute;top:0;left:0;touch-action:none;display:none}
 .plan-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--text4)}
 .plan-empty svg{width:40px;height:40px;stroke:currentColor;fill:none;stroke-width:1.5;opacity:0.4}
 .plan-pin{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.6)}
@@ -1222,7 +1222,7 @@ select.fi{cursor:pointer}
     </div>
 
     <!-- COVER TAB -->
-    <div class="pv-section" id="pvs-cover" style="padding:16px;gap:14px;overflow-y:auto">
+    <div class="pv-section" id="pvs-cover" style="padding:16px;gap:14px;overflow-y:auto;align-content:flex-start">
         <div class="acard">
           <div class="acard-title">Cover Page</div>
           <div class="fi-group" style="margin-bottom:10px">
@@ -2969,24 +2969,100 @@ document.getElementById('btn-pin-unpin').onclick = function () {
   api('PUT', '/items/' + PIN_INFO_ITEM._id, { pins: pins }).then(function () { closePinInfo(); toast('Pin removed', 'ok'); reloadItems(); setTimeout(renderPlanPins, 400); }).catch(function () { toast('Failed', 'err'); });
 };
 document.addEventListener('click', function (e) { var popup = document.getElementById('pin-info-popup'); if (popup && popup.style.display !== 'none' && !popup.contains(e.target)) closePinInfo(); });
-document.getElementById('plan-canvas-wrap').addEventListener('click', function (e) {
-  // Upload trigger
-  if (e.target.id === 'plan-empty' || e.target.closest('#plan-empty')) {
-    if (CUR_PLAN && !CUR_PLAN.image) document.getElementById('plan-img-input').click();
-    return;
+// ── Plan touch: pan + tap detection ──────────────
+var PLAN_TOUCH_START = null, PLAN_PANNING = false, PLAN_PAN_START = null;
+var planWrap = document.getElementById('plan-canvas-wrap');
+var planCanvas = document.getElementById('plan-canvas');
+
+planCanvas.addEventListener('touchstart', function (e) {
+  if (e.touches.length === 1) {
+    PLAN_TOUCH_START = { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now(), ox: PLAN_OFFSET.x, oy: PLAN_OFFSET.y };
+    PLAN_PANNING = false;
   }
-  // Skip if clicking on a pin or pin popup
-  if (e.target.closest('.plan-pin') || e.target.closest('#pin-info-popup')) return;
-  // Pin placement
+}, { passive: true });
+
+planCanvas.addEventListener('touchmove', function (e) {
+  if (e.touches.length === 1 && PLAN_TOUCH_START && PLAN_IMG) {
+    var dx = e.touches[0].clientX - PLAN_TOUCH_START.x;
+    var dy = e.touches[0].clientY - PLAN_TOUCH_START.y;
+    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) { PLAN_PANNING = true; }
+    if (PLAN_PANNING) {
+      PLAN_OFFSET.x = PLAN_PAN_START ? PLAN_PAN_START.ox + dx : PLAN_TOUCH_START.ox + dx;
+      PLAN_OFFSET.y = PLAN_PAN_START ? PLAN_PAN_START.oy + dy : PLAN_TOUCH_START.oy + dy;
+      drawPlan();
+    }
+  }
+}, { passive: true });
+
+planCanvas.addEventListener('touchend', function (e) {
+  if (!PLAN_TOUCH_START) return;
+  var dt = Date.now() - PLAN_TOUCH_START.t;
+  var dx = (e.changedTouches[0] ? e.changedTouches[0].clientX : PLAN_TOUCH_START.x) - PLAN_TOUCH_START.x;
+  var dy = (e.changedTouches[0] ? e.changedTouches[0].clientY : PLAN_TOUCH_START.y) - PLAN_TOUCH_START.y;
+  var isTap = !PLAN_PANNING && dt < 300 && Math.abs(dx) < 10 && Math.abs(dy) < 10;
+  if (isTap) {
+    var cx = e.changedTouches[0] ? e.changedTouches[0].clientX : PLAN_TOUCH_START.x;
+    var cy = e.changedTouches[0] ? e.changedTouches[0].clientY : PLAN_TOUCH_START.y;
+    handlePlanTap(cx, cy);
+  }
+  PLAN_TOUCH_START = null; PLAN_PANNING = false;
+}, { passive: true });
+
+// Mouse pan for desktop
+var PLAN_MOUSE_DOWN = false, PLAN_MOUSE_START = null;
+planCanvas.addEventListener('mousedown', function (e) {
+  if (e.button !== 0) return;
+  PLAN_MOUSE_DOWN = true;
+  PLAN_MOUSE_START = { x: e.clientX, y: e.clientY, ox: PLAN_OFFSET.x, oy: PLAN_OFFSET.y };
+});
+planCanvas.addEventListener('mousemove', function (e) {
+  if (!PLAN_MOUSE_DOWN || !PLAN_MOUSE_START) return;
+  PLAN_OFFSET.x = PLAN_MOUSE_START.ox + (e.clientX - PLAN_MOUSE_START.x);
+  PLAN_OFFSET.y = PLAN_MOUSE_START.oy + (e.clientY - PLAN_MOUSE_START.y);
+  drawPlan();
+});
+planCanvas.addEventListener('mouseup', function (e) {
+  var dx = e.clientX - (PLAN_MOUSE_START ? PLAN_MOUSE_START.x : e.clientX);
+  var dy = e.clientY - (PLAN_MOUSE_START ? PLAN_MOUSE_START.y : e.clientY);
+  if (Math.abs(dx) < 5 && Math.abs(dy) < 5) handlePlanTap(e.clientX, e.clientY);
+  PLAN_MOUSE_DOWN = false; PLAN_MOUSE_START = null;
+});
+planCanvas.addEventListener('mouseleave', function () { PLAN_MOUSE_DOWN = false; });
+
+function handlePlanTap(cx, cy) {
+  // Check if tap is on a pin
+  if (CUR_PLAN && CUR_PLAN.image) {
+    var hitPin = null;
+    CUR_ITEMS.forEach(function (item) {
+      if (!item.pins) return;
+      var pin = item.pins.find(function (p) { return p.planId === CUR_PLAN._id; });
+      if (!pin) return;
+      var px = pin.x * PLAN_SCALE + PLAN_OFFSET.x;
+      var py = pin.y * PLAN_SCALE + PLAN_OFFSET.y;
+      var rect = planCanvas.getBoundingClientRect();
+      var tapX = cx - rect.left, tapY = cy - rect.top;
+      if (Math.abs(tapX - px) < 20 && Math.abs(tapY - py) < 20) hitPin = item;
+    });
+    if (hitPin) { showPinInfo(hitPin, cx, cy); return; }
+  }
+  // Upload empty plan
+  if (!CUR_PLAN || !CUR_PLAN.image) { document.getElementById('plan-img-input').click(); return; }
+  // Pin placement mode
   if (!PLAN_PIN_MODE || !CUR_PLAN || !PLAN_IMG) return;
-  var canvas = document.getElementById('plan-canvas');
-  var rect = canvas.getBoundingClientRect();
-  PIN_PENDING_X = (e.clientX - rect.left - PLAN_OFFSET.x) / PLAN_SCALE;
-  PIN_PENDING_Y = (e.clientY - rect.top - PLAN_OFFSET.y) / PLAN_SCALE;
+  var rect = planCanvas.getBoundingClientRect();
+  PIN_PENDING_X = (cx - rect.left - PLAN_OFFSET.x) / PLAN_SCALE;
+  PIN_PENDING_Y = (cy - rect.top - PLAN_OFFSET.y) / PLAN_SCALE;
   var unpinned = CUR_ITEMS.filter(function (i) { return !i.deleted && (!i.pins || !i.pins.some(function (p) { return p.planId === CUR_PLAN._id; })); });
   if (!unpinned.length) { toast('All items already pinned', 'err'); return; }
   openPinPicker(unpinned);
+}
+
+planWrap.addEventListener('click', function (e) {
+  if (e.target.id === 'plan-empty' || e.target.closest('#plan-empty')) {
+    if (CUR_PLAN && !CUR_PLAN.image) document.getElementById('plan-img-input').click();
+  }
 });
+
 function openPinPicker(unpinned) {
   var sheet = document.getElementById('pin-picker-sheet'), list = document.getElementById('pin-picker-list');
   list.innerHTML = '';
