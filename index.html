@@ -746,8 +746,8 @@ select.fi{cursor:pointer}
 .plan-tab.on{background:var(--brand);color:#fff;border-color:var(--brand)}
 .plan-add-btn{flex-shrink:0;width:32px;height:32px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
 .plan-add-btn svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5}
-.plan-canvas-wrap{flex:1;position:relative;overflow:hidden;background:var(--bg3)}
-#plan-canvas{position:absolute;top:0;left:0;touch-action:none;display:none;pointer-events:none}
+.plan-canvas-wrap{flex:1;position:relative;overflow:hidden;background:var(--bg3);touch-action:none}
+#plan-canvas{position:absolute;top:0;left:0;touch-action:none;display:none}
 .plan-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--text4)}
 .plan-empty svg{width:40px;height:40px;stroke:currentColor;fill:none;stroke-width:1.5;opacity:0.4}
 .plan-pin{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.6)}
@@ -2778,8 +2778,8 @@ document.getElementById('anno-toolbar').addEventListener('click', function (e) {
   if (tool) { var t = tool.dataset.tool; if (t === 'undo') { var last = ANNO_HIST.pop(); if (last) { last.destroy(); ANNO_LAYER.draw(); } return; } if (t === 'clear') { ANNO_LAYER.destroyChildren(); ANNO_LAYER.draw(); ANNO_HIST = []; return; } ANNO_TOOL = t; document.querySelectorAll('.anno-tool').forEach(function (el) { el.classList.remove('on'); }); tool.classList.add('on'); }
   if (color) { ANNO_COLOR = color.dataset.color; document.querySelectorAll('.anno-color').forEach(function (el) { el.classList.remove('on'); }); color.classList.add('on'); }
 });
-document.getElementById('anno-done').onclick = function () { if (!ANNO_STAGE) return; var dataUrl = ANNO_STAGE.toDataURL({ pixelRatio: 1, mimeType: 'image/jpeg', quality: 0.7 }); document.getElementById('anno-modal').classList.remove('show'); if (ANNO_CB) ANNO_CB(dataUrl); ANNO_STAGE.destroy(); ANNO_STAGE = null; };
-document.getElementById('anno-cancel').onclick = function () { document.getElementById('anno-modal').classList.remove('show'); if (ANNO_STAGE) { ANNO_STAGE.destroy(); ANNO_STAGE = null; } };
+document.getElementById('anno-done').onclick = function () { if (!ANNO_STAGE) return; var pr = window.devicePixelRatio || 1; var dataUrl = ANNO_STAGE.toDataURL({ pixelRatio: pr, mimeType: 'image/jpeg', quality: 0.8 }); document.getElementById('anno-modal').classList.remove('show'); if (ANNO_CB) ANNO_CB(dataUrl); ANNO_STAGE.destroy(); ANNO_STAGE = null; };
+document.getElementById('anno-cancel').onclick = function () { document.getElementById('anno-modal').classList.remove('show'); if (ANNO_STAGE) { ANNO_STAGE.destroy(); ANNO_STAGE = null; } if (VIEWER_ID && VIEWER_FIELD) { viewPhoto(VIEWER_ID, VIEWER_FIELD); } };
 
 /* PLANS */
 function loadPlansTab() {
@@ -2878,6 +2878,8 @@ document.addEventListener('click', function (e) {
 });
 document.getElementById('plan-canvas-wrap').addEventListener('click', function (e) {
   if (e.target.id === 'plan-empty' || e.target.closest('#plan-empty')) { if (CUR_PLAN && !CUR_PLAN.image) document.getElementById('plan-img-input').click(); return; }
+});
+document.getElementById('plan-canvas').addEventListener('click', function (e) {
   if (e.target.closest('.plan-pin') || e.target.closest('#pin-info-popup')) return;
   if (!PLAN_PIN_MODE || !CUR_PLAN || !PLAN_IMG) return;
   var canvas = document.getElementById('plan-canvas');
@@ -2886,14 +2888,41 @@ document.getElementById('plan-canvas-wrap').addEventListener('click', function (
   var y = (e.clientY - rect.top - PLAN_OFFSET.y) / PLAN_SCALE;
   var unpinned = CUR_ITEMS.filter(function (i) { return !i.deleted && (!i.pins || !i.pins.some(function (p) { return p.planId === CUR_PLAN._id; })); });
   if (!unpinned.length) { toast('No unpinned items', 'err'); return; }
-  var choice = prompt('Pin which item?\n' + unpinned.map(function (i, idx) { return (idx + 1) + '. INS_' + String(i.seq || 0).padStart(3, '0') + ': ' + (i.description || '').substring(0, 30); }).join('\n'));
-  if (!choice) return;
-  var idx = parseInt(choice) - 1; if (idx < 0 || idx >= unpinned.length) return;
-  var item = unpinned[idx];
-  var pins = (item.pins || []).filter(function (p) { return p.planId !== CUR_PLAN._id; });
-  pins.push({ planId: CUR_PLAN._id, x: x, y: y });
-  api('PUT', '/items/' + item._id, { pins: pins }).then(function () { toast('Pinned', 'ok'); reloadItems(); setTimeout(renderPlanPins, 500); }).catch(function () { toast('Failed', 'err'); });
+  showPinPicker(unpinned, x, y);
 });
+
+function showPinPicker(unpinned, px, py) {
+  var existing = document.getElementById('pin-picker-sheet');
+  if (existing) existing.remove();
+  var sheet = document.createElement('div');
+  sheet.id = 'pin-picker-sheet';
+  sheet.style.cssText = 'position:fixed;inset:0;z-index:9500;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,0.3)';
+  var inner = document.createElement('div');
+  inner.style.cssText = 'background:var(--card);border-radius:16px 16px 0 0;max-height:60vh;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,20px)';
+  var handle = document.createElement('div');
+  handle.style.cssText = 'width:36px;height:4px;background:var(--line);border-radius:2px;margin:10px auto';
+  var title = document.createElement('div');
+  title.textContent = 'Pin which item?';
+  title.style.cssText = 'font-size:14px;font-weight:700;padding:8px 16px 12px;border-bottom:1px solid var(--line)';
+  var list = document.createElement('div');
+  list.style.cssText = 'overflow-y:auto;padding:8px 0';
+  unpinned.forEach(function (item) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer';
+    row.innerHTML = '<span style="font-size:12px;font-weight:700;color:var(--brand)">INS_' + String(item.seq || 0).padStart(3, '0') + '</span><span style="font-size:13px;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (item.description || 'No description') + '</span>';
+    row.addEventListener('click', function () {
+      sheet.remove();
+      var pins = (item.pins || []).filter(function (p) { return p.planId !== CUR_PLAN._id; });
+      pins.push({ planId: CUR_PLAN._id, x: px, y: py });
+      api('PUT', '/items/' + item._id, { pins: pins }).then(function () { toast('Pinned', 'ok'); reloadItems(); setTimeout(renderPlanPins, 500); }).catch(function () { toast('Failed', 'err'); });
+    });
+    list.appendChild(row);
+  });
+  inner.appendChild(handle); inner.appendChild(title); inner.appendChild(list);
+  sheet.appendChild(inner);
+  sheet.addEventListener('click', function (e) { if (e.target === sheet) sheet.remove(); });
+  document.body.appendChild(sheet);
+}
 document.getElementById('plan-img-input').onchange = function () {
   if (!this.files[0] || !CUR_PLAN) return;
   var reader = new FileReader(); reader.onload = function (e) { loader(true, 'Uploading plan...'); api('PUT', '/plans/' + CUR_PLAN._id, { image: e.target.result }).then(function () { loader(false); toast('Plan uploaded', 'ok'); CUR_PLAN.image = e.target.result; selectPlan(CUR_PLAN); }).catch(function () { loader(false); toast('Failed', 'err'); }); }; reader.readAsDataURL(this.files[0]);
@@ -2902,6 +2931,67 @@ document.getElementById('plan-mode-btn').onclick = function () { PLAN_PIN_MODE =
 document.getElementById('btn-plan-zin').onclick = function () { PLAN_SCALE *= 1.2; drawPlan(); };
 document.getElementById('btn-plan-zout').onclick = function () { PLAN_SCALE = Math.max(0.2, PLAN_SCALE / 1.2); drawPlan(); };
 document.getElementById('btn-plan-fit').onclick = function () { if (!PLAN_IMG) return; var wrap = document.getElementById('plan-canvas-wrap'); PLAN_SCALE = Math.min(wrap.clientWidth / PLAN_IMG.width, wrap.clientHeight / PLAN_IMG.height); PLAN_OFFSET = { x: 0, y: 0 }; drawPlan(); };
+
+/* Plan panning — touch + mouse drag */
+(function () {
+  var canvas = document.getElementById('plan-canvas');
+  var dragging = false, lastX = 0, lastY = 0, lastDist = null, startScale = 1;
+
+  canvas.addEventListener('mousedown', function (e) {
+    if (PLAN_PIN_MODE) return;
+    dragging = true; lastX = e.clientX; lastY = e.clientY;
+    canvas.style.cursor = 'grabbing';
+  });
+  window.addEventListener('mousemove', function (e) {
+    if (!dragging) return;
+    PLAN_OFFSET.x += e.clientX - lastX; PLAN_OFFSET.y += e.clientY - lastY;
+    lastX = e.clientX; lastY = e.clientY; drawPlan();
+  });
+  window.addEventListener('mouseup', function () { dragging = false; canvas.style.cursor = ''; });
+
+  canvas.addEventListener('touchstart', function (e) {
+    if (PLAN_PIN_MODE && e.touches.length === 1) return;
+    var t = e.touches;
+    if (t.length === 2) {
+      e.preventDefault();
+      lastDist = Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+      startScale = PLAN_SCALE;
+      lastX = (t[0].clientX + t[1].clientX) / 2; lastY = (t[0].clientY + t[1].clientY) / 2;
+    } else if (t.length === 1 && !PLAN_PIN_MODE) {
+      lastX = t[0].clientX; lastY = t[0].clientY; dragging = true;
+    }
+  }, { passive: false });
+  canvas.addEventListener('touchmove', function (e) {
+    var t = e.touches;
+    if (t.length === 2 && lastDist !== null) {
+      e.preventDefault();
+      var dist = Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+      PLAN_SCALE = Math.max(0.2, Math.min(10, startScale * (dist / lastDist)));
+      var mx = (t[0].clientX + t[1].clientX) / 2, my = (t[0].clientY + t[1].clientY) / 2;
+      PLAN_OFFSET.x += mx - lastX; PLAN_OFFSET.y += my - lastY;
+      lastX = mx; lastY = my; drawPlan();
+    } else if (t.length === 1 && dragging && !PLAN_PIN_MODE) {
+      e.preventDefault();
+      PLAN_OFFSET.x += t[0].clientX - lastX; PLAN_OFFSET.y += t[0].clientY - lastY;
+      lastX = t[0].clientX; lastY = t[0].clientY; drawPlan();
+    }
+  }, { passive: false });
+  canvas.addEventListener('touchend', function (e) {
+    dragging = false; if (e.touches.length < 2) lastDist = null;
+  });
+
+  canvas.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    var rect = canvas.getBoundingClientRect();
+    var mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    var oldScale = PLAN_SCALE;
+    PLAN_SCALE *= e.deltaY < 0 ? 1.15 : 1 / 1.15;
+    PLAN_SCALE = Math.max(0.2, Math.min(10, PLAN_SCALE));
+    PLAN_OFFSET.x = mx - (mx - PLAN_OFFSET.x) * (PLAN_SCALE / oldScale);
+    PLAN_OFFSET.y = my - (my - PLAN_OFFSET.y) * (PLAN_SCALE / oldScale);
+    drawPlan();
+  }, { passive: false });
+}());
 
 /* COVER TAB */
 function loadCoverTab() {
@@ -3012,9 +3102,20 @@ document.getElementById('btn-export-word').onclick = function () {
   };
   loader(true, 'Generating Word report...');
   fetch(API + '/projects/' + CUR_PROJECT._id + '/export/word', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN }, body: JSON.stringify(body) })
-    .then(function (res) { if (!res.ok) return res.json().then(function (e) { throw e; }); return res.blob(); })
-    .then(function (blob) { loader(false); var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = (CUR_PROJECT.name || 'report').replace(/[^a-zA-Z0-9]/g, '_') + '_Inspection.docx'; a.click(); toast('Word report downloaded', 'ok'); })
-    .catch(function (err) { loader(false); toast((err && err.error) || 'Export failed', 'err'); });
+    .then(function (res) {
+      if (!res.ok) {
+        return res.text().then(function (txt) {
+          try { var j = JSON.parse(txt); throw new Error(j.error || 'Export failed'); } catch (e) { if (e.message) throw e; throw new Error('Server error: ' + res.status); }
+        });
+      }
+      var ct = res.headers.get('content-type') || '';
+      if (ct.indexOf('application/vnd') === -1 && ct.indexOf('octet') === -1) {
+        return res.text().then(function (t) { throw new Error('Unexpected response: ' + t.substring(0, 120)); });
+      }
+      return res.blob();
+    })
+    .then(function (blob) { if (!(blob instanceof Blob)) return; loader(false); var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = (CUR_PROJECT.name || 'report').replace(/[^a-zA-Z0-9]/g, '_') + '_Inspection.docx'; document.body.appendChild(a); a.click(); document.body.removeChild(a); toast('Word report downloaded', 'ok'); })
+    .catch(function (err) { loader(false); console.error('Export error:', err); toast((err && err.message) || 'Export failed', 'err'); });
 };
 
 
