@@ -746,7 +746,7 @@ select.fi{cursor:pointer}
 .plan-tab.on{background:var(--brand);color:#fff;border-color:var(--brand)}
 .plan-add-btn{flex-shrink:0;width:32px;height:32px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
 .plan-add-btn svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5}
-.plan-canvas-wrap{flex:1;position:relative;overflow:hidden;background:var(--bg3);touch-action:none}
+.plan-canvas-wrap{flex:1;position:relative;overflow:hidden;background:var(--bg3)}
 #plan-canvas{position:absolute;top:0;left:0;touch-action:none;display:none}
 .plan-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--text4)}
 .plan-empty svg{width:40px;height:40px;stroke:currentColor;fill:none;stroke-width:1.5;opacity:0.4}
@@ -866,22 +866,6 @@ select.fi{cursor:pointer}
 /* ── MISC ── */
 #renew-modal{position:fixed;inset:0;z-index:9400;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
 #new-client-sheet,#tag-picker{position:fixed;inset:0;z-index:9400;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center}
-.pv-status-wrap{position:relative;flex-shrink:0}
-.pv-status-pill{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:50px;border:none;cursor:pointer;font-size:11px;font-weight:700;font-family:'Montserrat',Arial,sans-serif}
-.pv-status-pill.st-draft{background:rgba(255,255,255,0.15);color:#fff}
-.pv-status-pill.st-in_progress{background:#3B82F6;color:#fff}
-.pv-status-pill.st-under_review{background:#C78A20;color:#fff}
-.pv-status-pill.st-completed{background:#2D8653;color:#fff}
-.pv-status-dropdown{position:absolute;top:calc(100% + 6px);right:0;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.15);min-width:140px;z-index:300;overflow:hidden;display:none}
-.pv-status-dropdown.open{display:block}
-.pv-status-opt{padding:11px 16px;font-size:12px;font-weight:700;cursor:pointer;transition:background 0.15s}
-.pv-status-opt:hover{background:var(--bg2)}
-.pv-status-opt[data-val="draft"]{color:#888}
-.pv-status-opt[data-val="in_progress"]{color:#3B82F6}
-.pv-status-opt[data-val="under_review"]{color:#C78A20}
-.pv-status-opt[data-val="completed"]{color:#2D8653}
-.plan-pin{position:absolute;transform:translate(-50%,-50%);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.4);border:2.5px solid #fff;z-index:20}
-.plan-pin.open{background:var(--red)}.plan-pin.closed{background:var(--green)}.plan-pin.in_progress{background:var(--yellow)}
 </style>
 </head>
 <body>
@@ -1138,18 +1122,21 @@ select.fi{cursor:pointer}
     <button class="topbar-icon-btn" id="pv-collab-btn" type="button" title="Collaboration">
       <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     </button>
-    <div class="pv-status-wrap" id="pv-status-wrap">
-      <button class="pv-status-pill" id="pv-status-btn" type="button"><span id="pv-status-label">Draft</span><svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
-      <div class="pv-status-dropdown" id="pv-status-dropdown"><div class="pv-status-opt" data-val="draft">Draft</div><div class="pv-status-opt" data-val="in_progress">In Progress</div><div class="pv-status-opt" data-val="under_review">Under Review</div><div class="pv-status-opt" data-val="completed">Completed</div></div>
-    </div>
+    <button class="topbar-icon-btn" id="pv-export-btn" type="button" title="Export">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    </button>
+    <button class="topbar-icon-btn" id="pv-status-btn" type="button" title="Change status">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </button>
   </div>
 
   <div class="pv-tabs" id="pv-tabs">
     <div class="pvtab on" data-tab="inspection">Inspection</div>
     <div class="pvtab" data-tab="plan">Plans</div>
     <div class="pvtab" data-tab="cover">Cover</div>
-    <div class="pvtab" data-tab="export">Export</div>
-    <div class="pvtab" data-tab="trash">Recycle</div>
+    <div class="pvtab" data-tab="summary">Summary</div>
+    <div class="pvtab" data-tab="capture">Quick Capture</div>
+    <div class="pvtab" data-tab="trash">Trash</div>
     <div class="pvtab" data-tab="about">About</div>
   </div>
 
@@ -1204,23 +1191,14 @@ select.fi{cursor:pointer}
     </div>
 
     <!-- COVER TAB -->
-    <div class="pv-section" id="pvs-cover" style="background:var(--bg)">
+    <div class="pv-section" id="pvs-cover">
       <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:14px">
         <div class="acard">
           <div class="acard-title">Cover Page</div>
-          <div class="fi-group" style="margin-bottom:10px"><label class="fi-label">Project Title (leave blank to use project name)</label><input class="fi" id="cv-title" type="text" placeholder="Leave blank to use project name"/></div>
+          <div class="fi-group" style="margin-bottom:10px"><label class="fi-label">Project Title (override)</label><input class="fi" id="cv-title" type="text" placeholder="Leave blank to use project name"/></div>
           <div class="fi-group" style="margin-bottom:10px"><label class="fi-label">Site Address</label><input class="fi" id="cv-address" type="text" placeholder="Full site address"/></div>
           <div class="fi-group" style="margin-bottom:12px">
-            <label class="fi-label">Cover Wallpaper</label>
-            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-              <img id="cv-wallpaper-prev" src="" style="width:80px;height:50px;border-radius:8px;object-fit:cover;background:var(--bg2);border:1px solid var(--line);display:none"/>
-              <input type="file" id="cv-wallpaper-input" accept="image/*" style="display:none"/>
-              <button class="btn btn-outline btn-sm" id="btn-cv-wallpaper" type="button">Upload Wallpaper</button>
-              <button class="btn btn-outline btn-sm" id="btn-cv-wallpaper-rm" type="button" style="display:none;color:var(--red)">Remove</button>
-            </div>
-          </div>
-          <div class="fi-group" style="margin-bottom:12px">
-            <label class="fi-label">Company / Inspector Logo</label>
+            <label class="fi-label">Client Logo</label>
             <div style="display:flex;gap:10px;align-items:center">
               <img id="cv-logo-prev" src="" style="width:56px;height:56px;border-radius:8px;object-fit:contain;background:var(--bg2);border:1px solid var(--line);display:none"/>
               <input type="file" id="cv-logo-input" accept="image/*" style="display:none"/>
@@ -1228,11 +1206,36 @@ select.fi{cursor:pointer}
               <button class="btn btn-outline btn-sm" id="btn-cv-logo-rm" type="button" style="display:none;color:var(--red)">Remove</button>
             </div>
           </div>
-          <button class="btn" id="btn-save-cover" type="button">Save Cover</button>
+          <button class="btn" id="btn-save-cover" type="button">Save Cover Page</button>
+        </div>
+        <div id="cover-preview-card" style="display:none;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden">
+          <div class="cover-preview-inner">
+            <img class="cover-logo-img" id="cv-prev-logo"/>
+            <div class="cover-proj-title" id="cv-prev-title"></div>
+            <div class="cover-proj-ref" id="cv-prev-ref"></div>
+            <div class="cover-proj-addr" id="cv-prev-addr"></div>
+          </div>
+          <div style="padding:10px 14px;font-size:10px;color:var(--text4);text-align:center">Cover page preview</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUMMARY TAB -->
+    <div class="pv-section" id="pvs-summary">
+      <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:14px">
+        <div class="prog-card">
+          <div class="prog-title">Item Status Overview</div>
+          <div class="prog-bar-row"><div class="prog-bar-lbl">Open</div><div class="prog-bar-wrap"><div class="prog-bar-fill pbf-open" id="pb-open" style="width:0%"></div></div><div class="prog-bar-num" id="pbn-open">0</div></div>
+          <div class="prog-bar-row"><div class="prog-bar-lbl">In Progress</div><div class="prog-bar-wrap"><div class="prog-bar-fill pbf-prog" id="pb-prog" style="width:0%"></div></div><div class="prog-bar-num" id="pbn-prog">0</div></div>
+          <div class="prog-bar-row"><div class="prog-bar-lbl">Closed</div><div class="prog-bar-wrap"><div class="prog-bar-fill pbf-closed" id="pb-closed" style="width:0%"></div></div><div class="prog-bar-num" id="pbn-closed">0</div></div>
+        </div>
+        <div class="prog-card">
+          <div class="prog-title">Before / After per Visit</div>
+          <div id="visit-prog-list"><div class="empty-msg" style="padding:20px">No items yet</div></div>
         </div>
         <div class="acard">
           <div class="acard-title">Executive Summary</div>
-          <textarea class="fi" id="sum-text" rows="5" placeholder="Write an executive summary... (leave blank to omit from export)" style="resize:vertical"></textarea>
+          <textarea class="fi" id="sum-text" rows="5" placeholder="Write an executive summary..." style="resize:vertical"></textarea>
           <button class="btn" id="btn-save-sum" type="button" style="margin-top:10px">Save Summary</button>
         </div>
         <div class="acard">
@@ -1242,63 +1245,58 @@ select.fi{cursor:pointer}
         </div>
       </div>
     </div>
-    <!-- EXPORT TAB -->
-    <div class="pv-section" id="pvs-export" style="background:var(--bg)">
-      <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:14px">
+
+    <!-- QUICK CAPTURE TAB -->
+    <div class="pv-section" id="pvs-capture">
+      <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:12px">
         <div class="acard">
-          <div class="acard-title">Export Report</div>
-          <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6">Generate a professional Word document (.docx). Open in Word to adjust formatting.</p>
-          <div class="fi-group" style="margin-bottom:12px"><label class="fi-label">Filter by Contractor (optional)</label><select class="fi" id="exp-contractor-filter"><option value="">All contractors</option></select></div>
-          <div class="fi-group" style="margin-bottom:12px"><label class="fi-label">Filter by Category (optional)</label><select class="fi" id="exp-category-filter"><option value="">All categories</option></select></div>
-          <div class="fi-group" style="margin-bottom:16px"><label class="fi-label">Filter by Status (optional)</label><select class="fi" id="exp-status-filter"><option value="">All statuses</option><option value="open">Open only</option><option value="in_progress">In Progress only</option><option value="closed">Closed only</option></select></div>
-          <button class="btn btn-green" id="btn-export-word" type="button" style="width:100%;padding:14px;font-size:15px">&#8681; Download Word Report</button>
-        </div>
-        <div class="acard" style="background:var(--bg2)">
-          <div class="acard-title">What's included</div>
-          <ul style="font-size:12px;color:var(--text2);line-height:2;padding-left:16px">
-            <li>Cover page with wallpaper, logo &amp; project info</li>
-            <li>Table of contents</li>
-            <li>Executive summary (if filled)</li>
-            <li>Floor plans with name &amp; notes</li>
-            <li>All items: photo left, details right</li>
-            <li>Header &amp; footer on every page</li>
-          </ul>
+          <div class="acard-title">Quick Capture</div>
+          <div class="qc-photo-row">
+            <div class="qc-slot" id="qc-slot-before"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span>Before</span></div>
+            <div class="qc-slot" id="qc-slot-after"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span>After</span></div>
+          </div>
+          <div class="fi-group" style="margin-bottom:10px"><label class="fi-label">Description</label><textarea class="fi" id="qc-desc" rows="2" placeholder="Quick note..." style="resize:vertical"></textarea></div>
+          <div class="fi-row" style="margin-bottom:10px">
+            <div class="fi-group"><label class="fi-label">Category</label><select class="fi" id="qc-cat"></select></div>
+            <div class="fi-group"><label class="fi-label">Priority</label><select class="fi" id="qc-pri"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="critical">Critical</option></select></div>
+          </div>
+          <div class="fi-row" style="margin-bottom:12px">
+            <div class="fi-group"><label class="fi-label">Location</label>
+              <div class="smart-wrap"><input class="fi" id="qc-loc" type="text" placeholder="Location" autocomplete="off"/><div class="smart-dd-btn" id="sdd-btn-qc-loc"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="smart-dropdown" id="sdd-qc-loc"></div></div>
+            </div>
+            <div class="fi-group"><label class="fi-label">Contractor</label>
+              <div class="smart-wrap"><input class="fi" id="qc-con" type="text" placeholder="Contractor" autocomplete="off"/><div class="smart-dd-btn" id="sdd-btn-qc-con"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="smart-dropdown" id="sdd-qc-con"></div></div>
+            </div>
+          </div>
+          <button class="qc-save" id="btn-qc-save" type="button"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Item</button>
         </div>
       </div>
     </div>
+
     <!-- ABOUT TAB -->
-    <div class="pv-section" id="pvs-about" style="background:var(--bg)">
+    <div class="pv-section" id="pvs-about">
       <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:14px">
         <div class="about-logo-wrap"><img src="logo.png" alt="MLA"/><h2>MLA Inspection</h2><p>Professional Snagging &amp; Defect Management</p></div>
-        <div class="about-card"><h3>Getting Started</h3><ul>
-          <li>Create a project — <strong>Name</strong> and <strong>Ref No.</strong> are required</li>
-          <li>Open the project and go to <strong>Inspection</strong> tab to add items</li>
-          <li>Each item needs a <strong>Category</strong> before saving</li>
-        </ul></div>
-        <div class="about-card"><h3>Inspection Items</h3><ul>
+        <div class="about-card"><h3>How to Use</h3><ul>
           <li>Tap <strong>+ Add</strong> to create a snag item</li>
-          <li>Capture <strong>Before</strong> and <strong>After</strong> photos from your camera</li>
+          <li>Capture Before / After photos from your camera</li>
           <li>Annotate photos with arrows, circles, and text</li>
-          <li>Swipe right &#8594; <strong>Closed</strong> | left &#8594; <strong>In Progress</strong></li>
+          <li>Upload floor plans and pin items to exact locations</li>
+          <li><strong>Quick Capture</strong> tab for rapid entry</li>
+          <li>Swipe cards right → Closed &nbsp;|&nbsp; left → In Progress</li>
           <li>Group by Location, Category, Contractor, or Priority</li>
+          <li>Export A4 PDF or Word report with contractor filter</li>
+          <li>Invite collaborators to share a project</li>
         </ul></div>
-        <div class="about-card"><h3>Floor Plans</h3><ul>
-          <li>Go to <strong>Plans</strong> tab and tap <strong>+</strong> to add a plan</li>
-          <li>Upload an image (max 5MB)</li>
-          <li>Enable <strong>Pin Mode</strong> to drop pins on the plan</li>
-          <li>Tap a pin to see item info or remove it</li>
-        </ul></div>
-        <div class="about-card"><h3>Cover &amp; Export</h3><ul>
-          <li>Go to <strong>Cover</strong> tab — upload wallpaper, logo, fill project info</li>
-          <li>Go to <strong>Export</strong> tab and tap <strong>Download Word Report</strong></li>
-          <li>Open in Word to tweak formatting</li>
-        </ul></div>
-        <div class="about-card" style="background:var(--bg2)"><h3>Contact &amp; Support</h3>
-          <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:8px">Found a bug? Drop us a line.</p>
-          <p id="contact-email" style="font-size:13px;font-weight:700;color:var(--text)"></p>
-          <p style="font-size:11px;color:var(--text3);margin-top:8px">Happy inspecting! &#x1F3D7;</p>
+        <div class="about-card"><h3>Export Logo</h3>
+          <p>Upload your company logo — appears on PDF/Word cover pages only.</p>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+            <img id="about-exp-logo-prev" style="width:56px;height:56px;border-radius:8px;object-fit:contain;background:var(--bg2);border:1px solid var(--line);display:none"/>
+            <input type="file" id="about-exp-logo-input" accept="image/*" style="display:none"/>
+            <button class="btn btn-outline btn-sm" id="btn-about-exp-logo" type="button">Upload Export Logo</button>
+          </div>
         </div>
-        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v4.1 &#x2014; Always MLA</div>
+        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v3.0 — Phase 3+4 — Always MLA</div>
       </div>
     </div>
 
@@ -1345,7 +1343,7 @@ select.fi{cursor:pointer}
         <div class="smart-dd-btn" id="sdd-btn-sm-con"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
         <div class="smart-dropdown" id="sdd-sm-con"></div>
       </div></div>
-      <div class="fi-group"><label class="fi-label">Visit / Revision</label><select class="fi" id="sm-visit"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+      <div class="fi-group"><label class="fi-label">Visit #</label><select class="fi" id="sm-visit"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
     </div>
     <div class="fi-group"><label class="fi-label">Notes (internal — not exported)</label><textarea class="fi" id="sm-notes" rows="2" placeholder="Private notes..." style="resize:vertical"></textarea></div>
     <div class="fi-group">
@@ -1559,15 +1557,6 @@ select.fi{cursor:pointer}
   </div>
 </div>
 
-<!-- PIN INFO POPUP -->
-<div id="pin-info-popup" style="position:fixed;z-index:9500;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:0 8px 24px rgba(0,0,0,0.2);min-width:220px;max-width:280px;display:none">
-  <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px">
-    <div id="pin-info-ref" style="font-size:11px;font-weight:800;padding:3px 10px;border-radius:50px;background:var(--brand);color:#fff;flex-shrink:0"></div>
-    <div id="pin-info-desc" style="font-size:13px;font-weight:600;color:var(--text);line-height:1.4;flex:1"></div>
-  </div>
-  <div id="pin-info-meta" style="font-size:11px;color:var(--text3);margin-bottom:12px;line-height:1.8"></div>
-  <button id="btn-pin-unpin" type="button" style="width:100%;padding:8px;background:var(--red-bg);color:var(--red);border:1px solid var(--red-light);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:Montserrat,sans-serif">Remove Pin</button>
-</div>
 <!-- ══ TAG PICKER ══ -->
 <div id="tag-picker">
   <div style="background:var(--card);border-radius:16px 16px 0 0;width:100%;max-width:500px;max-height:60vh;display:flex;flex-direction:column">
@@ -1637,9 +1626,10 @@ var CUR_PROJECT = null, CUR_ITEMS = [], CUR_CATEGORIES = [], CUR_PLANS = [], CUR
 var FILTERS = { status: 'all', priority: 'all', category: 'all', sort: 'seq', group: 'none', search: '' };
 var SELECT_MODE = false, SELECTED = {};
 var SMART_DDS = {};
+var EXPORT_LOGO = null;
 var NP_TAGS = [], CLIENTS = [];
 var RENEW_UID = null, ADMIN_CHAT_UID = null;
-var contactEl = document.getElementById('contact-email'); if (contactEl) contactEl.textContent = ['jaabirsuddoo5', 'gmail.com'].join('@');
+var QC_PHOTOS = { before: null, after: null };
 var PLAN_SCALE = 1, PLAN_OFFSET = { x: 0, y: 0 }, PLAN_IMG = null, PLAN_PIN_MODE = false;
 
 /* INIT */
@@ -1771,6 +1761,7 @@ function doLogin() {
     USER = { name: res.name, id: res.id, expiry: res.expiry, companyId: res.companyId, featureTier: res.featureTier, features: res.features, onboardingSeen: res.onboardingSeen, exportLogo: res.exportLogo };
     sessionStorage.setItem('mla_token', TOKEN);
     sessionStorage.setItem('mla_user', JSON.stringify(USER));
+    if (res.exportLogo) { EXPORT_LOGO = res.exportLogo; refreshExportLogoPreviews(); }
     if (res.expiryWarning !== null && res.expiryWarning !== undefined) showExpiryBanner(res.expiryWarning);
     if (!USER.onboardingSeen) showOnboarding(function () { goProjects(); showWelcome(USER.name); });
     else { goProjects(); showWelcome(USER.name); }
@@ -2183,15 +2174,13 @@ document.getElementById('tag-picker').addEventListener('click', function (e) { i
 document.getElementById('btn-create-proj').onclick = function () {
   var name = document.getElementById('np-name').value.trim();
   if (!name) { toast('Enter project name', 'err'); return; }
-  var ref = document.getElementById('np-ref').value.trim();
-  if (!ref) { toast('Enter ref number', 'err'); return; }
   loader(true, 'Creating project...');
   api('POST', '/projects', { name: name, ref: document.getElementById('np-ref').value.trim(), date: document.getElementById('np-date').value, clientId: document.getElementById('np-client').value || undefined, tags: NP_TAGS })
     .then(function () { loader(false); document.getElementById('np-name').value = ''; document.getElementById('np-ref').value = ''; NP_TAGS = []; updateTagDisplay(); toast('Project created', 'ok'); loadProjects(); })
     .catch(function () { loader(false); toast('Failed', 'err'); });
 };
 function duplicateProject(pid) { loader(true, 'Duplicating...'); api('POST', '/projects/' + pid + '/duplicate').then(function () { loader(false); toast('Duplicated', 'ok'); loadProjects(); }).catch(function () { loader(false); toast('Failed', 'err'); }); }
-function deleteProject(pid) { if (!confirm('Delete this project and all its items?')) return; loader(true, 'Deleting...'); api('DELETE', '/projects/' + pid).then(function () { loader(false); toast('Project deleted'); loadProjects(); }).catch(function (e) { loader(false); if (e && e.error === 'not_owner') { alert("You can't delete this project.\nCreated by " + (e.ownerName || 'another user') + '.'); } else { toast('Failed', 'err'); } }); }
+function deleteProject(pid) { if (!confirm('Delete this project and all its items?')) return; loader(true, 'Deleting...'); api('DELETE', '/projects/' + pid).then(function () { loader(false); toast('Deleted'); loadProjects(); }).catch(function () { loader(false); toast('Failed', 'err'); }); }
 
 /* CHAT (Inspector) */
 document.getElementById('btn-chat-open').onclick = function () { openChat(); };
@@ -2301,9 +2290,9 @@ function openProject(pid) {
     CUR_ITEMS = r[1]; CUR_CATEGORIES = r[2];
     document.getElementById('pv-name').textContent = CUR_PROJECT.name;
     document.getElementById('pv-meta').textContent = (CUR_PROJECT.ref || 'No ref') + ' \u2014 ' + (CUR_PROJECT.date || '');
-    updateStatusPill(CUR_PROJECT.status||'draft');
     var catOpts = '<option value="" disabled selected>Select category...</option>' + CUR_CATEGORIES.map(function (c) { return '<option value="' + esc(c.name) + '">' + esc(c.name) + '</option>'; }).join('');
     document.getElementById('sm-cat').innerHTML = catOpts;
+    document.getElementById('qc-cat').innerHTML = catOpts;
     var fpCat = '<div class="fp-chip on" data-v="all">All</div>' + CUR_CATEGORIES.map(function (c) { return '<div class="fp-chip" data-v="' + esc(c.name) + '">' + esc(c.name) + '</div>'; }).join('');
     document.getElementById('fp-category').innerHTML = fpCat;
     populateVisitDD();
@@ -2312,7 +2301,7 @@ function openProject(pid) {
     goPage('p-project');
     switchPvTab('inspection');
     loadCoverTab();
-    loadCoverTab();
+    if (USER && USER.exportLogo) { EXPORT_LOGO = USER.exportLogo; refreshExportLogoPreviews(); }
   }).catch(function () { loader(false); toast('Failed to load project', 'err'); });
 }
 
@@ -2336,15 +2325,14 @@ function switchPvTab(tab) {
   if (se) se.classList.add('active');
   if (tab === 'trash') loadTrash();
   if (tab === 'plan') loadPlansTab();
-  if (tab === 'cover') loadCoverTab();
-  if (tab === 'export') loadExportTab();
+  if (tab === 'summary') loadSummaryTab();
 }
 
-var statusPill=document.getElementById('pv-status-btn'),statusDrop=document.getElementById('pv-status-dropdown');
-function updateStatusPill(s){var m={draft:'Draft',in_progress:'In Progress',under_review:'Under Review',completed:'Completed'};var l=document.getElementById('pv-status-label');if(l)l.textContent=m[s]||s;if(statusPill)statusPill.className='pv-status-pill st-'+(s||'draft');}
-if(statusPill)statusPill.onclick=function(e){e.stopPropagation();if(statusDrop)statusDrop.classList.toggle('open');};
-document.querySelectorAll('.pv-status-opt').forEach(function(opt){opt.addEventListener('click',function(e){e.stopPropagation();var val=this.dataset.val;if(!CUR_PROJECT)return;if(statusDrop)statusDrop.classList.remove('open');api('PUT','/projects/'+CUR_PROJECT._id,{status:val}).then(function(p){CUR_PROJECT.status=p.status;updateStatusPill(p.status);document.getElementById('pv-meta').textContent=(CUR_PROJECT.ref||'No ref')+' — '+(CUR_PROJECT.date||'');toast('Status: '+val.replace(/_/g,' '),'ok');}).catch(function(){toast('Failed','err');});});});
-document.addEventListener('click',function(){if(statusDrop)statusDrop.classList.remove('open');});
+document.getElementById('pv-status-btn').onclick = function () {
+  if (!CUR_PROJECT) return;
+  var sts = ['draft', 'in_progress', 'under_review'], cur = CUR_PROJECT.status || 'draft', next = sts[(sts.indexOf(cur) + 1) % sts.length];
+  api('PUT', '/projects/' + CUR_PROJECT._id, { status: next }).then(function (p) { CUR_PROJECT.status = p.status; document.getElementById('pv-meta').textContent = (CUR_PROJECT.ref || 'No ref') + ' \u2014 ' + (CUR_PROJECT.date || '') + ' \u2014 ' + p.status.replace(/_/g, ' '); toast('Status: ' + next.replace(/_/g, ' '), 'ok'); }).catch(function () { toast('Failed', 'err'); });
+};
 
 /* SNAG LIST */
 function renderSnagList() {
@@ -2372,7 +2360,7 @@ function renderSnagList() {
 }
 
 function buildSnagCard(item) {
-  var seq = 'INS_' + String(item.seq || 0).padStart(3, '0');
+  var seq = 'INS-' + String(item.seq || 0).padStart(3, '0');
   var card = document.createElement('div'); card.className = 'scard'; card.dataset.iid = item._id;
   var swR = document.createElement('div'); swR.className = 'scard-swipe-r'; swR.textContent = '\u2713 CLOSED';
   var swL = document.createElement('div'); swL.className = 'scard-swipe-l'; swL.textContent = '\u27f3 IN PROG';
@@ -2412,7 +2400,7 @@ function buildDetailHTML(item) {
     h += '<div class="sd-linked"><div class="sd-label">Linked Items</div><div class="sd-linked-list">';
     item.linkedItems.forEach(function (lid) {
       var lnk = CUR_ITEMS.find(function (i) { return i._id === lid || i._id === (lid._id || lid); });
-      if (lnk) { var ls = 'INS_' + String(lnk.seq || 0).padStart(3, '0'); h += '<div class="sd-linked-item"><span class="scard-seq ' + (lnk.status || 'open') + '" style="font-size:10px;padding:2px 8px">' + ls + '</span><span style="font-size:11px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(lnk.description || '') + '</span><button class="sd-unlink" data-sid="' + item._id + '" data-tid="' + lnk._id + '" type="button">\u2715</button></div>'; }
+      if (lnk) { var ls = 'INS-' + String(lnk.seq || 0).padStart(3, '0'); h += '<div class="sd-linked-item"><span class="scard-seq ' + (lnk.status || 'open') + '" style="font-size:10px;padding:2px 8px">' + ls + '</span><span style="font-size:11px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(lnk.description || '') + '</span><button class="sd-unlink" data-sid="' + item._id + '" data-tid="' + lnk._id + '" type="button">\u2715</button></div>'; }
     });
     h += '</div></div>';
   }
@@ -2483,7 +2471,7 @@ function filterItems(items) {
     if (f.status !== 'all' && i.status !== f.status) return false;
     if (f.priority !== 'all' && i.priority !== f.priority) return false;
     if (f.category !== 'all' && i.category !== f.category) return false;
-    if (f.search) { var s = f.search.toLowerCase(); if ((i.description || '').toLowerCase().indexOf(s) < 0 && (i.location || '').toLowerCase().indexOf(s) < 0 && (i.contractor || '').toLowerCase().indexOf(s) < 0 && ('INS_' + String(i.seq).padStart(3, '0')).indexOf(s) < 0) return false; }
+    if (f.search) { var s = f.search.toLowerCase(); if ((i.description || '').toLowerCase().indexOf(s) < 0 && (i.location || '').toLowerCase().indexOf(s) < 0 && (i.contractor || '').toLowerCase().indexOf(s) < 0 && ('INS-' + String(i.seq).padStart(3, '0')).indexOf(s) < 0) return false; }
     return true;
   });
   var po = { critical: 0, high: 1, medium: 2, low: 3 }, so = { open: 0, in_progress: 1, closed: 2 };
@@ -2524,7 +2512,7 @@ document.getElementById('btn-select-mode').onclick = function () { SELECT_MODE =
 function updateSelectCount() { document.getElementById('isb-count').textContent = Object.keys(SELECTED).length + ' selected'; }
 function cancelSelect() { SELECT_MODE = false; SELECTED = {}; document.getElementById('btn-select-mode').classList.remove('active'); document.getElementById('insp-select-bar').classList.remove('show'); renderSnagList(); }
 function bulkStatus(status) { var ids = Object.keys(SELECTED); if (!ids.length) { toast('Select items first', 'err'); return; } loader(true, 'Updating...'); api('POST', '/items/bulk-status', { itemIds: ids, status: status }).then(function () { loader(false); toast(ids.length + ' items \u2192 ' + status, 'ok'); cancelSelect(); reloadItems(); }).catch(function () { loader(false); toast('Failed', 'err'); }); }
-function reloadItems() { if (!CUR_PROJECT) return; api('GET', '/projects/' + CUR_PROJECT._id + '/items').then(function (items) { CUR_ITEMS = items; renderSnagList(); populateVisitDD(); }); }
+function reloadItems() { if (!CUR_PROJECT) return; api('GET', '/projects/' + CUR_PROJECT._id + '/items').then(function (items) { CUR_ITEMS = items; renderSnagList(); populateVisitDD(); loadSummaryTab(); }); }
 
 /* SNAG MODAL */
 var EDITING_ITEM = null, SNAG_PHOTOS = { before: null, after: null, extra: null };
@@ -2545,7 +2533,7 @@ document.getElementById('sm-cat').onchange = function () {
 function openSnagModal(item) {
   EDITING_ITEM = item;
   SNAG_PHOTOS = { before: item ? item.photo : null, after: item ? item.photoAfter : null, extra: item ? item.photoExtra : null };
-  document.getElementById('sm-title').textContent = item ? 'Edit INS_' + String(item.seq).padStart(3, '0') : 'New Item';
+  document.getElementById('sm-title').textContent = item ? 'Edit INS-' + String(item.seq).padStart(3, '0') : 'New Item';
   document.getElementById('sm-desc').value = item ? (item.description || '') : '';
   document.getElementById('sm-cat').value = item ? (item.category || '') : '';
   document.getElementById('sm-pri').value = item ? (item.priority || 'medium') : 'medium';
@@ -2607,7 +2595,7 @@ function openLinkPicker(itemId) {
   if (!avail.length) { el.innerHTML = '<div class="empty-msg" style="padding:30px">No other items to link.</div>'; }
   else { avail.forEach(function (i) {
     var row = document.createElement('div'); row.className = 'lp-item';
-    var s = 'INS_' + String(i.seq || 0).padStart(3, '0');
+    var s = 'INS-' + String(i.seq || 0).padStart(3, '0');
     row.innerHTML = '<div class="scard-seq ' + (i.status || 'open') + '" style="font-size:10px;padding:2px 8px">' + s + '</div><div class="lp-item-desc">' + esc(i.description || 'No description') + '</div><span class="pri pri-' + (i.priority || 'medium') + '" style="font-size:9px">' + (i.priority || 'medium') + '</span>';
     row.addEventListener('click', function () { linkSnag(i._id); });
     el.appendChild(row);
@@ -2628,7 +2616,7 @@ function loadTrash() {
     el.innerHTML = '';
     del.forEach(function (i) {
       var row = document.createElement('div'); row.className = 'trash-item';
-      var s = 'INS_' + String(i.seq || 0).padStart(3, '0'), ago = i.deletedAt ? timeSince(new Date(i.deletedAt)) : '';
+      var s = 'INS-' + String(i.seq || 0).padStart(3, '0'), ago = i.deletedAt ? timeSince(new Date(i.deletedAt)) : '';
       row.innerHTML = '<div class="trash-info"><div class="trash-name">' + s + ' \u2014 ' + esc(i.description || 'No description') + '</div><div class="trash-time">Deleted ' + ago + '</div></div>';
       var r = document.createElement('button'); r.className = 'trash-btn'; r.type = 'button'; r.textContent = 'Restore';
       r.addEventListener('click', function () { api('PATCH', '/items/' + i._id + '/restore').then(function () { toast('Restored', 'ok'); loadTrash(); reloadItems(); }).catch(function () { toast('Failed', 'err'); }); });
@@ -2779,7 +2767,7 @@ document.getElementById('anno-toolbar').addEventListener('click', function (e) {
   if (color) { ANNO_COLOR = color.dataset.color; document.querySelectorAll('.anno-color').forEach(function (el) { el.classList.remove('on'); }); color.classList.add('on'); }
 });
 document.getElementById('anno-done').onclick = function () { if (!ANNO_STAGE) return; var dataUrl = ANNO_STAGE.toDataURL({ pixelRatio: 1, mimeType: 'image/jpeg', quality: 0.7 }); document.getElementById('anno-modal').classList.remove('show'); if (ANNO_CB) ANNO_CB(dataUrl); ANNO_STAGE.destroy(); ANNO_STAGE = null; };
-document.getElementById('anno-cancel').onclick = function () { document.getElementById('anno-modal').classList.remove('show'); if (ANNO_STAGE) { ANNO_STAGE.destroy(); ANNO_STAGE = null; } if (VIEWER_ID && VIEWER_FIELD) viewPhoto(VIEWER_ID, VIEWER_FIELD); };
+document.getElementById('anno-cancel').onclick = function () { document.getElementById('anno-modal').classList.remove('show'); if (ANNO_STAGE) { ANNO_STAGE.destroy(); ANNO_STAGE = null; } };
 
 /* PLANS */
 function loadPlansTab() {
@@ -2933,105 +2921,84 @@ function loadSummaryTab() {
 document.getElementById('btn-save-sum').onclick = function () { api('PUT', '/projects/' + CUR_PROJECT._id, { summary: document.getElementById('sum-text').value.trim() }).then(function () { toast('Summary saved', 'ok'); }).catch(function () { toast('Failed', 'err'); }); };
 document.getElementById('btn-save-appendix').onclick = function () { api('PUT', '/projects/' + CUR_PROJECT._id, { appendix: document.getElementById('sum-appendix').value.trim() }).then(function () { toast('Appendix saved', 'ok'); }).catch(function () { toast('Failed', 'err'); }); };
 
-/* COVER TAB */
-function loadCoverTab() {
+/* EXPORT */
+document.getElementById('pv-export-btn').onclick = function () { openExportModal(); };
+function openExportModal() {
   if (!CUR_PROJECT) return;
-  var cv = CUR_PROJECT.cover || {};
-  document.getElementById('cv-title').value = cv.projectTitle || '';
-  document.getElementById('cv-address').value = cv.siteAddress || '';
-  var lp = document.getElementById('cv-logo-prev');
-  if (cv.logo && lp) { lp.src = cv.logo; lp.style.display = 'block'; var r = document.getElementById('btn-cv-logo-rm'); if (r) r.style.display = 'inline-block'; }
-  var wp = document.getElementById('cv-wallpaper-prev');
-  if (cv.wallpaper && wp) { wp.src = cv.wallpaper; wp.style.display = 'block'; var wr = document.getElementById('btn-cv-wallpaper-rm'); if (wr) wr.style.display = 'inline-block'; }
-  var st = document.getElementById('sum-text'); if (st) st.value = CUR_PROJECT.summary || '';
-  var sa = document.getElementById('sum-appendix'); if (sa) sa.value = CUR_PROJECT.appendix || '';
+  var contractors = [];
+  CUR_ITEMS.forEach(function (i) { if (i.contractor && contractors.indexOf(i.contractor) < 0) contractors.push(i.contractor); });
+  var list = document.getElementById('exp-contractor-list');
+  list.innerHTML = '';
+  if (!contractors.length) { list.innerHTML = '<div style="font-size:12px;color:var(--text3)">No contractors assigned \u2014 all items included.</div>'; }
+  else {
+    contractors.forEach(function (c) {
+      var cnt = CUR_ITEMS.filter(function (i) { return i.contractor === c; }).length;
+      var row = document.createElement('div'); row.className = 'exp-contractor-item';
+      var cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = true; cb.dataset.contractor = c;
+      var lbl = document.createElement('div'); lbl.style.cssText = 'flex:1;font-size:12px;font-weight:600'; lbl.textContent = c;
+      var cnt2 = document.createElement('div'); cnt2.style.cssText = 'font-size:10px;color:var(--text3)'; cnt2.textContent = cnt + ' items';
+      row.appendChild(cb); row.appendChild(lbl); row.appendChild(cnt2);
+      list.appendChild(row);
+    });
+  }
+  refreshExportLogoPreviews();
+  document.getElementById('export-modal').classList.add('show');
 }
-document.getElementById('btn-cv-logo').onclick = function () { document.getElementById('cv-logo-input').click(); };
-document.getElementById('cv-logo-input').onchange = function () {
-  if (!this.files[0]) return; var r = new FileReader(); r.onload = function (ev) { var lp = document.getElementById('cv-logo-prev'); lp.src = ev.target.result; lp.style.display = 'block'; document.getElementById('btn-cv-logo-rm').style.display = 'inline-block'; }; r.readAsDataURL(this.files[0]);
-};
-document.getElementById('btn-cv-logo-rm').onclick = function () { var lp = document.getElementById('cv-logo-prev'); lp.src = ''; lp.style.display = 'none'; this.style.display = 'none'; };
-document.getElementById('btn-cv-wallpaper').onclick = function () { document.getElementById('cv-wallpaper-input').click(); };
-document.getElementById('cv-wallpaper-input').onchange = function () {
-  if (!this.files[0]) return; var r = new FileReader(); r.onload = function (ev) { var wp = document.getElementById('cv-wallpaper-prev'); wp.src = ev.target.result; wp.style.display = 'block'; document.getElementById('btn-cv-wallpaper-rm').style.display = 'inline-block'; }; r.readAsDataURL(this.files[0]);
-};
-document.getElementById('btn-cv-wallpaper-rm').onclick = function () { var wp = document.getElementById('cv-wallpaper-prev'); wp.src = ''; wp.style.display = 'none'; this.style.display = 'none'; };
-document.getElementById('btn-save-cover').onclick = function () {
-  if (!CUR_PROJECT) return;
-  var lp = document.getElementById('cv-logo-prev'), wp = document.getElementById('cv-wallpaper-prev');
-  var cv = { projectTitle: document.getElementById('cv-title').value.trim(), siteAddress: document.getElementById('cv-address').value.trim(), logo: (lp && lp.style.display !== 'none') ? lp.src : null, wallpaper: (wp && wp.style.display !== 'none') ? wp.src : null };
-  api('PUT', '/projects/' + CUR_PROJECT._id, { cover: cv }).then(function (p) { CUR_PROJECT = p; toast('Cover saved', 'ok'); }).catch(function () { toast('Failed', 'err'); });
-};
-document.getElementById('btn-save-sum').onclick = function () { if (!CUR_PROJECT) return; api('PUT', '/projects/' + CUR_PROJECT._id, { summary: document.getElementById('sum-text').value.trim() }).then(function () { toast('Summary saved', 'ok'); }).catch(function () { toast('Failed', 'err'); }); };
-document.getElementById('btn-save-appendix').onclick = function () { if (!CUR_PROJECT) return; api('PUT', '/projects/' + CUR_PROJECT._id, { appendix: document.getElementById('sum-appendix').value.trim() }).then(function () { toast('Appendix saved', 'ok'); }).catch(function () { toast('Failed', 'err'); }); };
+document.getElementById('btn-export-close').onclick = function () { document.getElementById('export-modal').classList.remove('show'); };
+document.getElementById('btn-exp-logo-pick').onclick = function () { document.getElementById('exp-logo-input').click(); };
+document.getElementById('exp-logo-input').onchange = function () { if (!this.files[0]) return; var r = new FileReader(); r.onload = function (e) { EXPORT_LOGO = e.target.result; refreshExportLogoPreviews(); api('PUT', '/user/export-logo', { logo: EXPORT_LOGO }).then(function () { toast('Logo saved', 'ok'); }).catch(function () {}); }; r.readAsDataURL(this.files[0]); };
+document.getElementById('btn-about-exp-logo').onclick = function () { document.getElementById('about-exp-logo-input').click(); };
+document.getElementById('about-exp-logo-input').onchange = function () { if (!this.files[0]) return; var r = new FileReader(); r.onload = function (e) { EXPORT_LOGO = e.target.result; refreshExportLogoPreviews(); api('PUT', '/user/export-logo', { logo: EXPORT_LOGO }).then(function () { toast('Export logo saved', 'ok'); }).catch(function () {}); }; r.readAsDataURL(this.files[0]); };
+function refreshExportLogoPreviews() { ['exp-logo-preview', 'about-exp-logo-prev'].forEach(function (id) { var el = document.getElementById(id); if (el) { if (EXPORT_LOGO) { el.src = EXPORT_LOGO; el.style.display = 'block'; } else el.style.display = 'none'; } }); }
 
-/* EXPORT TAB */
-function loadExportTab() {
-  if (!CUR_PROJECT) return;
-  var contractors = [], categories = [];
-  CUR_ITEMS.forEach(function (i) { if (i.contractor && contractors.indexOf(i.contractor) < 0) contractors.push(i.contractor); if (i.category && categories.indexOf(i.category) < 0) categories.push(i.category); });
-  var sc = document.getElementById('exp-contractor-filter'); if (sc) { sc.innerHTML = '<option value="">All contractors</option>'; contractors.forEach(function (c) { sc.innerHTML += '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }); }
-  var scat = document.getElementById('exp-category-filter'); if (scat) { scat.innerHTML = '<option value="">All categories</option>'; categories.sort().forEach(function (c) { scat.innerHTML += '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }); }
+function getExportData() {
+  var contractors = [];
+  document.querySelectorAll('#exp-contractor-list input[type=checkbox]:checked').forEach(function (cb) { if (cb.dataset.contractor) contractors.push(cb.dataset.contractor); });
+  var inclClosed = document.getElementById('exp-incl-closed').checked;
+  var inclPhotos = document.getElementById('exp-incl-photos').checked;
+  var items = CUR_ITEMS.filter(function (i) { if (i.deleted) return false; if (!inclClosed && i.status === 'closed') return false; if (contractors.length && i.contractor && contractors.indexOf(i.contractor) < 0) return false; return true; });
+  return { items: items, inclPhotos: inclPhotos };
 }
-/* EXPORT — client-side .doc (works without server docx package) */
-var EXPORT_LOGO = null;
 
-document.getElementById('btn-export-word').onclick = function () {
-  if (!CUR_PROJECT) return;
-  var items = CUR_ITEMS.filter(function (i) { return !i.deleted; });
-  
-  /* Apply filters from export tab */
-  var cf = (document.getElementById('exp-contractor-filter') || {}).value;
-  var catf = (document.getElementById('exp-category-filter') || {}).value;
-  var sf = (document.getElementById('exp-status-filter') || {}).value;
-  if (cf) items = items.filter(function (i) { return i.contractor === cf; });
-  if (catf) items = items.filter(function (i) { return i.category === catf; });
-  if (sf) items = items.filter(function (i) { return i.status === sf; });
+document.getElementById('btn-exp-pdf').onclick = function () { doExport('pdf'); };
+document.getElementById('btn-exp-word').onclick = function () { doExport('word'); };
 
-  var cv = CUR_PROJECT.cover || {};
-  var title = cv.projectTitle || CUR_PROJECT.name || 'Report';
-  var ref = CUR_PROJECT.ref || '';
-  var date = CUR_PROJECT.date || '';
-  var addr = cv.siteAddress || CUR_PROJECT.address || '';
-  var logoSrc = (cv.clientLogo) || EXPORT_LOGO || '';
-  var logoHtml = logoSrc ? '<div style="text-align:center;margin-bottom:12pt"><img src="' + logoSrc + '" style="max-width:120pt;max-height:60pt"/></div>' : '';
+function doExport(type) {
+  var ed = getExportData(), items = ed.items, inclPhotos = ed.inclPhotos;
+  var cv = CUR_PROJECT.cover || {}, title = cv.projectTitle || CUR_PROJECT.name, ref = CUR_PROJECT.ref || '', date = CUR_PROJECT.date || '', addr = cv.siteAddress || CUR_PROJECT.address || '';
   var priC = { low: '#888', medium: '#C78A20', high: '#D94141', critical: '#D94141' };
   var stC = { open: '#D94141', in_progress: '#C78A20', closed: '#2D8653' };
 
-  var docHtml = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="UTF-8"/><style>@page{size:A4;margin:2cm}body{font-family:Calibri,Arial,sans-serif;margin:0;padding:0}h1{font-size:22pt;color:#333}h2{font-size:14pt;color:#4A4A4A;border-bottom:1pt solid #ccc;padding-bottom:4pt;margin-top:18pt}table{width:100%;border-collapse:collapse;margin-bottom:14pt}td{border:0.5pt solid #ddd;padding:6pt;font-size:10pt;vertical-align:top}.seq{background:#4A4A4A;color:#fff;padding:2pt 8pt;font-size:9pt;font-weight:bold}.photo{max-width:150pt;max-height:150pt}</style></head><body>';
-
-  /* Cover */
-  docHtml += '<div style="text-align:center;padding-top:80pt;page-break-after:always">' + logoHtml + '<h1 style="font-size:28pt;color:#1A1A1A">' + esc(title) + '</h1><p style="font-size:12pt;color:#888">INSPECTION REPORT</p><br/><p style="font-size:11pt;color:#555">' + esc(ref) + (ref && date ? ' | ' : '') + esc(date) + '</p>' + (addr ? '<p style="font-size:10pt;color:#888">' + esc(addr) + '</p>' : '') + '<br/><br/><p style="font-size:10pt;color:#aaa">' + items.length + ' items</p></div>';
-
-  /* Summary */
-  if (CUR_PROJECT.summary) docHtml += '<h2>Executive Summary</h2><p style="font-size:11pt;line-height:1.7;color:#333">' + esc(CUR_PROJECT.summary) + '</p>';
-
-  /* Items */
-  docHtml += '<h2>Observations &amp; Findings (' + items.length + ')</h2>';
-  items.forEach(function (item) {
-    var seq = 'INS_' + String(item.seq || 0).padStart(3, '0');
-    var photoHtml = '';
-    if (item.photo) photoHtml += '<td style="width:35%"><div style="font-size:8pt;color:#888">BEFORE</div><img class="photo" src="' + item.photo + '"/></td>';
-    if (item.photoAfter) photoHtml += '<td style="width:35%"><div style="font-size:8pt;color:#888">AFTER</div><img class="photo" src="' + item.photoAfter + '"/></td>';
-    docHtml += '<table><tr><td colspan="3"><span class="seq">' + seq + '</span> <strong>' + esc(item.description || '') + '</strong></td></tr>';
-    docHtml += '<tr><td>Status: <strong style="color:' + (stC[item.status] || '#888') + '">' + esc((item.status || 'open').replace(/_/g, ' ')) + '</strong></td><td>Priority: <strong style="color:' + (priC[item.priority] || '#888') + '">' + esc(item.priority || 'medium') + '</strong></td><td>Category: ' + esc(item.category || '\u2014') + '</td></tr>';
-    docHtml += '<tr><td>Location: ' + esc(item.location || '\u2014') + '</td><td>Contractor: ' + esc(item.contractor || '\u2014') + '</td><td>Visit #' + (item.visitNumber || 1) + '</td></tr>';
-    if (photoHtml) docHtml += '<tr>' + photoHtml + '</tr>';
-    if (item.notes) docHtml += '<tr><td colspan="3" style="font-style:italic;color:#666;font-size:9pt">Notes: ' + esc(item.notes) + '</td></tr>';
-    docHtml += '</table>';
-  });
-
-  docHtml += '</body></html>';
-  var blob = new Blob([docHtml], { type: 'application/msword' });
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = (title).replace(/[^a-zA-Z0-9]/g, '_') + '_Inspection.doc';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  toast('Word report downloaded', 'ok');
-};
-
+  if (type === 'pdf') {
+    var logoHtml = EXPORT_LOGO ? '<img src="' + EXPORT_LOGO + '" style="max-width:120px;max-height:80px;object-fit:contain;margin-bottom:16px"/>' : '';
+    var coverHtml = '<div style="page-break-after:always;background:#4A4A4A;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;padding:60px;text-align:center">' + logoHtml + '<div style="font-size:32px;font-weight:900;letter-spacing:0.5px;margin-bottom:8px">' + esc(title) + '</div><div style="font-size:14px;opacity:0.6">' + esc(ref) + (ref && date ? ' \u2014 ' : '') + esc(date) + '</div>' + (addr ? '<div style="font-size:12px;opacity:0.4;margin-top:12px">' + esc(addr) + '</div>' : '') + '<div style="position:absolute;bottom:40px;font-size:10px;opacity:0.3;letter-spacing:2px">MLA INSPECTION REPORT</div></div>';
+    var sumHtml = CUR_PROJECT.summary ? '<div style="page-break-after:always;padding:40px;font-family:Arial,sans-serif"><h2 style="font-size:18px;color:#4A4A4A;margin-bottom:16px">Executive Summary</h2><p style="font-size:13px;line-height:1.8;color:#333">' + esc(CUR_PROJECT.summary) + '</p></div>' : '';
+    var itemsHtml = items.map(function (item) {
+      var seq = 'INS-' + String(item.seq || 0).padStart(3, '0');
+      var photos = '';
+      if (inclPhotos) {
+        if (item.photo) photos += '<div style="display:inline-block;margin-right:8px"><img src="' + item.photo + '" style="width:160px;height:160px;object-fit:cover;border-radius:6px"/><div style="font-size:9px;text-align:center;color:#888;margin-top:3px">BEFORE</div></div>';
+        if (item.photoAfter) photos += '<div style="display:inline-block;margin-right:8px"><img src="' + item.photoAfter + '" style="width:160px;height:160px;object-fit:cover;border-radius:6px"/><div style="font-size:9px;text-align:center;color:#888;margin-top:3px">AFTER</div></div>';
+      }
+      return '<div style="padding:20px 0;border-bottom:1px solid #eee;font-family:Arial,sans-serif"><div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><span style="background:' + (stC[item.status] || '#888') + ';color:#fff;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700">' + seq + '</span><span style="font-size:13px;font-weight:700;flex:1">' + esc(item.description || '') + '</span><span style="font-size:10px;color:' + (priC[item.priority] || '#888') + ';font-weight:700;text-transform:uppercase">' + esc(item.priority || '') + '</span></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:11px;color:#666;margin-bottom:10px"><div><strong>Location:</strong> ' + esc(item.location || '\u2014') + '</div><div><strong>Contractor:</strong> ' + esc(item.contractor || '\u2014') + '</div><div><strong>Visit:</strong> #' + (item.visitNumber || 1) + '</div></div>' + (photos ? '<div style="margin-top:10px">' + photos + '</div>' : '') + '</div>';
+    }).join('');
+    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>@page{size:A4;margin:20mm}body{font-family:Arial,sans-serif;margin:0}</style></head><body>' + coverHtml + sumHtml + '<div style="padding:40px"><h2 style="font-size:16px;color:#4A4A4A;margin-bottom:4px">Inspection Report</h2><div style="font-size:11px;color:#888;margin-bottom:24px">' + items.length + ' items | Generated ' + new Date().toLocaleDateString() + '</div>' + itemsHtml + '</div></body></html>';
+    var w = window.open('', '_blank'); w.document.write(html); w.document.close(); setTimeout(function () { w.print(); }, 500);
+    toast('PDF opened \u2014 use browser print', 'ok');
+  } else {
+    var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office"><head><meta charset="UTF-8"/><style>body{font-family:Calibri,Arial,sans-serif;margin:2cm}h1{font-size:24pt;color:#4A4A4A}h2{font-size:14pt;color:#4A4A4A;border-bottom:1pt solid #ccc;padding-bottom:4pt}table{width:100%;border-collapse:collapse;margin-bottom:16pt}td{border:0.5pt solid #ddd;padding:6pt;font-size:10pt;vertical-align:top}.seq{background:#4A4A4A;color:#fff;padding:2pt 8pt;border-radius:3pt;font-size:9pt;font-weight:bold}img{max-width:150pt;max-height:150pt}</style></head><body><h1>' + esc(title) + '</h1><p>' + esc(ref) + (ref && date ? ' | ' : '') + esc(date) + (addr ? '<br/>' + esc(addr) : '') + '</p>' + (CUR_PROJECT.summary ? '<h2>Executive Summary</h2><p>' + esc(CUR_PROJECT.summary) + '</p>' : '') + '<h2>Inspection Items (' + items.length + ')</h2>';
+    items.forEach(function (item) {
+      var seq = 'INS-' + String(item.seq || 0).padStart(3, '0');
+      html += '<table><tr><td colspan="3"><span class="seq">' + seq + '</span> <strong>' + esc(item.description || '') + '</strong></td></tr><tr><td>Status: <strong>' + esc(item.status || '') + '</strong></td><td>Priority: <strong>' + esc(item.priority || '') + '</strong></td><td>Visit #' + (item.visitNumber || 1) + '</td></tr><tr><td>Location: ' + esc(item.location || '\u2014') + '</td><td colspan="2">Contractor: ' + esc(item.contractor || '\u2014') + '</td></tr>';
+      if (inclPhotos && (item.photo || item.photoAfter)) { html += '<tr>'; if (item.photo) html += '<td><div style="font-size:8pt;color:#888">BEFORE</div><img src="' + item.photo + '"/></td>'; if (item.photoAfter) html += '<td><div style="font-size:8pt;color:#888">AFTER</div><img src="' + item.photoAfter + '"/></td>'; html += '</tr>'; }
+      html += '</table>';
+    });
+    html += '</body></html>';
+    var blob = new Blob([html], { type: 'application/msword' }), a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = (title || 'report').replace(/[^a-zA-Z0-9]/g, '_') + '.doc'; a.click();
+    toast('Word document downloaded', 'ok');
+  }
+}
 
 /* PREVENT DOUBLE-TAP ZOOM (but allow pinch zoom in viewer and annotation) */
 (function () {
