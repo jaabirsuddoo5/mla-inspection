@@ -12,6 +12,8 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png"/>
 <title>MLA Inspection</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>if(typeof pdfjsLib !== 'undefined') pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
 <style>
 /* ═══════════════════════════════════════════════
    RESET & ROOT
@@ -444,7 +446,8 @@ select.fi{cursor:pointer}
 .pv-section{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;flex-direction:column}
 .pv-section.active{display:flex}
 
-/* Status pill dropdown */
+#pin-picker-sheet.show{display:flex}
+
 .pv-status-wrap{position:relative;flex-shrink:0}
 .pv-status-pill{
   display:flex;align-items:center;gap:5px;
@@ -1222,7 +1225,15 @@ select.fi{cursor:pointer}
             <button class="plan-ctrl" id="btn-plan-fit" type="button"><svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
           </div>
           <button class="plan-mode-btn" id="plan-mode-btn" type="button">📍 Pin Mode</button>
-          <input type="file" id="plan-img-input" accept="image/*" style="display:none"/>
+          <input type="file" id="plan-img-input" accept="image/*,application/pdf" style="display:none"/>
+        </div>
+        <!-- Plan note field -->
+        <div id="plan-note-bar" style="display:none;padding:8px 14px;background:var(--card);border-top:1px solid var(--line);gap:8px;align-items:center;flex-shrink:0">
+          <input class="fi" id="plan-note-input" type="text" placeholder="Plan note (e.g. Ground Floor — Electrical)" style="flex:1;font-size:12px;padding:8px 12px" autocomplete="off"/>
+          <button class="btn btn-outline btn-sm" id="btn-plan-note-save" type="button">Save</button>
+        </div>
+        <div id="plan-upload-hint" style="display:none;padding:6px 14px;font-size:10px;color:var(--text4);background:var(--bg2);border-top:1px solid var(--line);flex-shrink:0">
+          Tap the plan area to upload. Accepts image or PDF (max 5MB). PDF: first page will be used.
         </div>
       </div>
     </div>
@@ -1318,16 +1329,68 @@ select.fi{cursor:pointer}
     <div class="pv-section" id="pvs-about">
       <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:14px">
         <div class="about-logo-wrap"><img src="logo.png" alt="MLA"/><h2>MLA Inspection</h2><p>Professional Snagging &amp; Defect Management</p></div>
-        <div class="about-card"><h3>How to Use</h3><ul>
-          <li>Tap <strong>+ Add</strong> to create a snag item</li>
-          <li>Capture Before / After photos from your camera</li>
-          <li>Annotate photos with arrows, circles, and text</li>
-          <li>Upload floor plans and pin items to exact locations</li>
-          <li>Swipe cards right → Closed &nbsp;|&nbsp; left → In Progress</li>
-          <li>Group by Location, Category, Contractor, or Priority</li>
-          <li>Use the <strong>Export</strong> tab to download a Word report</li>
-          <li>Invite collaborators to share a project</li>
-        </ul></div>
+
+        <div class="about-card">
+          <h3>Getting Started</h3>
+          <ul>
+            <li>Login with your credentials provided by your admin</li>
+            <li>Create a project — <strong>Name</strong> and <strong>Ref No.</strong> are required</li>
+            <li>Open the project and go to <strong>Inspection</strong> tab to add items</li>
+            <li>Each item needs a <strong>Category</strong> before saving</li>
+          </ul>
+        </div>
+
+        <div class="about-card">
+          <h3>Inspection Items</h3>
+          <ul>
+            <li>Tap <strong>+ Add</strong> to create a snag item</li>
+            <li>Capture <strong>Before</strong> and <strong>After</strong> photos from your camera</li>
+            <li>Add up to <strong>10 additional photos</strong> per item</li>
+            <li>Annotate photos with arrows, circles, and text</li>
+            <li>Swipe a card right → <strong>Closed</strong> &nbsp;|&nbsp; left → <strong>In Progress</strong></li>
+            <li>Group items by Location, Category, Contractor, or Priority</li>
+          </ul>
+        </div>
+
+        <div class="about-card">
+          <h3>Floor Plans</h3>
+          <ul>
+            <li>Go to <strong>Plans</strong> tab and tap <strong>+</strong> to add a plan</li>
+            <li>Upload an image or PDF (max 5MB) — PDF uses first page</li>
+            <li>Add a note to each plan for reference</li>
+            <li>Enable <strong>Pin Mode</strong> to drop location pins on the plan</li>
+            <li>Tap any pin to see the linked item</li>
+          </ul>
+        </div>
+
+        <div class="about-card">
+          <h3>Cover &amp; Export</h3>
+          <ul>
+            <li>Go to <strong>Cover</strong> tab to upload a wallpaper, logo and fill project info</li>
+            <li>Add an Executive Summary and Appendix notes</li>
+            <li>Go to <strong>Export</strong> tab and tap <strong>Download Word Report</strong></li>
+            <li>The report includes cover page, table of contents, summary, plans and all items</li>
+            <li>Open in Word to tweak formatting — it's your document now 🏗️</li>
+          </ul>
+        </div>
+
+        <div class="about-card">
+          <h3>Collaboration</h3>
+          <ul>
+            <li>Tap the <strong>people icon</strong> in the project header to invite collaborators</li>
+            <li>Invite by username or email</li>
+            <li>Collaborators can view and edit items but cannot delete the project</li>
+            <li>Project owner can remove collaborators at any time</li>
+          </ul>
+        </div>
+
+        <div class="about-card" style="background:var(--bg2)">
+          <h3>Contact &amp; Support</h3>
+          <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:8px">Found a bug? Something not working the way you expected? Drop us a line — we actually read them.</p>
+          <p style="font-size:13px;font-weight:700;color:var(--text)">jaabirsuddoo5@gmail.com</p>
+          <p style="font-size:11px;color:var(--text3);margin-top:8px">Happy inspecting! 🏗️ May your snag list always get shorter.</p>
+        </div>
+
         <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v4.0 — Always MLA</div>
       </div>
     </div>
@@ -1557,6 +1620,18 @@ select.fi{cursor:pointer}
   </div>
 </div>
 
+
+<!-- ══ PIN PICKER SHEET ══ -->
+<div id="pin-picker-sheet" style="position:fixed;inset:0;z-index:9060;background:rgba(0,0,0,0.5);display:none;align-items:flex-end;justify-content:center">
+  <div style="background:var(--card);border-radius:16px 16px 0 0;width:100%;max-width:500px;max-height:65vh;display:flex;flex-direction:column">
+    <div class="lp-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px 10px">
+      <div class="lp-title" style="margin:0;padding:0">Pin which item?</div>
+      <button id="btn-pin-picker-close" type="button" style="background:none;border:none;font-size:18px;color:var(--text3);cursor:pointer;padding:4px">✕</button>
+    </div>
+    <div id="pin-picker-list" style="overflow-y:auto;padding:0 8px 16px;display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+</div>
 
 <!-- ══ TAG PICKER ══ -->
 <div id="tag-picker">
@@ -2180,7 +2255,20 @@ document.getElementById('btn-create-proj').onclick = function () {
     .catch(function () { loader(false); toast('Failed', 'err'); });
 };
 function duplicateProject(pid) { loader(true, 'Duplicating...'); api('POST', '/projects/' + pid + '/duplicate').then(function () { loader(false); toast('Duplicated', 'ok'); loadProjects(); }).catch(function () { loader(false); toast('Failed', 'err'); }); }
-function deleteProject(pid) { if (!confirm('Delete this project and all its items?')) return; loader(true, 'Deleting...'); api('DELETE', '/projects/' + pid).then(function () { loader(false); toast('Deleted'); loadProjects(); }).catch(function () { loader(false); toast('Failed', 'err'); }); }
+function deleteProject(pid) {
+  if (!confirm('Delete this project and all its items?')) return;
+  loader(true, 'Deleting...');
+  api('DELETE', '/projects/' + pid)
+    .then(function () { loader(false); toast('Project deleted'); loadProjects(); })
+    .catch(function (e) {
+      loader(false);
+      if (e.error === 'not_owner') {
+        alert('You can\'t delete this project.\nIt was created by ' + (e.ownerName || 'another user') + '.');
+      } else {
+        toast('Failed', 'err');
+      }
+    });
+}
 
 /* CHAT (Inspector) */
 document.getElementById('btn-chat-open').onclick = function () { openChat(); };
@@ -2815,7 +2903,13 @@ function loadPlansTab() {
   api('GET', '/projects/' + CUR_PROJECT._id + '/plans').then(function (plans) {
     CUR_PLANS = plans;
     renderPlanTabs();
-    if (plans.length) selectPlan(plans[0]); else { document.getElementById('plan-empty').style.display = 'flex'; document.getElementById('plan-canvas').style.display = 'none'; }
+    if (plans.length) selectPlan(plans[0]);
+    else {
+      document.getElementById('plan-empty').style.display = 'flex';
+      document.getElementById('plan-canvas').style.display = 'none';
+      document.getElementById('plan-note-bar').style.display = 'none';
+      document.getElementById('plan-upload-hint').style.display = 'none';
+    }
   }).catch(function () { toast('Failed to load plans', 'err'); });
 }
 function renderPlanTabs() {
@@ -2836,13 +2930,41 @@ function renderPlanTabs() {
 function selectPlan(plan) {
   CUR_PLAN = plan;
   document.querySelectorAll('.plan-tab').forEach(function (t) { t.classList.toggle('on', t.textContent === plan.name); });
-  if (plan.image) { document.getElementById('plan-empty').style.display = 'none'; renderPlanCanvas(plan); }
-  else { document.getElementById('plan-empty').style.display = 'flex'; document.getElementById('plan-canvas').style.display = 'none'; }
+  // Show note bar always when a plan is selected
+  var noteBar = document.getElementById('plan-note-bar');
+  var noteInput = document.getElementById('plan-note-input');
+  var hintEl = document.getElementById('plan-upload-hint');
+  noteBar.style.display = 'flex';
+  noteInput.value = plan.note || '';
+  if (plan.image) {
+    document.getElementById('plan-empty').style.display = 'none';
+    document.getElementById('plan-canvas').style.display = 'block';
+    hintEl.style.display = 'none';
+    renderPlanCanvas(plan);
+  } else {
+    document.getElementById('plan-empty').style.display = 'flex';
+    document.getElementById('plan-canvas').style.display = 'none';
+    hintEl.style.display = 'block';
+    // Clear any leftover pins from previous plan
+    document.getElementById('plan-canvas-wrap').querySelectorAll('.plan-pin').forEach(function (p) { p.remove(); });
+  }
 }
 function addPlan() {
   var name = prompt('Plan name:', 'Floor Plan ' + (CUR_PLANS.length + 1)); if (!name) return;
-  api('POST', '/projects/' + CUR_PROJECT._id + '/plans', { name: name, order: CUR_PLANS.length }).then(function () { loadPlansTab(); toast('Plan added', 'ok'); }).catch(function () { toast('Failed', 'err'); });
+  api('POST', '/projects/' + CUR_PROJECT._id + '/plans', { name: name, order: CUR_PLANS.length })
+    .then(function () { loadPlansTab(); toast('Plan added', 'ok'); })
+    .catch(function () { toast('Failed', 'err'); });
 }
+
+// Note save
+document.getElementById('btn-plan-note-save').onclick = function () {
+  if (!CUR_PLAN) return;
+  var note = document.getElementById('plan-note-input').value.trim();
+  api('PUT', '/plans/' + CUR_PLAN._id, { note: note })
+    .then(function () { CUR_PLAN.note = note; toast('Note saved', 'ok'); })
+    .catch(function () { toast('Failed', 'err'); });
+};
+
 function renderPlanCanvas(plan) {
   var wrap = document.getElementById('plan-canvas-wrap'), canvas = document.getElementById('plan-canvas');
   canvas.style.display = 'block';
@@ -2865,7 +2987,8 @@ function drawPlan() {
 function renderPlanPins() {
   var wrap = document.getElementById('plan-canvas-wrap');
   wrap.querySelectorAll('.plan-pin').forEach(function (p) { p.remove(); });
-  if (!CUR_PLAN) return;
+  // Only render pins if a plan with an image is active
+  if (!CUR_PLAN || !CUR_PLAN.image) return;
   CUR_ITEMS.filter(function (i) { return !i.deleted && i.pins && i.pins.some(function (pin) { return pin.planId === CUR_PLAN._id; }); }).forEach(function (item) {
     var pin = item.pins.find(function (p) { return p.planId === CUR_PLAN._id; }); if (!pin) return;
     var el = document.createElement('div'); el.className = 'plan-pin ' + (item.status || 'open');
@@ -2877,28 +3000,93 @@ function renderPlanPins() {
     wrap.appendChild(el);
   });
 }
+
+// Pin picker — bottom sheet instead of native prompt
+var PIN_PENDING_X = null, PIN_PENDING_Y = null;
 document.getElementById('plan-canvas').addEventListener('click', function (e) {
   if (!PLAN_PIN_MODE || !CUR_PLAN || !PLAN_IMG) return;
   var rect = this.getBoundingClientRect();
-  var x = (e.clientX - rect.left - PLAN_OFFSET.x) / PLAN_SCALE;
-  var y = (e.clientY - rect.top - PLAN_OFFSET.y) / PLAN_SCALE;
+  PIN_PENDING_X = (e.clientX - rect.left - PLAN_OFFSET.x) / PLAN_SCALE;
+  PIN_PENDING_Y = (e.clientY - rect.top - PLAN_OFFSET.y) / PLAN_SCALE;
   var unpinned = CUR_ITEMS.filter(function (i) { return !i.deleted && (!i.pins || !i.pins.some(function (p) { return p.planId === CUR_PLAN._id; })); });
-  if (!unpinned.length) { toast('No unpinned items', 'err'); return; }
-  var choice = prompt('Pin which item?\n' + unpinned.map(function (i, idx) { return (idx + 1) + '. INS_' + String(i.seq || 0).padStart(3, '0') + ': ' + (i.description || '').substring(0, 30); }).join('\n'));
-  if (!choice) return;
-  var idx = parseInt(choice) - 1; if (idx < 0 || idx >= unpinned.length) return;
-  var item = unpinned[idx];
-  var pins = (item.pins || []).filter(function (p) { return p.planId !== CUR_PLAN._id; });
-  pins.push({ planId: CUR_PLAN._id, x: x, y: y });
-  api('PUT', '/items/' + item._id, { pins: pins }).then(function () { toast('Pinned', 'ok'); reloadItems(); setTimeout(renderPlanPins, 500); }).catch(function () { toast('Failed', 'err'); });
+  if (!unpinned.length) { toast('All items are already pinned', 'err'); return; }
+  openPinPicker(unpinned);
 });
+
+function openPinPicker(unpinned) {
+  var sheet = document.getElementById('pin-picker-sheet');
+  var list = document.getElementById('pin-picker-list');
+  list.innerHTML = '';
+  unpinned.forEach(function (item) {
+    var row = document.createElement('div'); row.className = 'lp-item';
+    var ref = 'INS_' + String(item.seq || 0).padStart(3, '0');
+    row.innerHTML = '<div class="scard-seq ' + (item.status || 'open') + '" style="font-size:10px;padding:2px 8px;flex-shrink:0">' + ref + '</div>' +
+      '<div class="lp-item-desc" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(item.description || 'No description') + '</div>' +
+      '<span class="pri pri-' + (item.priority || 'medium') + '" style="font-size:9px;flex-shrink:0">' + (item.priority || 'medium') + '</span>';
+    row.addEventListener('click', function () {
+      closePinPicker();
+      var pins = (item.pins || []).filter(function (p) { return p.planId !== CUR_PLAN._id; });
+      pins.push({ planId: CUR_PLAN._id, x: PIN_PENDING_X, y: PIN_PENDING_Y });
+      api('PUT', '/items/' + item._id, { pins: pins })
+        .then(function () { toast('Pinned ' + ref, 'ok'); reloadItems(); setTimeout(renderPlanPins, 400); })
+        .catch(function () { toast('Failed', 'err'); });
+    });
+    list.appendChild(row);
+  });
+  sheet.classList.add('show');
+}
+function closePinPicker() { document.getElementById('pin-picker-sheet').classList.remove('show'); }
+document.getElementById('btn-pin-picker-close').onclick = closePinPicker;
+document.getElementById('pin-picker-sheet').addEventListener('click', function (e) { if (e.target === this) closePinPicker(); });
+
 document.getElementById('plan-canvas-wrap').addEventListener('click', function (e) {
-  if (e.target.id === 'plan-empty' || e.target.closest('#plan-empty')) { if (CUR_PLAN && !CUR_PLAN.image) document.getElementById('plan-img-input').click(); }
+  if (e.target.id === 'plan-empty' || e.target.closest('#plan-empty')) {
+    if (CUR_PLAN && !CUR_PLAN.image) document.getElementById('plan-img-input').click();
+  }
 });
+
+// Plan image upload — supports image + PDF (PDF.js renders page 1)
 document.getElementById('plan-img-input').onchange = function () {
   if (!this.files[0] || !CUR_PLAN) return;
-  var reader = new FileReader(); reader.onload = function (e) { loader(true, 'Uploading plan...'); api('PUT', '/plans/' + CUR_PLAN._id, { image: e.target.result }).then(function () { loader(false); toast('Plan uploaded', 'ok'); CUR_PLAN.image = e.target.result; selectPlan(CUR_PLAN); }).catch(function () { loader(false); toast('Failed', 'err'); }); }; reader.readAsDataURL(this.files[0]);
+  var file = this.files[0];
+  var MAX_BYTES = 5 * 1024 * 1024;
+  if (file.size > MAX_BYTES) { toast('File too large — max 5MB', 'err'); this.value = ''; return; }
+  if (file.type === 'application/pdf') {
+    // Render PDF page 1 via PDF.js
+    var reader = new FileReader();
+    reader.onload = function (ev) {
+      var pdfData = new Uint8Array(ev.target.result);
+      if (typeof pdfjsLib === 'undefined') { toast('PDF.js not loaded', 'err'); return; }
+      pdfjsLib.getDocument({ data: pdfData }).promise.then(function (pdf) {
+        return pdf.getPage(1);
+      }).then(function (page) {
+        var viewport = page.getViewport({ scale: 2 });
+        var tmpCanvas = document.createElement('canvas');
+        tmpCanvas.width = viewport.width; tmpCanvas.height = viewport.height;
+        var ctx = tmpCanvas.getContext('2d');
+        return page.render({ canvasContext: ctx, viewport: viewport }).promise.then(function () {
+          return tmpCanvas.toDataURL('image/jpeg', 0.85);
+        });
+      }).then(function (dataUrl) {
+        loader(true, 'Uploading plan...');
+        api('PUT', '/plans/' + CUR_PLAN._id, { image: dataUrl })
+          .then(function () { loader(false); toast('PDF plan uploaded', 'ok'); CUR_PLAN.image = dataUrl; selectPlan(CUR_PLAN); })
+          .catch(function () { loader(false); toast('Failed', 'err'); });
+      }).catch(function (err) { toast('Could not read PDF', 'err'); console.error(err); });
+    };
+    reader.readAsArrayBuffer(file);
+  } else {
+    var reader2 = new FileReader();
+    reader2.onload = function (ev) {
+      loader(true, 'Uploading plan...');
+      api('PUT', '/plans/' + CUR_PLAN._id, { image: ev.target.result })
+        .then(function () { loader(false); toast('Plan uploaded', 'ok'); CUR_PLAN.image = ev.target.result; selectPlan(CUR_PLAN); })
+        .catch(function () { loader(false); toast('Failed', 'err'); });
+    };
+    reader2.readAsDataURL(file);
+  }
 };
+
 document.getElementById('plan-mode-btn').onclick = function () { PLAN_PIN_MODE = !PLAN_PIN_MODE; this.textContent = PLAN_PIN_MODE ? '\uD83D\uDC41 View Mode' : '\uD83D\uDCCD Pin Mode'; this.style.background = PLAN_PIN_MODE ? 'var(--green)' : 'var(--brand)'; };
 document.getElementById('btn-plan-zin').onclick = function () { PLAN_SCALE *= 1.2; drawPlan(); };
 document.getElementById('btn-plan-zout').onclick = function () { PLAN_SCALE = Math.max(0.2, PLAN_SCALE / 1.2); drawPlan(); };
