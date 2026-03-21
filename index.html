@@ -12,8 +12,6 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png"/>
 <title>MLA Inspection</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script>if(typeof pdfjsLib !== 'undefined') pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
 <style>
 /* ═══════════════════════════════════════════════
    RESET & ROOT
@@ -3113,29 +3111,41 @@ document.getElementById('plan-img-input').onchange = function () {
   var MAX_BYTES = 5 * 1024 * 1024;
   if (file.size > MAX_BYTES) { toast('File too large — max 5MB', 'err'); this.value = ''; return; }
   if (file.type === 'application/pdf') {
-    // Render PDF page 1 via PDF.js
-    var reader = new FileReader();
-    reader.onload = function (ev) {
-      var pdfData = new Uint8Array(ev.target.result);
-      if (typeof pdfjsLib === 'undefined') { toast('PDF.js not loaded', 'err'); return; }
-      pdfjsLib.getDocument({ data: pdfData }).promise.then(function (pdf) {
-        return pdf.getPage(1);
-      }).then(function (page) {
-        var viewport = page.getViewport({ scale: 2 });
-        var tmpCanvas = document.createElement('canvas');
-        tmpCanvas.width = viewport.width; tmpCanvas.height = viewport.height;
-        var ctx = tmpCanvas.getContext('2d');
-        return page.render({ canvasContext: ctx, viewport: viewport }).promise.then(function () {
-          return tmpCanvas.toDataURL('image/jpeg', 0.85);
-        });
-      }).then(function (dataUrl) {
-        loader(true, 'Uploading plan...');
-        api('PUT', '/plans/' + CUR_PLAN._id, { image: dataUrl })
-          .then(function () { loader(false); toast('PDF plan uploaded', 'ok'); CUR_PLAN.image = dataUrl; selectPlan(CUR_PLAN); })
-          .catch(function () { loader(false); toast('Failed', 'err'); });
-      }).catch(function (err) { toast('Could not read PDF', 'err'); console.error(err); });
-    };
-    reader.readAsArrayBuffer(file);
+    // Load PDF.js lazily on first use
+    function doPdfRender() {
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        var pdfData = new Uint8Array(ev.target.result);
+        if (typeof pdfjsLib === 'undefined') { toast('PDF.js not loaded', 'err'); return; }
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        pdfjsLib.getDocument({ data: pdfData }).promise.then(function (pdf) {
+          return pdf.getPage(1);
+        }).then(function (page) {
+          var viewport = page.getViewport({ scale: 2 });
+          var tmpCanvas = document.createElement('canvas');
+          tmpCanvas.width = viewport.width; tmpCanvas.height = viewport.height;
+          var ctx = tmpCanvas.getContext('2d');
+          return page.render({ canvasContext: ctx, viewport: viewport }).promise.then(function () {
+            return tmpCanvas.toDataURL('image/jpeg', 0.85);
+          });
+        }).then(function (dataUrl) {
+          loader(true, 'Uploading plan...');
+          api('PUT', '/plans/' + CUR_PLAN._id, { image: dataUrl })
+            .then(function () { loader(false); toast('PDF plan uploaded', 'ok'); CUR_PLAN.image = dataUrl; selectPlan(CUR_PLAN); })
+            .catch(function () { loader(false); toast('Failed', 'err'); });
+        }).catch(function (err) { toast('Could not read PDF', 'err'); console.error(err); });
+      };
+      reader.readAsArrayBuffer(file);
+    }
+    if (typeof pdfjsLib === 'undefined') {
+      var s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      s.onload = doPdfRender;
+      s.onerror = function () { toast('Could not load PDF reader', 'err'); };
+      document.head.appendChild(s);
+    } else {
+      doPdfRender();
+    }
   } else {
     var reader2 = new FileReader();
     reader2.onload = function (ev) {
