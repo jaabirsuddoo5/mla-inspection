@@ -916,7 +916,7 @@ select.fi{cursor:pointer}
     <div class="login-logo">
       <img src="logo.png" alt="MLA" class="login-logo-img"/>
       <div class="login-subtitle">Inspection</div>
-      <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:4px">v3.3</div>
+      <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:4px">v3.5</div>
     </div>
 
     <div class="server-status" id="server-status">
@@ -1317,10 +1317,11 @@ select.fi{cursor:pointer}
           <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
             <img id="about-exp-logo-prev" style="width:56px;height:56px;border-radius:8px;object-fit:contain;background:var(--bg2);border:1px solid var(--line);display:none"/>
             <input type="file" id="about-exp-logo-input" accept="image/*" style="display:none"/>
-            <button class="btn btn-outline btn-sm" id="btn-about-exp-logo" type="button">Upload Export Logo</button>
+            <button class="btn btn-outline btn-sm" id="btn-about-exp-logo" type="button">Upload Logo</button>
+            <button class="btn btn-outline btn-sm" id="btn-about-exp-logo-rm" type="button" style="display:none;color:var(--red)">Remove</button>
           </div>
         </div>
-        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v3.3 — Phase 3+4 — Always MLA</div>
+        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v3.5 — Phase 3+4 — Always MLA</div>
       </div>
     </div>
 
@@ -1745,7 +1746,7 @@ function doLogin() {
     USER = { name: res.name, id: res.id, expiry: res.expiry, companyId: res.companyId, featureTier: res.featureTier, features: res.features, onboardingSeen: res.onboardingSeen, exportLogo: res.exportLogo };
     sessionStorage.setItem('mla_token', TOKEN);
     sessionStorage.setItem('mla_user', JSON.stringify(USER));
-    if (res.exportLogo) { EXPORT_LOGO = res.exportLogo; var prev = document.getElementById('about-exp-logo-prev'); if (prev) { prev.src = EXPORT_LOGO; prev.style.display = 'block'; } }
+    if (res.exportLogo) { EXPORT_LOGO = res.exportLogo; var prev = document.getElementById('about-exp-logo-prev'); var rm = document.getElementById('btn-about-exp-logo-rm'); if (prev) { prev.src = EXPORT_LOGO; prev.style.display = 'block'; } if (rm) rm.style.display = 'inline-flex'; }
     if (res.expiryWarning !== null && res.expiryWarning !== undefined) showExpiryBanner(res.expiryWarning);
     if (!USER.onboardingSeen) showOnboarding(function () { goProjects(); showWelcome(USER.name); });
     else { goProjects(); showWelcome(USER.name); }
@@ -2284,7 +2285,7 @@ function openProject(pid) {
     renderSnagList();
     goPage('p-project');
     switchPvTab('plan');
-    if (USER && USER.exportLogo) { EXPORT_LOGO = USER.exportLogo; var prev = document.getElementById('about-exp-logo-prev'); if (prev) { prev.src = EXPORT_LOGO; prev.style.display = 'block'; } }
+    if (USER && USER.exportLogo) { EXPORT_LOGO = USER.exportLogo; var prev = document.getElementById('about-exp-logo-prev'); var rm = document.getElementById('btn-about-exp-logo-rm'); if (prev) { prev.src = EXPORT_LOGO; prev.style.display = 'block'; } if (rm) rm.style.display = 'inline-flex'; }
   }).catch(function () { loader(false); toast('Failed to load project', 'err'); });
 }
 
@@ -2818,16 +2819,32 @@ function renderPlanTabs() {
   var row = document.getElementById('plan-tabs-row');
   row.innerHTML = '';
   CUR_PLANS.forEach(function (p) {
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;align-items:center;gap:2px;flex-shrink:0';
     var tab = document.createElement('div');
     tab.className = 'plan-tab' + (CUR_PLAN && CUR_PLAN._id === p._id ? ' on' : '');
     tab.textContent = p.name;
     tab.addEventListener('click', function () { selectPlan(p); });
-    row.appendChild(tab);
+    var rmBtn = document.createElement('button');
+    rmBtn.type = 'button';
+    rmBtn.title = 'Remove plan';
+    rmBtn.style.cssText = 'background:none;border:none;cursor:pointer;padding:2px 4px;color:var(--text4);font-size:13px;line-height:1;flex-shrink:0';
+    rmBtn.textContent = '\u00D7';
+    rmBtn.addEventListener('click', function (e) { e.stopPropagation(); removePlan(p); });
+    wrap.appendChild(tab);
+    wrap.appendChild(rmBtn);
+    row.appendChild(wrap);
   });
   var addBtn = document.createElement('button'); addBtn.className = 'plan-add-btn'; addBtn.type = 'button';
   addBtn.innerHTML = '<svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
   addBtn.addEventListener('click', addPlan);
   row.appendChild(addBtn);
+}
+function removePlan(plan) {
+  if (!confirm('Remove plan "' + plan.name + '"? This cannot be undone.')) return;
+  api('DELETE', '/projects/' + CUR_PROJECT._id + '/plans/' + plan._id).then(function () {
+    toast('Plan removed', 'ok'); loadPlansTab();
+  }).catch(function () { toast('Failed to remove plan', 'err'); });
 }
 function selectPlan(plan) {
   CUR_PLAN = plan;
@@ -2979,7 +2996,24 @@ function populateExportTab() {
   }
 }
 document.getElementById('btn-about-exp-logo').onclick = function () { document.getElementById('about-exp-logo-input').click(); };
-document.getElementById('about-exp-logo-input').onchange = function () { if (!this.files[0]) return; var r = new FileReader(); r.onload = function (e) { EXPORT_LOGO = e.target.result; var prev = document.getElementById('about-exp-logo-prev'); if (prev) { prev.src = EXPORT_LOGO; prev.style.display = 'block'; } api('PUT', '/user/export-logo', { logo: EXPORT_LOGO }).then(function () { toast('Export logo saved', 'ok'); }).catch(function () {}); }; r.readAsDataURL(this.files[0]); };
+document.getElementById('about-exp-logo-input').onchange = function () {
+  if (!this.files[0]) return;
+  var r = new FileReader(); r.onload = function (e) {
+    EXPORT_LOGO = e.target.result;
+    var prev = document.getElementById('about-exp-logo-prev');
+    var rm = document.getElementById('btn-about-exp-logo-rm');
+    if (prev) { prev.src = EXPORT_LOGO; prev.style.display = 'block'; }
+    if (rm) rm.style.display = 'inline-flex';
+    api('PUT', '/user/export-logo', { logo: EXPORT_LOGO }).then(function () { toast('Logo saved', 'ok'); }).catch(function () {});
+  }; r.readAsDataURL(this.files[0]);
+};
+document.getElementById('btn-about-exp-logo-rm').onclick = function () {
+  EXPORT_LOGO = null;
+  var prev = document.getElementById('about-exp-logo-prev');
+  if (prev) { prev.src = ''; prev.style.display = 'none'; }
+  this.style.display = 'none';
+  api('PUT', '/user/export-logo', { logo: null }).then(function () { toast('Logo removed \u2014 MLA default restored', 'ok'); }).catch(function () {});
+};
 
 function getExportData() {
   var contractors = [];
@@ -3012,9 +3046,25 @@ function doExport(type) {
     var logoHtml = EXPORT_LOGO ? '<img src="' + EXPORT_LOGO + '" style="max-width:120px;max-height:80px;object-fit:contain;margin-bottom:20px"/>' : '';
     var coverHtml = '<div style="page-break-after:always;background:#4A4A4A;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;padding:60px;text-align:center;position:relative">' + logoHtml + '<div style="font-size:32px;font-weight:900;letter-spacing:0.5px;margin-bottom:8px">' + esc(title) + '</div><div style="font-size:14px;opacity:0.6;margin-bottom:6px">' + esc(ref) + (ref && date ? ' \u2014 ' : '') + esc(date) + '</div>' + (addr ? '<div style="font-size:12px;opacity:0.4;margin-top:8px">' + esc(addr) + '</div>' : '') + '<div style="position:absolute;bottom:40px;font-size:10px;opacity:0.3;letter-spacing:2px">MLA INSPECTION REPORT</div></div>';
     var sumHtml = CUR_PROJECT.summary ? '<div style="page-break-after:always;padding:40px 40px 20px"><h2 style="font-size:16px;color:#4A4A4A;margin-bottom:12px;border-bottom:1px solid #ddd;padding-bottom:8px">Executive Summary</h2><p style="font-size:12px;line-height:1.8;color:#333">' + esc(CUR_PROJECT.summary) + '</p></div>' : '';
-    var itemsHtml = items.map(function (item) {
+    var itemsHtml = '';
+    var pdfPhotosOnPage = 0;
+    var PDF_PHOTOS_PER_PAGE = 4;
+    items.forEach(function (item, idx) {
       var seq = 'INS_' + String(item.seq || 0).padStart(3, '0');
       var stColor = stC[item.status] || '#888';
+      var itemPhotoCount = 0;
+      if (inclPhotos) {
+        if (item.photo) itemPhotoCount++;
+        if (item.photoAfter) itemPhotoCount++;
+        if (item.photoExtra) itemPhotoCount++;
+      }
+      if (itemPhotoCount === 0) itemPhotoCount = 1;
+      var pageBreak = '';
+      if (idx > 0 && pdfPhotosOnPage + itemPhotoCount > PDF_PHOTOS_PER_PAGE) {
+        pageBreak = '<div style="page-break-before:always"></div>';
+        pdfPhotosOnPage = 0;
+      }
+      pdfPhotosOnPage += itemPhotoCount;
       var leftCell = '';
       if (inclPhotos) {
         var photoDateStr = item.date ? '<div style="font-size:8px;color:#bbb;text-align:center;margin-bottom:8px">Taken on: ' + esc(item.date) + '</div>' : '';
@@ -3031,11 +3081,11 @@ function doExport(type) {
         '<div style="font-size:11px;margin-bottom:5px"><span style="font-weight:700;color:#666">Contractor:</span> ' + esc(item.contractor || '\u2014') + '</div>' +
         '<div style="font-size:11px;margin-bottom:5px"><span style="font-weight:700;color:#666">Visit:</span> ' + (item.visitNumber || 1) + '</div>' +
         '<div style="font-size:11px"><span style="font-weight:700;color:#666">Date:</span> ' + esc(item.date || date || '\u2014') + '</div>';
-      return '<table style="width:100%;border-collapse:collapse;margin-bottom:12px;border:1px solid #ddd"><tr>' +
+      itemsHtml += pageBreak + '<table style="width:100%;border-collapse:collapse;margin-bottom:12px;border:1px solid #ddd"><tr>' +
         '<td style="width:44%;vertical-align:top;padding:12px;border-right:1px solid #ddd;background:#fafafa">' + (leftCell || '<span style="color:#ccc;font-size:11px">No photos</span>') + '</td>' +
         '<td style="vertical-align:top;padding:14px 16px">' + rightCell + '</td>' +
         '</tr></table>';
-    }).join('');
+    });
     var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>@page{size:A4;margin:15mm}body{font-family:Arial,sans-serif;margin:0}table{page-break-inside:avoid}</style></head><body>' +
       coverHtml + sumHtml +
       '<div style="padding:20px 0"><h2 style="font-size:14px;color:#4A4A4A;margin-bottom:4px;font-weight:800">Observations &amp; Findings</h2><div style="font-size:10px;color:#999;margin-bottom:16px">' + items.length + ' items \u2014 Generated ' + new Date().toLocaleDateString() + '</div>' +
@@ -3107,16 +3157,20 @@ function doExport(type) {
 
         // ── COVER PAGE ──
         var coverChildren = [];
+        // Logo - use export logo or fall back to MLA default text mark
         if (EXPORT_LOGO) {
           try {
-            var logoRun = new D.ImageRun({ data: dataUrlToUint8(EXPORT_LOGO), transformation: { width: 120, height: 80 }, type: imgType(EXPORT_LOGO) });
-            coverChildren.push(p([logoRun], { alignment: AlignmentType.CENTER, spacing: { after: 200 } }));
+            var logoRun = new D.ImageRun({ data: dataUrlToUint8(EXPORT_LOGO), transformation: { width: 100, height: 80 }, type: imgType(EXPORT_LOGO) });
+            coverChildren.push(p([logoRun], { alignment: AlignmentType.CENTER, spacing: { before: 2800, after: 400 } }));
           } catch(e) {}
+        } else {
+          // MLA text logo as fallback
+          coverChildren.push(p([t('MLA', { size: 72, bold: true, color: '4A4A4A' })], { alignment: AlignmentType.CENTER, spacing: { before: 3200, after: 0 } }));
+          coverChildren.push(p([t('INSPECTION', { size: 20, color: '999999', characterSpacing: 300 })], { alignment: AlignmentType.CENTER, spacing: { before: 0, after: 600 } }));
         }
-        coverChildren.push(p([t(title || 'Inspection Report', { size: 56, bold: true, color: 'FFFFFF' })], { alignment: AlignmentType.CENTER, spacing: { before: 2400, after: 160 } }));
-        if (ref || date) coverChildren.push(p([t((ref || '') + (ref && date ? '  \u2014  ' : '') + (date || ''), { size: 22, color: 'AAAAAA' })], { alignment: AlignmentType.CENTER, spacing: { after: 120 } }));
-        if (addr) coverChildren.push(p([t(addr, { size: 18, color: '888888' })], { alignment: AlignmentType.CENTER, spacing: { after: 120 } }));
-        coverChildren.push(p([t('MLA INSPECTION REPORT', { size: 16, color: '666666', characterSpacing: 200 })], { alignment: AlignmentType.CENTER, spacing: { before: 1200 } }));
+        coverChildren.push(p([t(title || 'Inspection Report', { size: 52, bold: true, color: '2A2A2A' })], { alignment: AlignmentType.CENTER, spacing: { before: 0, after: 200 } }));
+        if (ref || date) coverChildren.push(p([t((ref || '') + (ref && date ? '  \u2014  ' : '') + (date || ''), { size: 22, color: '888888' })], { alignment: AlignmentType.CENTER, spacing: { after: 120 } }));
+        if (addr) coverChildren.push(p([t(addr, { size: 18, color: 'AAAAAA' })], { alignment: AlignmentType.CENTER, spacing: { after: 120 } }));
 
         var sections = [];
 
@@ -3143,24 +3197,44 @@ function doExport(type) {
         }
 
         // ── ITEM TABLES ──
-        items.forEach(function (item) {
+        // Page break logic: track photos on current page, break when adding this item would exceed 4 photos
+        var photosOnPage = 0;
+        var PHOTOS_PER_PAGE = 4;
+
+        items.forEach(function (item, idx) {
           var seq = 'INS_' + String(item.seq || 0).padStart(3, '0');
           var stColor = stColors[item.status] || '888888';
           var priColor = priColors[item.priority] || '888888';
 
-          // Left cell: photos stacked
+          // Count photos this item has
+          var itemPhotoCount = 0;
+          if (inclPhotos) {
+            ['photo', 'photoAfter', 'photoExtra'].forEach(function (f) { if (item[f]) itemPhotoCount++; });
+          }
+          // If no photos, count as 1 for layout purposes
+          if (itemPhotoCount === 0) itemPhotoCount = 1;
+
+          // Insert page break if adding this item would overflow the page (but not on first item)
+          if (idx > 0 && photosOnPage + itemPhotoCount > PHOTOS_PER_PAGE) {
+            bodyChildren.push(p([new D.PageBreak()]));
+            photosOnPage = 0;
+          }
+          photosOnPage += itemPhotoCount;
+
+          // Left cell: photos full column width
           var leftCellChildren = [];
           var photoFields = ['photo', 'photoAfter', 'photoExtra'];
           var photoLabels = ['Before', 'After', 'Extra'];
           var hasAnyPhoto = false;
+          var imgWidthPt = 156;
           if (inclPhotos) {
             photoFields.forEach(function (field, fi) {
               if (item[field]) {
-                var imgRun = makeImgRun(item[field], 140);
+                var imgRun = makeImgRun(item[field], imgWidthPt);
                 if (imgRun) {
                   leftCellChildren.push(p([imgRun], { spacing: { after: 20 } }));
-                  leftCellChildren.push(p([t(photoLabels[fi].toUpperCase(), { size: 14, color: '999999', bold: true })], { alignment: AlignmentType.CENTER, spacing: { after: 20 } }));
-                  if (item.date) leftCellChildren.push(p([t('Taken on: ' + item.date, { size: 13, color: 'AAAAAA' })], { alignment: AlignmentType.CENTER, spacing: { after: 140 } }));
+                  leftCellChildren.push(p([t(photoLabels[fi].toUpperCase(), { size: 14, color: '999999', bold: true, characterSpacing: 80 })], { spacing: { after: item.date ? 20 : 160 } }));
+                  if (item.date) leftCellChildren.push(p([t('Taken on: ' + item.date, { size: 13, color: 'BBBBBB' })], { spacing: { after: 160 } }));
                   hasAnyPhoto = true;
                 }
               }
@@ -3169,16 +3243,19 @@ function doExport(type) {
           if (!hasAnyPhoto) leftCellChildren.push(p([t('')]));
 
           // Right cell: details
+          var dr = function(label, value, valColor) {
+            return p([t(label + '  ', { size: 18, bold: true, color: '888888' }), t(value, { size: 18, color: valColor || '333333' })], { spacing: { after: 60 } });
+          };
           var rightCellChildren = [
-            p([t(seq, { size: 18, bold: true, color: '888888' })], { spacing: { after: 60 } }),
-            p([t(item.description || '', { size: 26, bold: true, color: '222222' })], { spacing: { after: 200 } }),
-            p([t('Status: ', { size: 20, bold: true, color: '666666' }), t((item.status || '').replace('_', ' '), { size: 20, bold: true, color: stColor })], { spacing: { after: 80 } }),
-            p([t('Priority: ', { size: 20, bold: true, color: '666666' }), t(item.priority || '\u2014', { size: 20, color: priColor })], { spacing: { after: 80 } }),
-            p([t('Category: ', { size: 20, bold: true, color: '666666' }), t(item.category || '\u2014', { size: 20, color: '333333' })], { spacing: { after: 80 } }),
-            p([t('Location: ', { size: 20, bold: true, color: '666666' }), t(item.location || '\u2014', { size: 20, color: '333333' })], { spacing: { after: 80 } }),
-            p([t('Contractor: ', { size: 20, bold: true, color: '666666' }), t(item.contractor || '\u2014', { size: 20, color: '333333' })], { spacing: { after: 80 } }),
-            p([t('Visit: ', { size: 20, bold: true, color: '666666' }), t(String(item.visitNumber || 1), { size: 20, color: '333333' })], { spacing: { after: 80 } }),
-            p([t('Date: ', { size: 20, bold: true, color: '666666' }), t(item.date || date || '\u2014', { size: 20, color: '333333' })], { spacing: { after: 80 } })
+            p([t(seq, { size: 16, bold: true, color: 'AAAAAA', characterSpacing: 60 })], { spacing: { after: 80 } }),
+            p([t(item.description || '', { size: 28, bold: true, color: '1A1A1A' })], { spacing: { after: 240 } }),
+            dr('Status:', (item.status || '').replace(/_/g, ' '), stColor),
+            dr('Priority:', item.priority || '\u2014', priColor),
+            dr('Category:', item.category || '\u2014'),
+            dr('Location:', item.location || '\u2014'),
+            dr('Contractor:', item.contractor || '\u2014'),
+            dr('Visit:', String(item.visitNumber || 1)),
+            dr('Date:', item.date || date || '\u2014')
           ];
 
           var tbl = new D.Table({
@@ -3191,14 +3268,15 @@ function doExport(type) {
                   new D.TableCell({
                     width: { size: LCOL, type: WidthType.DXA },
                     borders: borderLightAll,
-                    margins: { top: 120, bottom: 120, left: 120, right: 120 },
+                    shading: { fill: 'F7F7F7', type: 'clear' },
+                    margins: { top: 100, bottom: 100, left: 100, right: 100 },
                     verticalAlign: VerticalAlign.TOP,
                     children: leftCellChildren
                   }),
                   new D.TableCell({
                     width: { size: RCOL, type: WidthType.DXA },
                     borders: borderLightAll,
-                    margins: { top: 160, bottom: 160, left: 200, right: 120 },
+                    margins: { top: 180, bottom: 180, left: 220, right: 140 },
                     verticalAlign: VerticalAlign.TOP,
                     children: rightCellChildren
                   })
@@ -3208,7 +3286,7 @@ function doExport(type) {
           });
 
           bodyChildren.push(tbl);
-          bodyChildren.push(p([t('')], { spacing: { after: 160 } }));
+          bodyChildren.push(p([t('')], { spacing: { after: 200 } }));
         });
 
         sections.push({
