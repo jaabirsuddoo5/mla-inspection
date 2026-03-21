@@ -444,6 +444,38 @@ select.fi{cursor:pointer}
 .pv-section{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;flex-direction:column}
 .pv-section.active{display:flex}
 
+/* Status pill dropdown */
+.pv-status-wrap{position:relative;flex-shrink:0}
+.pv-status-pill{
+  display:flex;align-items:center;gap:5px;
+  padding:6px 12px;border-radius:50px;border:none;cursor:pointer;
+  font-size:11px;font-weight:700;letter-spacing:0.3px;
+  font-family:'Montserrat',Arial,sans-serif;
+  transition:opacity 0.15s;
+}
+.pv-status-pill:active{opacity:0.75}
+.pv-status-pill.st-draft{background:rgba(255,255,255,0.15);color:#fff}
+.pv-status-pill.st-in_progress{background:#3B82F6;color:#fff}
+.pv-status-pill.st-under_review{background:#C78A20;color:#fff}
+.pv-status-pill.st-completed{background:#2D8653;color:#fff}
+.pv-status-dropdown{
+  position:absolute;top:calc(100% + 6px);right:0;
+  background:var(--card);border:1px solid var(--line);border-radius:10px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.15);
+  min-width:140px;z-index:200;overflow:hidden;
+  display:none;
+}
+.pv-status-dropdown.open{display:block}
+.pv-status-opt{
+  padding:11px 16px;font-size:12px;font-weight:700;cursor:pointer;
+  color:var(--text2);transition:background 0.15s;
+}
+.pv-status-opt:hover{background:var(--bg2)}
+.pv-status-opt[data-val="draft"]{color:#888}
+.pv-status-opt[data-val="in_progress"]{color:#3B82F6}
+.pv-status-opt[data-val="under_review"]{color:#C78A20}
+.pv-status-opt[data-val="completed"]{color:#2D8653}
+
 /* ═══════════════════════════════════════════════
    INSPECTION TAB
 ═══════════════════════════════════════════════ */
@@ -1122,21 +1154,26 @@ select.fi{cursor:pointer}
     <button class="topbar-icon-btn" id="pv-collab-btn" type="button" title="Collaboration">
       <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     </button>
-    <button class="topbar-icon-btn" id="pv-export-btn" type="button" title="Export">
-      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-    </button>
-    <button class="topbar-icon-btn" id="pv-status-btn" type="button" title="Change status">
-      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-    </button>
+    <div class="pv-status-wrap" id="pv-status-wrap">
+      <button class="pv-status-pill" id="pv-status-btn" type="button">
+        <span id="pv-status-label">Draft</span>
+        <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="pv-status-dropdown" id="pv-status-dropdown">
+        <div class="pv-status-opt" data-val="draft">Draft</div>
+        <div class="pv-status-opt" data-val="in_progress">In Progress</div>
+        <div class="pv-status-opt" data-val="under_review">Under Review</div>
+        <div class="pv-status-opt" data-val="completed">Completed</div>
+      </div>
+    </div>
   </div>
 
   <div class="pv-tabs" id="pv-tabs">
     <div class="pvtab on" data-tab="inspection">Inspection</div>
     <div class="pvtab" data-tab="plan">Plans</div>
     <div class="pvtab" data-tab="cover">Cover</div>
-    <div class="pvtab" data-tab="summary">Summary</div>
-    <div class="pvtab" data-tab="capture">Quick Capture</div>
-    <div class="pvtab" data-tab="trash">Trash</div>
+    <div class="pvtab" data-tab="export">Export</div>
+    <div class="pvtab" data-tab="trash">Recycle</div>
     <div class="pvtab" data-tab="about">About</div>
   </div>
 
@@ -1193,12 +1230,28 @@ select.fi{cursor:pointer}
     <!-- COVER TAB -->
     <div class="pv-section" id="pvs-cover">
       <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:14px">
+        <!-- Cover Page fields -->
         <div class="acard">
           <div class="acard-title">Cover Page</div>
-          <div class="fi-group" style="margin-bottom:10px"><label class="fi-label">Project Title (override)</label><input class="fi" id="cv-title" type="text" placeholder="Leave blank to use project name"/></div>
-          <div class="fi-group" style="margin-bottom:10px"><label class="fi-label">Site Address</label><input class="fi" id="cv-address" type="text" placeholder="Full site address"/></div>
+          <div class="fi-group" style="margin-bottom:10px">
+            <label class="fi-label">Project Title (leave blank to use project name)</label>
+            <input class="fi" id="cv-title" type="text" placeholder="Leave blank to use project name"/>
+          </div>
+          <div class="fi-group" style="margin-bottom:10px">
+            <label class="fi-label">Site Address</label>
+            <input class="fi" id="cv-address" type="text" placeholder="Full site address"/>
+          </div>
           <div class="fi-group" style="margin-bottom:12px">
-            <label class="fi-label">Client Logo</label>
+            <label class="fi-label">Cover Wallpaper</label>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <img id="cv-wallpaper-prev" src="" style="width:80px;height:50px;border-radius:8px;object-fit:cover;background:var(--bg2);border:1px solid var(--line);display:none"/>
+              <input type="file" id="cv-wallpaper-input" accept="image/*" style="display:none"/>
+              <button class="btn btn-outline btn-sm" id="btn-cv-wallpaper" type="button">Upload Wallpaper</button>
+              <button class="btn btn-outline btn-sm" id="btn-cv-wallpaper-rm" type="button" style="display:none;color:var(--red)">Remove</button>
+            </div>
+          </div>
+          <div class="fi-group" style="margin-bottom:12px">
+            <label class="fi-label">Company / Inspector Logo</label>
             <div style="display:flex;gap:10px;align-items:center">
               <img id="cv-logo-prev" src="" style="width:56px;height:56px;border-radius:8px;object-fit:contain;background:var(--bg2);border:1px solid var(--line);display:none"/>
               <input type="file" id="cv-logo-input" accept="image/*" style="display:none"/>
@@ -1206,69 +1259,57 @@ select.fi{cursor:pointer}
               <button class="btn btn-outline btn-sm" id="btn-cv-logo-rm" type="button" style="display:none;color:var(--red)">Remove</button>
             </div>
           </div>
-          <button class="btn" id="btn-save-cover" type="button">Save Cover Page</button>
+          <button class="btn" id="btn-save-cover" type="button">Save Cover</button>
         </div>
-        <div id="cover-preview-card" style="display:none;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden">
-          <div class="cover-preview-inner">
-            <img class="cover-logo-img" id="cv-prev-logo"/>
-            <div class="cover-proj-title" id="cv-prev-title"></div>
-            <div class="cover-proj-ref" id="cv-prev-ref"></div>
-            <div class="cover-proj-addr" id="cv-prev-addr"></div>
-          </div>
-          <div style="padding:10px 14px;font-size:10px;color:var(--text4);text-align:center">Cover page preview</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SUMMARY TAB -->
-    <div class="pv-section" id="pvs-summary">
-      <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:14px">
-        <div class="prog-card">
-          <div class="prog-title">Item Status Overview</div>
-          <div class="prog-bar-row"><div class="prog-bar-lbl">Open</div><div class="prog-bar-wrap"><div class="prog-bar-fill pbf-open" id="pb-open" style="width:0%"></div></div><div class="prog-bar-num" id="pbn-open">0</div></div>
-          <div class="prog-bar-row"><div class="prog-bar-lbl">In Progress</div><div class="prog-bar-wrap"><div class="prog-bar-fill pbf-prog" id="pb-prog" style="width:0%"></div></div><div class="prog-bar-num" id="pbn-prog">0</div></div>
-          <div class="prog-bar-row"><div class="prog-bar-lbl">Closed</div><div class="prog-bar-wrap"><div class="prog-bar-fill pbf-closed" id="pb-closed" style="width:0%"></div></div><div class="prog-bar-num" id="pbn-closed">0</div></div>
-        </div>
-        <div class="prog-card">
-          <div class="prog-title">Before / After per Visit</div>
-          <div id="visit-prog-list"><div class="empty-msg" style="padding:20px">No items yet</div></div>
-        </div>
+        <!-- Summary fields -->
         <div class="acard">
           <div class="acard-title">Executive Summary</div>
-          <textarea class="fi" id="sum-text" rows="5" placeholder="Write an executive summary..." style="resize:vertical"></textarea>
+          <textarea class="fi" id="sum-text" rows="5" placeholder="Write an executive summary... (leave blank to omit from export)" style="resize:vertical"></textarea>
           <button class="btn" id="btn-save-sum" type="button" style="margin-top:10px">Save Summary</button>
         </div>
         <div class="acard">
           <div class="acard-title">Appendix / Notes</div>
-          <textarea class="fi" id="sum-appendix" rows="4" placeholder="Additional notes..." style="resize:vertical"></textarea>
+          <textarea class="fi" id="sum-appendix" rows="4" placeholder="Additional notes... (leave blank to omit from export)" style="resize:vertical"></textarea>
           <button class="btn btn-outline" id="btn-save-appendix" type="button" style="margin-top:10px">Save Appendix</button>
         </div>
       </div>
     </div>
 
-    <!-- QUICK CAPTURE TAB -->
-    <div class="pv-section" id="pvs-capture">
-      <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:12px">
+    <!-- EXPORT TAB -->
+    <div class="pv-section" id="pvs-export">
+      <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:14px">
         <div class="acard">
-          <div class="acard-title">Quick Capture</div>
-          <div class="qc-photo-row">
-            <div class="qc-slot" id="qc-slot-before"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span>Before</span></div>
-            <div class="qc-slot" id="qc-slot-after"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span>After</span></div>
+          <div class="acard-title">Export Report</div>
+          <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6">Generate a professional Word document (.docx) with cover page, item table, and photos. Open in Word to adjust formatting.</p>
+          <div class="fi-group" style="margin-bottom:12px">
+            <label class="fi-label">Filter by Contractor (optional)</label>
+            <select class="fi" id="exp-contractor-filter">
+              <option value="">All contractors</option>
+            </select>
           </div>
-          <div class="fi-group" style="margin-bottom:10px"><label class="fi-label">Description</label><textarea class="fi" id="qc-desc" rows="2" placeholder="Quick note..." style="resize:vertical"></textarea></div>
-          <div class="fi-row" style="margin-bottom:10px">
-            <div class="fi-group"><label class="fi-label">Category</label><select class="fi" id="qc-cat"></select></div>
-            <div class="fi-group"><label class="fi-label">Priority</label><select class="fi" id="qc-pri"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="critical">Critical</option></select></div>
+          <div class="fi-group" style="margin-bottom:16px">
+            <label class="fi-label">Filter by Status (optional)</label>
+            <select class="fi" id="exp-status-filter">
+              <option value="">All statuses</option>
+              <option value="open">Open only</option>
+              <option value="in_progress">In Progress only</option>
+              <option value="closed">Closed only</option>
+            </select>
           </div>
-          <div class="fi-row" style="margin-bottom:12px">
-            <div class="fi-group"><label class="fi-label">Location</label>
-              <div class="smart-wrap"><input class="fi" id="qc-loc" type="text" placeholder="Location" autocomplete="off"/><div class="smart-dd-btn" id="sdd-btn-qc-loc"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="smart-dropdown" id="sdd-qc-loc"></div></div>
-            </div>
-            <div class="fi-group"><label class="fi-label">Contractor</label>
-              <div class="smart-wrap"><input class="fi" id="qc-con" type="text" placeholder="Contractor" autocomplete="off"/><div class="smart-dd-btn" id="sdd-btn-qc-con"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="smart-dropdown" id="sdd-qc-con"></div></div>
-            </div>
-          </div>
-          <button class="qc-save" id="btn-qc-save" type="button"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Item</button>
+          <button class="btn btn-green" id="btn-export-word" type="button" style="width:100%;padding:14px;font-size:15px">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;display:inline;vertical-align:middle;margin-right:8px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download Word Report
+          </button>
+        </div>
+        <div class="acard" style="background:var(--bg2)">
+          <div class="acard-title">What's included</div>
+          <ul style="font-size:12px;color:var(--text2);line-height:2;padding-left:16px">
+            <li>Cover page with wallpaper, logo &amp; project info</li>
+            <li>Executive summary (if filled)</li>
+            <li>Full items table: ref, location, description, category, priority, status, contractor</li>
+            <li>Photos — max 3 per row, square 1:1 crop</li>
+            <li>Header &amp; footer on every page</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -1282,21 +1323,12 @@ select.fi{cursor:pointer}
           <li>Capture Before / After photos from your camera</li>
           <li>Annotate photos with arrows, circles, and text</li>
           <li>Upload floor plans and pin items to exact locations</li>
-          <li><strong>Quick Capture</strong> tab for rapid entry</li>
           <li>Swipe cards right → Closed &nbsp;|&nbsp; left → In Progress</li>
           <li>Group by Location, Category, Contractor, or Priority</li>
-          <li>Export A4 PDF or Word report with contractor filter</li>
+          <li>Use the <strong>Export</strong> tab to download a Word report</li>
           <li>Invite collaborators to share a project</li>
         </ul></div>
-        <div class="about-card"><h3>Export Logo</h3>
-          <p>Upload your company logo — appears on PDF/Word cover pages only.</p>
-          <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
-            <img id="about-exp-logo-prev" style="width:56px;height:56px;border-radius:8px;object-fit:contain;background:var(--bg2);border:1px solid var(--line);display:none"/>
-            <input type="file" id="about-exp-logo-input" accept="image/*" style="display:none"/>
-            <button class="btn btn-outline btn-sm" id="btn-about-exp-logo" type="button">Upload Export Logo</button>
-          </div>
-        </div>
-        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v3.0 — Phase 3+4 — Always MLA</div>
+        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v4.0 — Always MLA</div>
       </div>
     </div>
 
@@ -1313,7 +1345,10 @@ select.fi{cursor:pointer}
 ═══════════════════════════════════ -->
 <div id="snag-modal">
   <div class="sm-topbar">
-    <h2 id="sm-title">New Item</h2>
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <h2 id="sm-title">New Item</h2>
+      <span id="sm-ref" style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:0.5px"></span>
+    </div>
     <button class="sm-close" id="sm-close" type="button">✕</button>
   </div>
   <div class="sm-body">
@@ -1343,7 +1378,7 @@ select.fi{cursor:pointer}
         <div class="smart-dd-btn" id="sdd-btn-sm-con"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
         <div class="smart-dropdown" id="sdd-sm-con"></div>
       </div></div>
-      <div class="fi-group"><label class="fi-label">Visit #</label><select class="fi" id="sm-visit"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+      <div class="fi-group"><label class="fi-label">Visit / Revision</label><select class="fi" id="sm-visit"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
     </div>
     <div class="fi-group"><label class="fi-label">Notes (internal — not exported)</label><textarea class="fi" id="sm-notes" rows="2" placeholder="Private notes..." style="resize:vertical"></textarea></div>
     <div class="fi-group">
@@ -1357,11 +1392,13 @@ select.fi{cursor:pointer}
           <div class="sd-photo-add" id="sm-photo-after" onclick="openCamera('after')"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span>After</span></div>
           <span class="sd-photo-label">AFTER</span>
         </div>
-        <div class="sd-photo-wrap">
-          <div class="sd-photo-add" id="sm-photo-extra" onclick="openCamera('extra')"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span>Additional</span></div>
-          <span class="sd-photo-label">ADDITIONAL</span>
-        </div>
       </div>
+      <!-- Extra photos row -->
+      <div id="sm-extras-row" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+      <button class="btn btn-outline btn-sm" id="btn-add-extra-photo" type="button" style="margin-top:8px;display:flex;align-items:center;gap:6px" onclick="addExtraPhoto()">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Photo <span id="sm-extras-count" style="font-size:10px;color:var(--text3)">(0/10)</span>
+      </button>
     </div>
     <button class="btn btn-green sm-save" id="sm-save" type="button">Save Item</button>
   </div>
@@ -1520,42 +1557,6 @@ select.fi{cursor:pointer}
   </div>
 </div>
 
-<!-- ══ EXPORT MODAL ══ -->
-<div id="export-modal">
-  <div class="exp-tb">
-    <button class="pv-back" id="btn-export-close" type="button"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
-    <h2>Export Report</h2>
-  </div>
-  <div class="exp-body">
-    <div class="exp-sec">
-      <div class="exp-sec-title">Export Logo</div>
-      <div style="display:flex;align-items:center;gap:12px">
-        <img id="exp-logo-preview" class="exp-logo-preview" src="" style="display:none"/>
-        <div style="flex:1">
-          <button class="btn btn-outline btn-sm" id="btn-exp-logo-pick" type="button" style="width:auto">📂 Upload Logo</button>
-          <input type="file" id="exp-logo-input" accept="image/*" style="display:none"/>
-          <div style="font-size:10px;color:var(--text4);margin-top:4px">Appears on cover page only</div>
-        </div>
-      </div>
-    </div>
-    <div class="exp-sec">
-      <div class="exp-sec-title">Filter by Contractor</div>
-      <div style="font-size:11px;color:var(--text3);margin-bottom:8px">All checked = full report</div>
-      <div class="exp-contractor-list" id="exp-contractor-list"></div>
-    </div>
-    <div class="exp-sec">
-      <div class="exp-sec-title">Options</div>
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;font-weight:600"><input type="checkbox" id="exp-incl-closed" checked style="width:16px;height:16px;accent-color:var(--brand)"/> Include Closed Items</label>
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;font-weight:600"><input type="checkbox" id="exp-incl-photos" checked style="width:16px;height:16px;accent-color:var(--brand)"/> Include Photos</label>
-      </div>
-    </div>
-  </div>
-  <div class="exp-btns">
-    <button class="exp-btn exp-btn-pdf" id="btn-exp-pdf" type="button"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Export PDF (A4)</button>
-    <button class="exp-btn exp-btn-word" id="btn-exp-word" type="button"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Export Word (A4)</button>
-  </div>
-</div>
 
 <!-- ══ TAG PICKER ══ -->
 <div id="tag-picker">
@@ -1626,10 +1627,8 @@ var CUR_PROJECT = null, CUR_ITEMS = [], CUR_CATEGORIES = [], CUR_PLANS = [], CUR
 var FILTERS = { status: 'all', priority: 'all', category: 'all', sort: 'seq', group: 'none', search: '' };
 var SELECT_MODE = false, SELECTED = {};
 var SMART_DDS = {};
-var EXPORT_LOGO = null;
 var NP_TAGS = [], CLIENTS = [];
 var RENEW_UID = null, ADMIN_CHAT_UID = null;
-var QC_PHOTOS = { before: null, after: null };
 var PLAN_SCALE = 1, PLAN_OFFSET = { x: 0, y: 0 }, PLAN_IMG = null, PLAN_PIN_MODE = false;
 
 /* INIT */
@@ -1761,7 +1760,6 @@ function doLogin() {
     USER = { name: res.name, id: res.id, expiry: res.expiry, companyId: res.companyId, featureTier: res.featureTier, features: res.features, onboardingSeen: res.onboardingSeen, exportLogo: res.exportLogo };
     sessionStorage.setItem('mla_token', TOKEN);
     sessionStorage.setItem('mla_user', JSON.stringify(USER));
-    if (res.exportLogo) { EXPORT_LOGO = res.exportLogo; refreshExportLogoPreviews(); }
     if (res.expiryWarning !== null && res.expiryWarning !== undefined) showExpiryBanner(res.expiryWarning);
     if (!USER.onboardingSeen) showOnboarding(function () { goProjects(); showWelcome(USER.name); });
     else { goProjects(); showWelcome(USER.name); }
@@ -1854,7 +1852,7 @@ document.addEventListener('click', function (e) {
   var id = btn.id; // sdd-btn-{inputId}
   if (!id) return;
   var suffix = id.replace('sdd-btn-', '');
-  var fieldMap = { 'sm-loc': 'location', 'sm-con': 'contractor', 'qc-loc': 'location', 'qc-con': 'contractor' };
+  var fieldMap = { 'sm-loc': 'location', 'sm-con': 'contractor' };
   var field = fieldMap[suffix] || suffix;
   openSmartDD(suffix, 'sdd-' + suffix, field);
 });
@@ -2173,9 +2171,11 @@ document.getElementById('tag-picker').addEventListener('click', function (e) { i
 
 document.getElementById('btn-create-proj').onclick = function () {
   var name = document.getElementById('np-name').value.trim();
+  var ref  = document.getElementById('np-ref').value.trim();
   if (!name) { toast('Enter project name', 'err'); return; }
+  if (!ref)  { toast('Enter ref number', 'err'); return; }
   loader(true, 'Creating project...');
-  api('POST', '/projects', { name: name, ref: document.getElementById('np-ref').value.trim(), date: document.getElementById('np-date').value, clientId: document.getElementById('np-client').value || undefined, tags: NP_TAGS })
+  api('POST', '/projects', { name: name, ref: ref, date: document.getElementById('np-date').value, clientId: document.getElementById('np-client').value || undefined, tags: NP_TAGS })
     .then(function () { loader(false); document.getElementById('np-name').value = ''; document.getElementById('np-ref').value = ''; NP_TAGS = []; updateTagDisplay(); toast('Project created', 'ok'); loadProjects(); })
     .catch(function () { loader(false); toast('Failed', 'err'); });
 };
@@ -2290,9 +2290,9 @@ function openProject(pid) {
     CUR_ITEMS = r[1]; CUR_CATEGORIES = r[2];
     document.getElementById('pv-name').textContent = CUR_PROJECT.name;
     document.getElementById('pv-meta').textContent = (CUR_PROJECT.ref || 'No ref') + ' \u2014 ' + (CUR_PROJECT.date || '');
+    updateStatusPill(CUR_PROJECT.status || 'draft');
     var catOpts = '<option value="" disabled selected>Select category...</option>' + CUR_CATEGORIES.map(function (c) { return '<option value="' + esc(c.name) + '">' + esc(c.name) + '</option>'; }).join('');
     document.getElementById('sm-cat').innerHTML = catOpts;
-    document.getElementById('qc-cat').innerHTML = catOpts;
     var fpCat = '<div class="fp-chip on" data-v="all">All</div>' + CUR_CATEGORIES.map(function (c) { return '<div class="fp-chip" data-v="' + esc(c.name) + '">' + esc(c.name) + '</div>'; }).join('');
     document.getElementById('fp-category').innerHTML = fpCat;
     populateVisitDD();
@@ -2301,7 +2301,6 @@ function openProject(pid) {
     goPage('p-project');
     switchPvTab('inspection');
     loadCoverTab();
-    if (USER && USER.exportLogo) { EXPORT_LOGO = USER.exportLogo; refreshExportLogoPreviews(); }
   }).catch(function () { loader(false); toast('Failed to load project', 'err'); });
 }
 
@@ -2325,14 +2324,43 @@ function switchPvTab(tab) {
   if (se) se.classList.add('active');
   if (tab === 'trash') loadTrash();
   if (tab === 'plan') loadPlansTab();
-  if (tab === 'summary') loadSummaryTab();
+  if (tab === 'cover') loadCoverTab();
+  if (tab === 'export') loadExportTab();
 }
 
-document.getElementById('pv-status-btn').onclick = function () {
-  if (!CUR_PROJECT) return;
-  var sts = ['draft', 'in_progress', 'under_review'], cur = CUR_PROJECT.status || 'draft', next = sts[(sts.indexOf(cur) + 1) % sts.length];
-  api('PUT', '/projects/' + CUR_PROJECT._id, { status: next }).then(function (p) { CUR_PROJECT.status = p.status; document.getElementById('pv-meta').textContent = (CUR_PROJECT.ref || 'No ref') + ' \u2014 ' + (CUR_PROJECT.date || '') + ' \u2014 ' + p.status.replace(/_/g, ' '); toast('Status: ' + next.replace(/_/g, ' '), 'ok'); }).catch(function () { toast('Failed', 'err'); });
+// Status dropdown
+var statusPill = document.getElementById('pv-status-btn');
+var statusDrop = document.getElementById('pv-status-dropdown');
+
+function updateStatusPill(status) {
+  var label = document.getElementById('pv-status-label');
+  var map = { draft: 'Draft', in_progress: 'In Progress', under_review: 'Under Review', completed: 'Completed' };
+  label.textContent = map[status] || status;
+  statusPill.className = 'pv-status-pill st-' + (status || 'draft');
+}
+
+statusPill.onclick = function (e) {
+  e.stopPropagation();
+  statusDrop.classList.toggle('open');
 };
+
+document.querySelectorAll('.pv-status-opt').forEach(function (opt) {
+  opt.addEventListener('click', function (e) {
+    e.stopPropagation();
+    var val = this.dataset.val;
+    if (!CUR_PROJECT) return;
+    statusDrop.classList.remove('open');
+    api('PUT', '/projects/' + CUR_PROJECT._id, { status: val })
+      .then(function (p) {
+        CUR_PROJECT.status = p.status;
+        updateStatusPill(p.status);
+        document.getElementById('pv-meta').textContent = (CUR_PROJECT.ref || 'No ref') + ' \u2014 ' + (CUR_PROJECT.date || '');
+        toast('Status: ' + val.replace(/_/g, ' '), 'ok');
+      }).catch(function () { toast('Failed', 'err'); });
+  });
+});
+
+document.addEventListener('click', function () { statusDrop.classList.remove('open'); });
 
 /* SNAG LIST */
 function renderSnagList() {
@@ -2360,7 +2388,7 @@ function renderSnagList() {
 }
 
 function buildSnagCard(item) {
-  var seq = 'INS-' + String(item.seq || 0).padStart(3, '0');
+  var seq = 'INS_' + String(item.seq || 0).padStart(3, '0');
   var card = document.createElement('div'); card.className = 'scard'; card.dataset.iid = item._id;
   var swR = document.createElement('div'); swR.className = 'scard-swipe-r'; swR.textContent = '\u2713 CLOSED';
   var swL = document.createElement('div'); swL.className = 'scard-swipe-l'; swL.textContent = '\u27f3 IN PROG';
@@ -2471,7 +2499,7 @@ function filterItems(items) {
     if (f.status !== 'all' && i.status !== f.status) return false;
     if (f.priority !== 'all' && i.priority !== f.priority) return false;
     if (f.category !== 'all' && i.category !== f.category) return false;
-    if (f.search) { var s = f.search.toLowerCase(); if ((i.description || '').toLowerCase().indexOf(s) < 0 && (i.location || '').toLowerCase().indexOf(s) < 0 && (i.contractor || '').toLowerCase().indexOf(s) < 0 && ('INS-' + String(i.seq).padStart(3, '0')).indexOf(s) < 0) return false; }
+    if (f.search) { var s = f.search.toLowerCase(); if ((i.description || '').toLowerCase().indexOf(s) < 0 && (i.location || '').toLowerCase().indexOf(s) < 0 && (i.contractor || '').toLowerCase().indexOf(s) < 0 && ('INS_' + String(i.seq).padStart(3, '0')).indexOf(s) < 0) return false; }
     return true;
   });
   var po = { critical: 0, high: 1, medium: 2, low: 3 }, so = { open: 0, in_progress: 1, closed: 2 };
@@ -2512,10 +2540,10 @@ document.getElementById('btn-select-mode').onclick = function () { SELECT_MODE =
 function updateSelectCount() { document.getElementById('isb-count').textContent = Object.keys(SELECTED).length + ' selected'; }
 function cancelSelect() { SELECT_MODE = false; SELECTED = {}; document.getElementById('btn-select-mode').classList.remove('active'); document.getElementById('insp-select-bar').classList.remove('show'); renderSnagList(); }
 function bulkStatus(status) { var ids = Object.keys(SELECTED); if (!ids.length) { toast('Select items first', 'err'); return; } loader(true, 'Updating...'); api('POST', '/items/bulk-status', { itemIds: ids, status: status }).then(function () { loader(false); toast(ids.length + ' items \u2192 ' + status, 'ok'); cancelSelect(); reloadItems(); }).catch(function () { loader(false); toast('Failed', 'err'); }); }
-function reloadItems() { if (!CUR_PROJECT) return; api('GET', '/projects/' + CUR_PROJECT._id + '/items').then(function (items) { CUR_ITEMS = items; renderSnagList(); populateVisitDD(); loadSummaryTab(); }); }
+function reloadItems() { if (!CUR_PROJECT) return; api('GET', '/projects/' + CUR_PROJECT._id + '/items').then(function (items) { CUR_ITEMS = items; renderSnagList(); populateVisitDD(); }); }
 
 /* SNAG MODAL */
-var EDITING_ITEM = null, SNAG_PHOTOS = { before: null, after: null, extra: null };
+var EDITING_ITEM = null, SNAG_PHOTOS = { before: null, after: null }, SM_EXTRAS = [];
 document.getElementById('btn-add-snag').onclick = function () { openSnagModal(null); };
 document.getElementById('sm-cat').onchange = function () {
   var cat = CUR_CATEGORIES.find(function (c) { return c.name === this.value; }.bind(this));
@@ -2532,8 +2560,12 @@ document.getElementById('sm-cat').onchange = function () {
 };
 function openSnagModal(item) {
   EDITING_ITEM = item;
-  SNAG_PHOTOS = { before: item ? item.photo : null, after: item ? item.photoAfter : null, extra: item ? item.photoExtra : null };
-  document.getElementById('sm-title').textContent = item ? 'Edit INS-' + String(item.seq).padStart(3, '0') : 'New Item';
+  SM_EXTRAS = item && item.photoExtras ? item.photoExtras.slice() : [];
+  SNAG_PHOTOS = { before: item ? item.photo : null, after: item ? item.photoAfter : null };
+  document.getElementById('sm-title').textContent = item ? 'Edit Item' : 'New Item';
+  var refEl = document.getElementById('sm-ref');
+  if (item) { refEl.textContent = 'INS_' + String(item.seq).padStart(3, '0'); refEl.style.display = 'block'; }
+  else { refEl.textContent = ''; refEl.style.display = 'none'; }
   document.getElementById('sm-desc').value = item ? (item.description || '') : '';
   document.getElementById('sm-cat').value = item ? (item.category || '') : '';
   document.getElementById('sm-pri').value = item ? (item.priority || 'medium') : 'medium';
@@ -2544,10 +2576,11 @@ function openSnagModal(item) {
   document.getElementById('sm-notes').value = item ? (item.notes || '') : '';
   document.getElementById('tpl-picker').classList.remove('show');
   updatePhotoSlots();
+  renderExtrasRow();
   document.getElementById('snag-modal').classList.add('show');
 }
 function updatePhotoSlots() {
-  ['before', 'after', 'extra'].forEach(function (t) {
+  ['before', 'after'].forEach(function (t) {
     var el = document.getElementById('sm-photo-' + t);
     if (!el) return;
     if (SNAG_PHOTOS[t]) {
@@ -2555,12 +2588,42 @@ function updatePhotoSlots() {
       el.className = 'sd-photo-wrap'; el.style.cursor = 'pointer';
       el.onclick = (function (type) { return function () { openCamera(type); }; }(t));
     } else {
-      var labels = { before: 'Before', after: 'After', extra: 'Additional' };
+      var labels = { before: 'Before', after: 'After' };
       el.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span>' + labels[t] + '</span>';
       el.className = 'sd-photo-add';
       el.onclick = (function (type) { return function () { openCamera(type); }; }(t));
     }
   });
+}
+
+function renderExtrasRow() {
+  var row = document.getElementById('sm-extras-row');
+  var countEl = document.getElementById('sm-extras-count');
+  var btn = document.getElementById('btn-add-extra-photo');
+  if (!row) return;
+  row.innerHTML = '';
+  SM_EXTRAS.forEach(function (src, idx) {
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'position:relative;display:inline-block';
+    var img = document.createElement('img');
+    img.src = src;
+    img.style.cssText = 'width:80px;height:80px;border-radius:8px;object-fit:cover;display:block';
+    var rm = document.createElement('button');
+    rm.type = 'button';
+    rm.innerHTML = '&times;';
+    rm.style.cssText = 'position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.6);color:#fff;border:none;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1';
+    rm.addEventListener('click', (function (i) { return function () { SM_EXTRAS.splice(i, 1); renderExtrasRow(); }; }(idx)));
+    wrap.appendChild(img);
+    wrap.appendChild(rm);
+    row.appendChild(wrap);
+  });
+  if (countEl) countEl.textContent = '(' + SM_EXTRAS.length + '/10)';
+  if (btn) btn.style.display = SM_EXTRAS.length >= 10 ? 'none' : 'flex';
+}
+
+function addExtraPhoto() {
+  if (SM_EXTRAS.length >= 10) { toast('Max 10 additional photos', 'err'); return; }
+  openCamera('extra_new');
 }
 document.getElementById('sm-close').onclick = function () { document.getElementById('snag-modal').classList.remove('show'); };
 document.getElementById('sm-save').onclick = function () {
@@ -2569,7 +2632,7 @@ document.getElementById('sm-save').onclick = function () {
   var cat = document.getElementById('sm-cat').value;
   if (!cat) { toast('Select a category', 'err'); return; }
   var loc = document.getElementById('sm-loc').value.trim(), con = document.getElementById('sm-contractor').value.trim();
-  var data = { description: desc, category: cat, priority: document.getElementById('sm-pri').value, status: document.getElementById('sm-status').value, location: loc, contractor: con, visitNumber: parseInt(document.getElementById('sm-visit').value) || 1, notes: document.getElementById('sm-notes').value.trim(), photo: SNAG_PHOTOS.before, photoAfter: SNAG_PHOTOS.after, photoExtra: SNAG_PHOTOS.extra };
+  var data = { description: desc, category: cat, priority: document.getElementById('sm-pri').value, status: document.getElementById('sm-status').value, location: loc, contractor: con, visitNumber: parseInt(document.getElementById('sm-visit').value) || 1, notes: document.getElementById('sm-notes').value.trim(), photo: SNAG_PHOTOS.before, photoAfter: SNAG_PHOTOS.after, photoExtras: SM_EXTRAS };
   loader(true, 'Saving...');
   var done = function () { loader(false); document.getElementById('snag-modal').classList.remove('show'); toast(EDITING_ITEM ? 'Item updated' : 'Item created', 'ok'); if (con) saveSmartDD('contractor', con); if (loc) saveSmartDD('location', loc); reloadItems(); };
   if (EDITING_ITEM) {
@@ -2595,7 +2658,7 @@ function openLinkPicker(itemId) {
   if (!avail.length) { el.innerHTML = '<div class="empty-msg" style="padding:30px">No other items to link.</div>'; }
   else { avail.forEach(function (i) {
     var row = document.createElement('div'); row.className = 'lp-item';
-    var s = 'INS-' + String(i.seq || 0).padStart(3, '0');
+    var s = 'INS_' + String(i.seq || 0).padStart(3, '0');
     row.innerHTML = '<div class="scard-seq ' + (i.status || 'open') + '" style="font-size:10px;padding:2px 8px">' + s + '</div><div class="lp-item-desc">' + esc(i.description || 'No description') + '</div><span class="pri pri-' + (i.priority || 'medium') + '" style="font-size:9px">' + (i.priority || 'medium') + '</span>';
     row.addEventListener('click', function () { linkSnag(i._id); });
     el.appendChild(row);
@@ -2616,7 +2679,7 @@ function loadTrash() {
     el.innerHTML = '';
     del.forEach(function (i) {
       var row = document.createElement('div'); row.className = 'trash-item';
-      var s = 'INS-' + String(i.seq || 0).padStart(3, '0'), ago = i.deletedAt ? timeSince(new Date(i.deletedAt)) : '';
+      var s = 'INS_' + String(i.seq || 0).padStart(3, '0'), ago = i.deletedAt ? timeSince(new Date(i.deletedAt)) : '';
       row.innerHTML = '<div class="trash-info"><div class="trash-name">' + s + ' \u2014 ' + esc(i.description || 'No description') + '</div><div class="trash-time">Deleted ' + ago + '</div></div>';
       var r = document.createElement('button'); r.className = 'trash-btn'; r.type = 'button'; r.textContent = 'Restore';
       r.addEventListener('click', function () { api('PATCH', '/items/' + i._id + '/restore').then(function () { toast('Restored', 'ok'); loadTrash(); reloadItems(); }).catch(function () { toast('Failed', 'err'); }); });
@@ -2628,10 +2691,9 @@ function loadTrash() {
 }
 
 /* CAMERA */
-var CAM_STREAM = null, CAM_TARGET = null, CAM_ITEM_ID = null, CAM_FACING = 'environment', CAM_CAPTURED = null, CAM_QC = false;
-function openCamera(t) { CAM_TARGET = t; CAM_ITEM_ID = null; CAM_QC = false; startCamera(); }
-function openCameraForItem(id, t) { CAM_TARGET = t; CAM_ITEM_ID = id; CAM_QC = false; startCamera(); }
-function openCameraQC(t) { CAM_TARGET = t; CAM_ITEM_ID = null; CAM_QC = true; startCamera(); }
+var CAM_STREAM = null, CAM_TARGET = null, CAM_ITEM_ID = null, CAM_FACING = 'environment', CAM_CAPTURED = null;
+function openCamera(t) { CAM_TARGET = t; CAM_ITEM_ID = null; startCamera(); }
+function openCameraForItem(id, t) { CAM_TARGET = t; CAM_ITEM_ID = id; startCamera(); }
 function startCamera() {
   var modal = document.getElementById('camera-modal'), video = document.getElementById('cam-video'), preview = document.getElementById('cam-preview'), controls = document.getElementById('cam-controls'), pb = document.getElementById('cam-preview-btns');
   preview.classList.remove('show'); pb.classList.remove('show'); controls.style.display = 'flex'; video.style.display = 'block'; modal.classList.add('show');
@@ -2653,43 +2715,21 @@ function closeCamera() { stopCamStream(); document.getElementById('camera-modal'
 function stopCamStream() { if (CAM_STREAM) { CAM_STREAM.getTracks().forEach(function (t) { t.stop(); }); CAM_STREAM = null; } }
 function handleCapturedPhoto(dataUrl) {
   closeCamera();
-  if (CAM_QC) {
-    QC_PHOTOS[CAM_TARGET] = dataUrl;
-    var slot = document.getElementById('qc-slot-' + CAM_TARGET);
-    if (slot) { slot.innerHTML = '<img src="' + dataUrl + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px"/>'; slot.addEventListener('click', (function (t) { return function () { openCameraQC(t); }; }(CAM_TARGET))); }
-    return;
-  }
   if (CAM_ITEM_ID) {
-    var fm = { before: 'photo', after: 'photoAfter', extra: 'photoExtra' }, upd = {};
+    var fm = { before: 'photo', after: 'photoAfter' }, upd = {};
     upd[fm[CAM_TARGET]] = dataUrl;
     loader(true, 'Saving photo...'); api('PUT', '/items/' + CAM_ITEM_ID, upd).then(function () { loader(false); toast('Photo added', 'ok'); reloadItems(); }).catch(function () { loader(false); toast('Failed', 'err'); });
-  } else { SNAG_PHOTOS[CAM_TARGET] = dataUrl; updatePhotoSlots(); }
+  } else if (CAM_TARGET === 'extra_new') {
+    if (SM_EXTRAS.length < 10) { SM_EXTRAS.push(dataUrl); renderExtrasRow(); }
+    else { toast('Max 10 additional photos', 'err'); }
+  } else {
+    SNAG_PHOTOS[CAM_TARGET] = dataUrl; updatePhotoSlots();
+  }
 }
 function compressPhoto(file, cb) {
   var r = new FileReader(); r.onload = function (e) { var img = new Image(); img.onload = function () { var c = document.createElement('canvas'), sz = Math.min(img.width, img.height); c.width = 800; c.height = 800; c.getContext('2d').drawImage(img, (img.width - sz) / 2, (img.height - sz) / 2, sz, sz, 0, 0, 800, 800); cb(c.toDataURL('image/jpeg', 0.6)); }; img.src = e.target.result; }; r.readAsDataURL(file);
 }
 
-/* QUICK CAPTURE */
-document.getElementById('qc-slot-before').addEventListener('click', function () { openCameraQC('before'); });
-document.getElementById('qc-slot-after').addEventListener('click', function () { openCameraQC('after'); });
-document.getElementById('btn-qc-save').onclick = function () {
-  var desc = document.getElementById('qc-desc').value.trim();
-  if (!desc) { toast('Enter a description', 'err'); return; }
-  var cat = document.getElementById('qc-cat').value;
-  if (!cat) { toast('Select a category', 'err'); return; }
-  var loc = document.getElementById('qc-loc').value.trim(), con = document.getElementById('qc-con').value.trim();
-  loader(true, 'Saving...');
-  api('GET', '/projects/' + CUR_PROJECT._id + '/items/next-seq').then(function (res) {
-    return api('POST', '/projects/' + CUR_PROJECT._id + '/items', { seq: res.nextSeq, description: desc, category: cat, priority: document.getElementById('qc-pri').value, status: 'open', location: loc, contractor: con, date: today(), photo: QC_PHOTOS.before, photoAfter: QC_PHOTOS.after });
-  }).then(function () {
-    loader(false); toast('Item captured', 'ok');
-    document.getElementById('qc-desc').value = ''; document.getElementById('qc-loc').value = ''; document.getElementById('qc-con').value = '';
-    QC_PHOTOS = { before: null, after: null };
-    ['before', 'after'].forEach(function (t) { var sl = document.getElementById('qc-slot-' + t); if (sl) { sl.innerHTML = '<svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span>' + t.charAt(0).toUpperCase() + t.slice(1) + '</span>'; } });
-    if (con) saveSmartDD('contractor', con); if (loc) saveSmartDD('location', loc);
-    reloadItems();
-  }).catch(function () { loader(false); toast('Failed', 'err'); });
-};
 
 /* PHOTO VIEWER with pinch zoom */
 var VIEWER_ID = null, VIEWER_FIELD = null, VIEWER_SRC = null, PV_PINCH_SCALE = 1, PV_PAN = { x: 0, y: 0 };
@@ -2832,8 +2872,8 @@ function renderPlanPins() {
     el.textContent = item.seq || '?';
     el.style.left = (pin.x * PLAN_SCALE + PLAN_OFFSET.x) + 'px';
     el.style.top = (pin.y * PLAN_SCALE + PLAN_OFFSET.y) + 'px';
-    el.title = 'INS-' + String(item.seq || 0).padStart(3, '0') + ': ' + (item.description || '');
-    el.addEventListener('click', function () { toast('INS-' + String(item.seq || 0).padStart(3, '0') + ': ' + (item.description || ''), 'ok'); });
+    el.title = 'INS_' + String(item.seq || 0).padStart(3, '0') + ': ' + (item.description || '');
+    el.addEventListener('click', function () { toast('INS_' + String(item.seq || 0).padStart(3, '0') + ': ' + (item.description || ''), 'ok'); });
     wrap.appendChild(el);
   });
 }
@@ -2844,7 +2884,7 @@ document.getElementById('plan-canvas').addEventListener('click', function (e) {
   var y = (e.clientY - rect.top - PLAN_OFFSET.y) / PLAN_SCALE;
   var unpinned = CUR_ITEMS.filter(function (i) { return !i.deleted && (!i.pins || !i.pins.some(function (p) { return p.planId === CUR_PLAN._id; })); });
   if (!unpinned.length) { toast('No unpinned items', 'err'); return; }
-  var choice = prompt('Pin which item?\n' + unpinned.map(function (i, idx) { return (idx + 1) + '. INS-' + String(i.seq || 0).padStart(3, '0') + ': ' + (i.description || '').substring(0, 30); }).join('\n'));
+  var choice = prompt('Pin which item?\n' + unpinned.map(function (i, idx) { return (idx + 1) + '. INS_' + String(i.seq || 0).padStart(3, '0') + ': ' + (i.description || '').substring(0, 30); }).join('\n'));
   if (!choice) return;
   var idx = parseInt(choice) - 1; if (idx < 0 || idx >= unpinned.length) return;
   var item = unpinned[idx];
@@ -2870,135 +2910,129 @@ function loadCoverTab() {
   var cv = CUR_PROJECT.cover || {};
   document.getElementById('cv-title').value = cv.projectTitle || '';
   document.getElementById('cv-address').value = cv.siteAddress || '';
-  if (cv.clientLogo) { document.getElementById('cv-logo-prev').src = cv.clientLogo; document.getElementById('cv-logo-prev').style.display = 'block'; document.getElementById('btn-cv-logo-rm').style.display = 'inline-block'; }
-  updateCoverPreview();
+  // Logo
+  if (cv.logo) {
+    var lp = document.getElementById('cv-logo-prev');
+    lp.src = cv.logo; lp.style.display = 'block';
+    document.getElementById('btn-cv-logo-rm').style.display = 'inline-block';
+  }
+  // Wallpaper
+  if (cv.wallpaper) {
+    var wp = document.getElementById('cv-wallpaper-prev');
+    wp.src = cv.wallpaper; wp.style.display = 'block';
+    document.getElementById('btn-cv-wallpaper-rm').style.display = 'inline-block';
+  }
+  // Summary/Appendix
+  var st = document.getElementById('sum-text'); if (st) st.value = CUR_PROJECT.summary || '';
+  var sa = document.getElementById('sum-appendix'); if (sa) sa.value = CUR_PROJECT.appendix || '';
 }
+
+// Logo upload
 document.getElementById('btn-cv-logo').onclick = function () { document.getElementById('cv-logo-input').click(); };
-document.getElementById('cv-logo-input').onchange = function () { if (!this.files[0]) return; var r = new FileReader(); r.onload = function (e) { document.getElementById('cv-logo-prev').src = e.target.result; document.getElementById('cv-logo-prev').style.display = 'block'; document.getElementById('btn-cv-logo-rm').style.display = 'inline-block'; updateCoverPreview(); }; r.readAsDataURL(this.files[0]); };
-document.getElementById('btn-cv-logo-rm').onclick = function () { document.getElementById('cv-logo-prev').src = ''; document.getElementById('cv-logo-prev').style.display = 'none'; this.style.display = 'none'; updateCoverPreview(); };
+document.getElementById('cv-logo-input').onchange = function () {
+  if (!this.files[0]) return;
+  var r = new FileReader(); r.onload = function (e) {
+    var lp = document.getElementById('cv-logo-prev');
+    lp.src = e.target.result; lp.style.display = 'block';
+    document.getElementById('btn-cv-logo-rm').style.display = 'inline-block';
+  }; r.readAsDataURL(this.files[0]);
+};
+document.getElementById('btn-cv-logo-rm').onclick = function () {
+  var lp = document.getElementById('cv-logo-prev');
+  lp.src = ''; lp.style.display = 'none'; this.style.display = 'none';
+};
+
+// Wallpaper upload
+document.getElementById('btn-cv-wallpaper').onclick = function () { document.getElementById('cv-wallpaper-input').click(); };
+document.getElementById('cv-wallpaper-input').onchange = function () {
+  if (!this.files[0]) return;
+  var r = new FileReader(); r.onload = function (e) {
+    var wp = document.getElementById('cv-wallpaper-prev');
+    wp.src = e.target.result; wp.style.display = 'block';
+    document.getElementById('btn-cv-wallpaper-rm').style.display = 'inline-block';
+  }; r.readAsDataURL(this.files[0]);
+};
+document.getElementById('btn-cv-wallpaper-rm').onclick = function () {
+  var wp = document.getElementById('cv-wallpaper-prev');
+  wp.src = ''; wp.style.display = 'none'; this.style.display = 'none';
+};
+
+// Save Cover
 document.getElementById('btn-save-cover').onclick = function () {
   if (!CUR_PROJECT) return;
   var logo = document.getElementById('cv-logo-prev');
-  api('PUT', '/projects/' + CUR_PROJECT._id, { cover: { clientLogo: logo.style.display !== 'none' ? logo.src : undefined, projectTitle: document.getElementById('cv-title').value.trim(), siteAddress: document.getElementById('cv-address').value.trim() } })
-    .then(function (p) { CUR_PROJECT = p; toast('Cover saved', 'ok'); updateCoverPreview(); }).catch(function () { toast('Failed', 'err'); });
+  var wallpaper = document.getElementById('cv-wallpaper-prev');
+  var coverData = {
+    projectTitle: document.getElementById('cv-title').value.trim(),
+    siteAddress: document.getElementById('cv-address').value.trim(),
+    logo: logo.style.display !== 'none' ? logo.src : null,
+    wallpaper: wallpaper.style.display !== 'none' ? wallpaper.src : null
+  };
+  api('PUT', '/projects/' + CUR_PROJECT._id, { cover: coverData })
+    .then(function (p) { CUR_PROJECT = p; toast('Cover saved', 'ok'); })
+    .catch(function () { toast('Failed', 'err'); });
 };
-function updateCoverPreview() {
-  var card = document.getElementById('cover-preview-card'); if (!card) return;
-  var title = document.getElementById('cv-title').value || (CUR_PROJECT ? CUR_PROJECT.name : '');
-  var ref = (CUR_PROJECT ? ((CUR_PROJECT.ref || '') + (CUR_PROJECT.date ? ' \u2014 ' + CUR_PROJECT.date : '')) : '');
-  var addr = document.getElementById('cv-address').value;
-  var logo = document.getElementById('cv-logo-prev');
-  document.getElementById('cv-prev-title').textContent = title;
-  document.getElementById('cv-prev-ref').textContent = ref;
-  document.getElementById('cv-prev-addr').textContent = addr;
-  var pl = document.getElementById('cv-prev-logo');
-  if (logo && logo.src && logo.style.display !== 'none') { pl.src = logo.src; pl.style.display = 'block'; } else pl.style.display = 'none';
-  card.style.display = 'block';
-}
-document.getElementById('cv-title').oninput = updateCoverPreview;
-document.getElementById('cv-address').oninput = updateCoverPreview;
 
-/* SUMMARY TAB */
-function loadSummaryTab() {
+// Save Summary
+document.getElementById('btn-save-sum').onclick = function () {
   if (!CUR_PROJECT) return;
-  var total = CUR_ITEMS.length, open = 0, prog = 0, closed = 0;
-  CUR_ITEMS.forEach(function (i) { if (i.status === 'open') open++; else if (i.status === 'in_progress') prog++; else if (i.status === 'closed') closed++; });
-  function pct(n) { return total ? Math.round(n / total * 100) : 0; }
-  var el = function (id) { return document.getElementById(id); };
-  if (el('pb-open')) { el('pb-open').style.width = pct(open) + '%'; el('pbn-open').textContent = open; }
-  if (el('pb-prog')) { el('pb-prog').style.width = pct(prog) + '%'; el('pbn-prog').textContent = prog; }
-  if (el('pb-closed')) { el('pb-closed').style.width = pct(closed) + '%'; el('pbn-closed').textContent = closed; }
-  var visits = {};
-  CUR_ITEMS.forEach(function (i) { var v = i.visitNumber || 1; if (!visits[v]) visits[v] = { before: 0, after: 0, total: 0 }; visits[v].total++; if (i.photo) visits[v].before++; if (i.photoAfter) visits[v].after++; });
-  var vl = el('visit-prog-list');
-  if (vl) {
-    if (!Object.keys(visits).length) { vl.innerHTML = '<div class="empty-msg" style="padding:20px">No items yet</div>'; }
-    else { vl.innerHTML = Object.keys(visits).sort(function (a, b) { return a - b; }).map(function (v) { var vd = visits[v]; return '<div class="visit-row"><span style="font-weight:800">Visit ' + v + '</span><span style="color:var(--text3)">' + vd.total + ' items</span><span style="color:var(--blue);font-weight:700">\uD83D\uDCF7 ' + vd.before + ' before</span><span style="color:var(--green);font-weight:700">\u2713 ' + vd.after + ' after</span></div>'; }).join(''); }
-  }
-  if (el('sum-text')) el('sum-text').value = CUR_PROJECT.summary || '';
-  if (el('sum-appendix')) el('sum-appendix').value = CUR_PROJECT.appendix || '';
-}
-document.getElementById('btn-save-sum').onclick = function () { api('PUT', '/projects/' + CUR_PROJECT._id, { summary: document.getElementById('sum-text').value.trim() }).then(function () { toast('Summary saved', 'ok'); }).catch(function () { toast('Failed', 'err'); }); };
-document.getElementById('btn-save-appendix').onclick = function () { api('PUT', '/projects/' + CUR_PROJECT._id, { appendix: document.getElementById('sum-appendix').value.trim() }).then(function () { toast('Appendix saved', 'ok'); }).catch(function () { toast('Failed', 'err'); }); };
+  api('PUT', '/projects/' + CUR_PROJECT._id, { summary: document.getElementById('sum-text').value.trim() })
+    .then(function () { toast('Summary saved', 'ok'); }).catch(function () { toast('Failed', 'err'); });
+};
+document.getElementById('btn-save-appendix').onclick = function () {
+  if (!CUR_PROJECT) return;
+  api('PUT', '/projects/' + CUR_PROJECT._id, { appendix: document.getElementById('sum-appendix').value.trim() })
+    .then(function () { toast('Appendix saved', 'ok'); }).catch(function () { toast('Failed', 'err'); });
+};
 
 /* EXPORT */
-document.getElementById('pv-export-btn').onclick = function () { openExportModal(); };
-function openExportModal() {
+/* EXPORT TAB */
+function loadExportTab() {
   if (!CUR_PROJECT) return;
+  // Populate contractor filter
   var contractors = [];
   CUR_ITEMS.forEach(function (i) { if (i.contractor && contractors.indexOf(i.contractor) < 0) contractors.push(i.contractor); });
-  var list = document.getElementById('exp-contractor-list');
-  list.innerHTML = '';
-  if (!contractors.length) { list.innerHTML = '<div style="font-size:12px;color:var(--text3)">No contractors assigned \u2014 all items included.</div>'; }
-  else {
-    contractors.forEach(function (c) {
-      var cnt = CUR_ITEMS.filter(function (i) { return i.contractor === c; }).length;
-      var row = document.createElement('div'); row.className = 'exp-contractor-item';
-      var cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = true; cb.dataset.contractor = c;
-      var lbl = document.createElement('div'); lbl.style.cssText = 'flex:1;font-size:12px;font-weight:600'; lbl.textContent = c;
-      var cnt2 = document.createElement('div'); cnt2.style.cssText = 'font-size:10px;color:var(--text3)'; cnt2.textContent = cnt + ' items';
-      row.appendChild(cb); row.appendChild(lbl); row.appendChild(cnt2);
-      list.appendChild(row);
-    });
-  }
-  refreshExportLogoPreviews();
-  document.getElementById('export-modal').classList.add('show');
-}
-document.getElementById('btn-export-close').onclick = function () { document.getElementById('export-modal').classList.remove('show'); };
-document.getElementById('btn-exp-logo-pick').onclick = function () { document.getElementById('exp-logo-input').click(); };
-document.getElementById('exp-logo-input').onchange = function () { if (!this.files[0]) return; var r = new FileReader(); r.onload = function (e) { EXPORT_LOGO = e.target.result; refreshExportLogoPreviews(); api('PUT', '/user/export-logo', { logo: EXPORT_LOGO }).then(function () { toast('Logo saved', 'ok'); }).catch(function () {}); }; r.readAsDataURL(this.files[0]); };
-document.getElementById('btn-about-exp-logo').onclick = function () { document.getElementById('about-exp-logo-input').click(); };
-document.getElementById('about-exp-logo-input').onchange = function () { if (!this.files[0]) return; var r = new FileReader(); r.onload = function (e) { EXPORT_LOGO = e.target.result; refreshExportLogoPreviews(); api('PUT', '/user/export-logo', { logo: EXPORT_LOGO }).then(function () { toast('Export logo saved', 'ok'); }).catch(function () {}); }; r.readAsDataURL(this.files[0]); };
-function refreshExportLogoPreviews() { ['exp-logo-preview', 'about-exp-logo-prev'].forEach(function (id) { var el = document.getElementById(id); if (el) { if (EXPORT_LOGO) { el.src = EXPORT_LOGO; el.style.display = 'block'; } else el.style.display = 'none'; } }); }
-
-function getExportData() {
-  var contractors = [];
-  document.querySelectorAll('#exp-contractor-list input[type=checkbox]:checked').forEach(function (cb) { if (cb.dataset.contractor) contractors.push(cb.dataset.contractor); });
-  var inclClosed = document.getElementById('exp-incl-closed').checked;
-  var inclPhotos = document.getElementById('exp-incl-photos').checked;
-  var items = CUR_ITEMS.filter(function (i) { if (i.deleted) return false; if (!inclClosed && i.status === 'closed') return false; if (contractors.length && i.contractor && contractors.indexOf(i.contractor) < 0) return false; return true; });
-  return { items: items, inclPhotos: inclPhotos };
-}
-
-document.getElementById('btn-exp-pdf').onclick = function () { doExport('pdf'); };
-document.getElementById('btn-exp-word').onclick = function () { doExport('word'); };
-
-function doExport(type) {
-  var ed = getExportData(), items = ed.items, inclPhotos = ed.inclPhotos;
-  var cv = CUR_PROJECT.cover || {}, title = cv.projectTitle || CUR_PROJECT.name, ref = CUR_PROJECT.ref || '', date = CUR_PROJECT.date || '', addr = cv.siteAddress || CUR_PROJECT.address || '';
-  var priC = { low: '#888', medium: '#C78A20', high: '#D94141', critical: '#D94141' };
-  var stC = { open: '#D94141', in_progress: '#C78A20', closed: '#2D8653' };
-
-  if (type === 'pdf') {
-    var logoHtml = EXPORT_LOGO ? '<img src="' + EXPORT_LOGO + '" style="max-width:120px;max-height:80px;object-fit:contain;margin-bottom:16px"/>' : '';
-    var coverHtml = '<div style="page-break-after:always;background:#4A4A4A;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;padding:60px;text-align:center">' + logoHtml + '<div style="font-size:32px;font-weight:900;letter-spacing:0.5px;margin-bottom:8px">' + esc(title) + '</div><div style="font-size:14px;opacity:0.6">' + esc(ref) + (ref && date ? ' \u2014 ' : '') + esc(date) + '</div>' + (addr ? '<div style="font-size:12px;opacity:0.4;margin-top:12px">' + esc(addr) + '</div>' : '') + '<div style="position:absolute;bottom:40px;font-size:10px;opacity:0.3;letter-spacing:2px">MLA INSPECTION REPORT</div></div>';
-    var sumHtml = CUR_PROJECT.summary ? '<div style="page-break-after:always;padding:40px;font-family:Arial,sans-serif"><h2 style="font-size:18px;color:#4A4A4A;margin-bottom:16px">Executive Summary</h2><p style="font-size:13px;line-height:1.8;color:#333">' + esc(CUR_PROJECT.summary) + '</p></div>' : '';
-    var itemsHtml = items.map(function (item) {
-      var seq = 'INS-' + String(item.seq || 0).padStart(3, '0');
-      var photos = '';
-      if (inclPhotos) {
-        if (item.photo) photos += '<div style="display:inline-block;margin-right:8px"><img src="' + item.photo + '" style="width:160px;height:160px;object-fit:cover;border-radius:6px"/><div style="font-size:9px;text-align:center;color:#888;margin-top:3px">BEFORE</div></div>';
-        if (item.photoAfter) photos += '<div style="display:inline-block;margin-right:8px"><img src="' + item.photoAfter + '" style="width:160px;height:160px;object-fit:cover;border-radius:6px"/><div style="font-size:9px;text-align:center;color:#888;margin-top:3px">AFTER</div></div>';
-      }
-      return '<div style="padding:20px 0;border-bottom:1px solid #eee;font-family:Arial,sans-serif"><div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><span style="background:' + (stC[item.status] || '#888') + ';color:#fff;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700">' + seq + '</span><span style="font-size:13px;font-weight:700;flex:1">' + esc(item.description || '') + '</span><span style="font-size:10px;color:' + (priC[item.priority] || '#888') + ';font-weight:700;text-transform:uppercase">' + esc(item.priority || '') + '</span></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:11px;color:#666;margin-bottom:10px"><div><strong>Location:</strong> ' + esc(item.location || '\u2014') + '</div><div><strong>Contractor:</strong> ' + esc(item.contractor || '\u2014') + '</div><div><strong>Visit:</strong> #' + (item.visitNumber || 1) + '</div></div>' + (photos ? '<div style="margin-top:10px">' + photos + '</div>' : '') + '</div>';
-    }).join('');
-    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>@page{size:A4;margin:20mm}body{font-family:Arial,sans-serif;margin:0}</style></head><body>' + coverHtml + sumHtml + '<div style="padding:40px"><h2 style="font-size:16px;color:#4A4A4A;margin-bottom:4px">Inspection Report</h2><div style="font-size:11px;color:#888;margin-bottom:24px">' + items.length + ' items | Generated ' + new Date().toLocaleDateString() + '</div>' + itemsHtml + '</div></body></html>';
-    var w = window.open('', '_blank'); w.document.write(html); w.document.close(); setTimeout(function () { w.print(); }, 500);
-    toast('PDF opened \u2014 use browser print', 'ok');
-  } else {
-    var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office"><head><meta charset="UTF-8"/><style>body{font-family:Calibri,Arial,sans-serif;margin:2cm}h1{font-size:24pt;color:#4A4A4A}h2{font-size:14pt;color:#4A4A4A;border-bottom:1pt solid #ccc;padding-bottom:4pt}table{width:100%;border-collapse:collapse;margin-bottom:16pt}td{border:0.5pt solid #ddd;padding:6pt;font-size:10pt;vertical-align:top}.seq{background:#4A4A4A;color:#fff;padding:2pt 8pt;border-radius:3pt;font-size:9pt;font-weight:bold}img{max-width:150pt;max-height:150pt}</style></head><body><h1>' + esc(title) + '</h1><p>' + esc(ref) + (ref && date ? ' | ' : '') + esc(date) + (addr ? '<br/>' + esc(addr) : '') + '</p>' + (CUR_PROJECT.summary ? '<h2>Executive Summary</h2><p>' + esc(CUR_PROJECT.summary) + '</p>' : '') + '<h2>Inspection Items (' + items.length + ')</h2>';
-    items.forEach(function (item) {
-      var seq = 'INS-' + String(item.seq || 0).padStart(3, '0');
-      html += '<table><tr><td colspan="3"><span class="seq">' + seq + '</span> <strong>' + esc(item.description || '') + '</strong></td></tr><tr><td>Status: <strong>' + esc(item.status || '') + '</strong></td><td>Priority: <strong>' + esc(item.priority || '') + '</strong></td><td>Visit #' + (item.visitNumber || 1) + '</td></tr><tr><td>Location: ' + esc(item.location || '\u2014') + '</td><td colspan="2">Contractor: ' + esc(item.contractor || '\u2014') + '</td></tr>';
-      if (inclPhotos && (item.photo || item.photoAfter)) { html += '<tr>'; if (item.photo) html += '<td><div style="font-size:8pt;color:#888">BEFORE</div><img src="' + item.photo + '"/></td>'; if (item.photoAfter) html += '<td><div style="font-size:8pt;color:#888">AFTER</div><img src="' + item.photoAfter + '"/></td>'; html += '</tr>'; }
-      html += '</table>';
-    });
-    html += '</body></html>';
-    var blob = new Blob([html], { type: 'application/msword' }), a = document.createElement('a');
-    a.href = URL.createObjectURL(blob); a.download = (title || 'report').replace(/[^a-zA-Z0-9]/g, '_') + '.doc'; a.click();
-    toast('Word document downloaded', 'ok');
+  var sel = document.getElementById('exp-contractor-filter');
+  if (sel) {
+    sel.innerHTML = '<option value="">All contractors</option>';
+    contractors.forEach(function (c) { sel.innerHTML += '<option value="' + esc(c) + '">' + esc(c) + '</option>'; });
   }
 }
+
+document.getElementById('btn-export-word').onclick = function () {
+  if (!CUR_PROJECT) return;
+  var cv = CUR_PROJECT.cover || {};
+  var logo = document.getElementById('cv-logo-prev');
+  var wallpaper = document.getElementById('cv-wallpaper-prev');
+  var contractorFilter = document.getElementById('exp-contractor-filter').value;
+  var statusFilter = document.getElementById('exp-status-filter').value;
+  var body = {
+    logo: (logo && logo.style.display !== 'none' && logo.src) ? logo.src : null,
+    wallpaper: (wallpaper && wallpaper.style.display !== 'none' && wallpaper.src) ? wallpaper.src : null,
+    contractorFilter: contractorFilter || null,
+    statusFilter: statusFilter || null
+  };
+  loader(true, 'Generating Word report...');
+  fetch(API + '/projects/' + CUR_PROJECT._id + '/export/word', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+    body: JSON.stringify(body)
+  }).then(function (res) {
+    if (!res.ok) return res.json().then(function (e) { throw new Error(e.error || 'Export failed'); });
+    return res.blob();
+  }).then(function (blob) {
+    loader(false);
+    var safeName = (CUR_PROJECT.name || 'report').replace(/[^a-zA-Z0-9]/g, '_');
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = safeName + '_Inspection.docx';
+    a.click();
+    toast('Word report downloaded', 'ok');
+  }).catch(function (err) {
+    loader(false);
+    toast(err.message || 'Export failed', 'err');
+  });
+};
 
 /* PREVENT DOUBLE-TAP ZOOM (but allow pinch zoom in viewer and annotation) */
 (function () {

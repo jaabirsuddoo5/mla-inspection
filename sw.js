@@ -1,4 +1,4 @@
-const CACHE = 'inspection-v3';
+const CACHE = 'inspection-v4';
 const ASSETS = [
   './index.html',
   './manifest.json',
