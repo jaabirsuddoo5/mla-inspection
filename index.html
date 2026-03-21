@@ -750,7 +750,7 @@ select.fi{cursor:pointer}
 #plan-canvas{position:absolute;top:0;left:0;touch-action:none;display:none;pointer-events:none}
 .plan-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--text4)}
 .plan-empty svg{width:40px;height:40px;stroke:currentColor;fill:none;stroke-width:1.5;opacity:0.4}
-.plan-pin{position:absolute;transform:translate(-50%,-50%);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:2.5px solid #fff;z-index:20;pointer-events:auto}
+.plan-pin{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.6)}
 .plan-pin.open{background:var(--red)}.plan-pin.closed{background:var(--green)}.plan-pin.in_progress{background:var(--yellow)}
 .plan-ctrls{position:absolute;bottom:16px;right:16px;display:flex;flex-direction:column;gap:8px}
 .plan-ctrl{width:36px;height:36px;border-radius:8px;background:var(--card);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer}
@@ -867,12 +867,12 @@ select.fi{cursor:pointer}
 #renew-modal{position:fixed;inset:0;z-index:9400;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
 #new-client-sheet,#tag-picker{position:fixed;inset:0;z-index:9400;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center}
 .pv-status-wrap{position:relative;flex-shrink:0}
-.pv-status-pill{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:50px;border:none;cursor:pointer;font-size:11px;font-weight:700;letter-spacing:0.3px;font-family:'Montserrat',Arial,sans-serif;transition:opacity 0.15s}
+.pv-status-pill{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:50px;border:none;cursor:pointer;font-size:11px;font-weight:700;font-family:'Montserrat',Arial,sans-serif}
 .pv-status-pill.st-draft{background:rgba(255,255,255,0.15);color:#fff}
 .pv-status-pill.st-in_progress{background:#3B82F6;color:#fff}
 .pv-status-pill.st-under_review{background:#C78A20;color:#fff}
 .pv-status-pill.st-completed{background:#2D8653;color:#fff}
-.pv-status-dropdown{position:absolute;top:calc(100% + 6px);right:0;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.15);min-width:140px;z-index:200;overflow:hidden;display:none}
+.pv-status-dropdown{position:absolute;top:calc(100% + 6px);right:0;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.15);min-width:140px;z-index:300;overflow:hidden;display:none}
 .pv-status-dropdown.open{display:block}
 .pv-status-opt{padding:11px 16px;font-size:12px;font-weight:700;cursor:pointer;transition:background 0.15s}
 .pv-status-opt:hover{background:var(--bg2)}
@@ -880,6 +880,8 @@ select.fi{cursor:pointer}
 .pv-status-opt[data-val="in_progress"]{color:#3B82F6}
 .pv-status-opt[data-val="under_review"]{color:#C78A20}
 .pv-status-opt[data-val="completed"]{color:#2D8653}
+.plan-pin{position:absolute;transform:translate(-50%,-50%);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.4);border:2.5px solid #fff;z-index:20}
+.plan-pin.open{background:var(--red)}.plan-pin.closed{background:var(--green)}.plan-pin.in_progress{background:var(--yellow)}
 </style>
 </head>
 <body>
@@ -1137,7 +1139,7 @@ select.fi{cursor:pointer}
       <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     </button>
     <div class="pv-status-wrap" id="pv-status-wrap">
-      <button class="pv-status-pill" id="pv-status-btn" type="button"><span id="pv-status-label">Draft</span><svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <button class="pv-status-pill" id="pv-status-btn" type="button"><span id="pv-status-label">Draft</span><svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
       <div class="pv-status-dropdown" id="pv-status-dropdown"><div class="pv-status-opt" data-val="draft">Draft</div><div class="pv-status-opt" data-val="in_progress">In Progress</div><div class="pv-status-opt" data-val="under_review">Under Review</div><div class="pv-status-opt" data-val="completed">Completed</div></div>
     </div>
   </div>
@@ -1203,8 +1205,8 @@ select.fi{cursor:pointer}
 
     <!-- COVER TAB -->
     <div class="pv-section" id="pvs-cover" style="background:var(--bg)">
-      <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:14px;padding-top:0;margin-top:0">
-        <div class="acard" style="margin-top:16px">
+      <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:14px">
+        <div class="acard">
           <div class="acard-title">Cover Page</div>
           <div class="fi-group" style="margin-bottom:10px"><label class="fi-label">Project Title (leave blank to use project name)</label><input class="fi" id="cv-title" type="text" placeholder="Leave blank to use project name"/></div>
           <div class="fi-group" style="margin-bottom:10px"><label class="fi-label">Site Address</label><input class="fi" id="cv-address" type="text" placeholder="Full site address"/></div>
@@ -1249,10 +1251,18 @@ select.fi{cursor:pointer}
           <div class="fi-group" style="margin-bottom:12px"><label class="fi-label">Filter by Contractor (optional)</label><select class="fi" id="exp-contractor-filter"><option value="">All contractors</option></select></div>
           <div class="fi-group" style="margin-bottom:12px"><label class="fi-label">Filter by Category (optional)</label><select class="fi" id="exp-category-filter"><option value="">All categories</option></select></div>
           <div class="fi-group" style="margin-bottom:16px"><label class="fi-label">Filter by Status (optional)</label><select class="fi" id="exp-status-filter"><option value="">All statuses</option><option value="open">Open only</option><option value="in_progress">In Progress only</option><option value="closed">Closed only</option></select></div>
-          <button class="btn btn-green" id="btn-export-word" type="button" style="width:100%;padding:14px;font-size:15px">
-            <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;display:inline;vertical-align:middle;margin-right:8px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Download Word Report
-          </button>
+          <button class="btn btn-green" id="btn-export-word" type="button" style="width:100%;padding:14px;font-size:15px">&#8681; Download Word Report</button>
+        </div>
+        <div class="acard" style="background:var(--bg2)">
+          <div class="acard-title">What's included</div>
+          <ul style="font-size:12px;color:var(--text2);line-height:2;padding-left:16px">
+            <li>Cover page with wallpaper, logo &amp; project info</li>
+            <li>Table of contents</li>
+            <li>Executive summary (if filled)</li>
+            <li>Floor plans with name &amp; notes</li>
+            <li>All items: photo left, details right</li>
+            <li>Header &amp; footer on every page</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -1260,22 +1270,35 @@ select.fi{cursor:pointer}
     <div class="pv-section" id="pvs-about" style="background:var(--bg)">
       <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:14px">
         <div class="about-logo-wrap"><img src="logo.png" alt="MLA"/><h2>MLA Inspection</h2><p>Professional Snagging &amp; Defect Management</p></div>
-        <div class="about-card"><h3>How to Use</h3><ul>
+        <div class="about-card"><h3>Getting Started</h3><ul>
+          <li>Create a project — <strong>Name</strong> and <strong>Ref No.</strong> are required</li>
+          <li>Open the project and go to <strong>Inspection</strong> tab to add items</li>
+          <li>Each item needs a <strong>Category</strong> before saving</li>
+        </ul></div>
+        <div class="about-card"><h3>Inspection Items</h3><ul>
           <li>Tap <strong>+ Add</strong> to create a snag item</li>
-          <li>Capture Before / After photos from your camera</li>
+          <li>Capture <strong>Before</strong> and <strong>After</strong> photos from your camera</li>
           <li>Annotate photos with arrows, circles, and text</li>
-          <li>Upload floor plans and pin items to exact locations</li>
-          <li>Swipe cards right → Closed &nbsp;|&nbsp; left → In Progress</li>
+          <li>Swipe right &#8594; <strong>Closed</strong> | left &#8594; <strong>In Progress</strong></li>
           <li>Group by Location, Category, Contractor, or Priority</li>
-          <li>Use the <strong>Export</strong> tab to download a Word report</li>
-          <li>Invite collaborators to share a project</li>
+        </ul></div>
+        <div class="about-card"><h3>Floor Plans</h3><ul>
+          <li>Go to <strong>Plans</strong> tab and tap <strong>+</strong> to add a plan</li>
+          <li>Upload an image (max 5MB)</li>
+          <li>Enable <strong>Pin Mode</strong> to drop pins on the plan</li>
+          <li>Tap a pin to see item info or remove it</li>
+        </ul></div>
+        <div class="about-card"><h3>Cover &amp; Export</h3><ul>
+          <li>Go to <strong>Cover</strong> tab — upload wallpaper, logo, fill project info</li>
+          <li>Go to <strong>Export</strong> tab and tap <strong>Download Word Report</strong></li>
+          <li>Open in Word to tweak formatting</li>
         </ul></div>
         <div class="about-card" style="background:var(--bg2)"><h3>Contact &amp; Support</h3>
           <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:8px">Found a bug? Drop us a line.</p>
-          <p style="font-size:13px;font-weight:700;color:var(--text)">jaabirsuddoo5@gmail.com</p>
-          <p style="font-size:11px;color:var(--text3);margin-top:8px">Happy inspecting! 🏗️</p>
+          <p id="contact-email" style="font-size:13px;font-weight:700;color:var(--text)"></p>
+          <p style="font-size:11px;color:var(--text3);margin-top:8px">Happy inspecting! &#x1F3D7;</p>
         </div>
-        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v4.0 — Always MLA</div>
+        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v4.0 &#x2014; Always MLA</div>
       </div>
     </div>
 
@@ -1545,7 +1568,6 @@ select.fi{cursor:pointer}
   <div id="pin-info-meta" style="font-size:11px;color:var(--text3);margin-bottom:12px;line-height:1.8"></div>
   <button id="btn-pin-unpin" type="button" style="width:100%;padding:8px;background:var(--red-bg);color:var(--red);border:1px solid var(--red-light);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:Montserrat,sans-serif">Remove Pin</button>
 </div>
-
 <!-- ══ TAG PICKER ══ -->
 <div id="tag-picker">
   <div style="background:var(--card);border-radius:16px 16px 0 0;width:100%;max-width:500px;max-height:60vh;display:flex;flex-direction:column">
@@ -1617,6 +1639,7 @@ var SELECT_MODE = false, SELECTED = {};
 var SMART_DDS = {};
 var NP_TAGS = [], CLIENTS = [];
 var RENEW_UID = null, ADMIN_CHAT_UID = null;
+var contactEl = document.getElementById('contact-email'); if (contactEl) contactEl.textContent = ['jaabirsuddoo5', 'gmail.com'].join('@');
 var PLAN_SCALE = 1, PLAN_OFFSET = { x: 0, y: 0 }, PLAN_IMG = null, PLAN_PIN_MODE = false;
 
 /* INIT */
@@ -2159,8 +2182,8 @@ document.getElementById('tag-picker').addEventListener('click', function (e) { i
 
 document.getElementById('btn-create-proj').onclick = function () {
   var name = document.getElementById('np-name').value.trim();
-  var ref = document.getElementById('np-ref').value.trim();
   if (!name) { toast('Enter project name', 'err'); return; }
+  var ref = document.getElementById('np-ref').value.trim();
   if (!ref) { toast('Enter ref number', 'err'); return; }
   loader(true, 'Creating project...');
   api('POST', '/projects', { name: name, ref: document.getElementById('np-ref').value.trim(), date: document.getElementById('np-date').value, clientId: document.getElementById('np-client').value || undefined, tags: NP_TAGS })
@@ -2168,7 +2191,7 @@ document.getElementById('btn-create-proj').onclick = function () {
     .catch(function () { loader(false); toast('Failed', 'err'); });
 };
 function duplicateProject(pid) { loader(true, 'Duplicating...'); api('POST', '/projects/' + pid + '/duplicate').then(function () { loader(false); toast('Duplicated', 'ok'); loadProjects(); }).catch(function () { loader(false); toast('Failed', 'err'); }); }
-function deleteProject(pid) { if (!confirm('Delete this project and all its items?')) return; loader(true, 'Deleting...'); api('DELETE', '/projects/' + pid).then(function () { loader(false); toast('Project deleted'); loadProjects(); }).catch(function (e) { loader(false); if (e.error === 'not_owner') { alert("You can't delete this project.\nIt was created by " + (e.ownerName || 'another user') + '.'); } else { toast('Failed', 'err'); } }); }
+function deleteProject(pid) { if (!confirm('Delete this project and all its items?')) return; loader(true, 'Deleting...'); api('DELETE', '/projects/' + pid).then(function () { loader(false); toast('Project deleted'); loadProjects(); }).catch(function (e) { loader(false); if (e && e.error === 'not_owner') { alert("You can't delete this project.\nCreated by " + (e.ownerName || 'another user') + '.'); } else { toast('Failed', 'err'); } }); }
 
 /* CHAT (Inspector) */
 document.getElementById('btn-chat-open').onclick = function () { openChat(); };
@@ -2278,7 +2301,7 @@ function openProject(pid) {
     CUR_ITEMS = r[1]; CUR_CATEGORIES = r[2];
     document.getElementById('pv-name').textContent = CUR_PROJECT.name;
     document.getElementById('pv-meta').textContent = (CUR_PROJECT.ref || 'No ref') + ' \u2014 ' + (CUR_PROJECT.date || '');
-    updateStatusPill(CUR_PROJECT.status || 'draft');
+    updateStatusPill(CUR_PROJECT.status||'draft');
     var catOpts = '<option value="" disabled selected>Select category...</option>' + CUR_CATEGORIES.map(function (c) { return '<option value="' + esc(c.name) + '">' + esc(c.name) + '</option>'; }).join('');
     document.getElementById('sm-cat').innerHTML = catOpts;
     var fpCat = '<div class="fp-chip on" data-v="all">All</div>' + CUR_CATEGORIES.map(function (c) { return '<div class="fp-chip" data-v="' + esc(c.name) + '">' + esc(c.name) + '</div>'; }).join('');
@@ -2288,6 +2311,7 @@ function openProject(pid) {
     renderSnagList();
     goPage('p-project');
     switchPvTab('inspection');
+    loadCoverTab();
     loadCoverTab();
   }).catch(function () { loader(false); toast('Failed to load project', 'err'); });
 }
@@ -2316,27 +2340,11 @@ function switchPvTab(tab) {
   if (tab === 'export') loadExportTab();
 }
 
-var statusPill = document.getElementById('pv-status-btn');
-var statusDrop = document.getElementById('pv-status-dropdown');
-function updateStatusPill(status) {
-  var map = { draft: 'Draft', in_progress: 'In Progress', under_review: 'Under Review', completed: 'Completed' };
-  var lbl = document.getElementById('pv-status-label'); if (lbl) lbl.textContent = map[status] || status;
-  if (statusPill) statusPill.className = 'pv-status-pill st-' + (status || 'draft');
-}
-if (statusPill) statusPill.onclick = function (e) { e.stopPropagation(); if (statusDrop) statusDrop.classList.toggle('open'); };
-document.querySelectorAll('.pv-status-opt').forEach(function (opt) {
-  opt.addEventListener('click', function (e) {
-    e.stopPropagation();
-    var val = this.dataset.val; if (!CUR_PROJECT) return;
-    if (statusDrop) statusDrop.classList.remove('open');
-    api('PUT', '/projects/' + CUR_PROJECT._id, { status: val }).then(function (p) {
-      CUR_PROJECT.status = p.status; updateStatusPill(p.status);
-      document.getElementById('pv-meta').textContent = (CUR_PROJECT.ref || 'No ref') + ' \u2014 ' + (CUR_PROJECT.date || '');
-      toast('Status: ' + val.replace(/_/g, ' '), 'ok');
-    }).catch(function () { toast('Failed', 'err'); });
-  });
-});
-document.addEventListener('click', function () { if (statusDrop) statusDrop.classList.remove('open'); });
+var statusPill=document.getElementById('pv-status-btn'),statusDrop=document.getElementById('pv-status-dropdown');
+function updateStatusPill(s){var m={draft:'Draft',in_progress:'In Progress',under_review:'Under Review',completed:'Completed'};var l=document.getElementById('pv-status-label');if(l)l.textContent=m[s]||s;if(statusPill)statusPill.className='pv-status-pill st-'+(s||'draft');}
+if(statusPill)statusPill.onclick=function(e){e.stopPropagation();if(statusDrop)statusDrop.classList.toggle('open');};
+document.querySelectorAll('.pv-status-opt').forEach(function(opt){opt.addEventListener('click',function(e){e.stopPropagation();var val=this.dataset.val;if(!CUR_PROJECT)return;if(statusDrop)statusDrop.classList.remove('open');api('PUT','/projects/'+CUR_PROJECT._id,{status:val}).then(function(p){CUR_PROJECT.status=p.status;updateStatusPill(p.status);document.getElementById('pv-meta').textContent=(CUR_PROJECT.ref||'No ref')+' — '+(CUR_PROJECT.date||'');toast('Status: '+val.replace(/_/g,' '),'ok');}).catch(function(){toast('Failed','err');});});});
+document.addEventListener('click',function(){if(statusDrop)statusDrop.classList.remove('open');});
 
 /* SNAG LIST */
 function renderSnagList() {
@@ -2836,50 +2844,40 @@ function renderPlanPins() {
     el.textContent = item.seq || '?';
     el.style.left = (pin.x * PLAN_SCALE + PLAN_OFFSET.x) + 'px';
     el.style.top = (pin.y * PLAN_SCALE + PLAN_OFFSET.y) + 'px';
-    el.addEventListener('click', function (e) {
-      e.stopPropagation();
-      showPinInfoPopup(item, e.clientX, e.clientY);
-    });
+    el.addEventListener('click', function (e) { e.stopPropagation(); showPinInfo(item, e.clientX, e.clientY); });
     wrap.appendChild(el);
   });
 }
-
 var PIN_INFO_ITEM = null;
-function showPinInfoPopup(item, cx, cy) {
+function showPinInfo(item, cx, cy) {
   PIN_INFO_ITEM = item;
-  var popup = document.getElementById('pin-info-popup');
+  var popup = document.getElementById('pin-info-popup'); if (!popup) return;
   document.getElementById('pin-info-ref').textContent = 'INS_' + String(item.seq || 0).padStart(3, '0');
   document.getElementById('pin-info-desc').textContent = item.description || 'No description';
   var meta = [];
-  if (item.status) meta.push('Status: ' + item.status.replace('_',' '));
+  if (item.status) meta.push('Status: ' + item.status.replace(/_/g,' '));
   if (item.priority) meta.push('Priority: ' + item.priority);
   if (item.location) meta.push('Location: ' + item.location);
   if (item.category) meta.push('Category: ' + item.category);
   document.getElementById('pin-info-meta').innerHTML = meta.join('<br>');
   popup.style.display = 'block';
-  var vw = window.innerWidth, vh = window.innerHeight;
-  var pw = 280, ph = 150;
-  popup.style.left = Math.min(cx + 12, vw - pw - 8) + 'px';
-  popup.style.top = Math.min(cy - 10, vh - ph - 8) + 'px';
+  popup.style.left = Math.min(cx + 12, window.innerWidth - 292) + 'px';
+  popup.style.top = Math.min(cy - 10, window.innerHeight - 160) + 'px';
 }
 document.getElementById('btn-pin-unpin').onclick = function () {
   if (!PIN_INFO_ITEM || !CUR_PLAN) return;
   var pins = (PIN_INFO_ITEM.pins || []).filter(function (p) { return p.planId !== CUR_PLAN._id; });
-  api('PUT', '/items/' + PIN_INFO_ITEM._id, { pins: pins })
-    .then(function () { document.getElementById('pin-info-popup').style.display = 'none'; PIN_INFO_ITEM = null; toast('Pin removed', 'ok'); reloadItems(); setTimeout(renderPlanPins, 400); })
-    .catch(function () { toast('Failed', 'err'); });
+  api('PUT', '/items/' + PIN_INFO_ITEM._id, { pins: pins }).then(function () {
+    document.getElementById('pin-info-popup').style.display = 'none'; PIN_INFO_ITEM = null;
+    toast('Pin removed', 'ok'); reloadItems(); setTimeout(renderPlanPins, 400);
+  }).catch(function () { toast('Failed', 'err'); });
 };
 document.addEventListener('click', function (e) {
-  var popup = document.getElementById('pin-info-popup');
-  if (popup && popup.style.display !== 'none' && !popup.contains(e.target) && !e.target.closest('.plan-pin')) {
-    popup.style.display = 'none'; PIN_INFO_ITEM = null;
-  }
+  var p = document.getElementById('pin-info-popup');
+  if (p && p.style.display !== 'none' && !p.contains(e.target) && !e.target.closest('.plan-pin')) { p.style.display = 'none'; PIN_INFO_ITEM = null; }
 });
 document.getElementById('plan-canvas-wrap').addEventListener('click', function (e) {
-  if (e.target.id === 'plan-empty' || e.target.closest('#plan-empty')) {
-    if (CUR_PLAN && !CUR_PLAN.image) document.getElementById('plan-img-input').click();
-    return;
-  }
+  if (e.target.id === 'plan-empty' || e.target.closest('#plan-empty')) { if (CUR_PLAN && !CUR_PLAN.image) document.getElementById('plan-img-input').click(); return; }
   if (e.target.closest('.plan-pin') || e.target.closest('#pin-info-popup')) return;
   if (!PLAN_PIN_MODE || !CUR_PLAN || !PLAN_IMG) return;
   var canvas = document.getElementById('plan-canvas');
@@ -2969,27 +2967,26 @@ function loadCoverTab() {
   document.getElementById('cv-title').value = cv.projectTitle || '';
   document.getElementById('cv-address').value = cv.siteAddress || '';
   var lp = document.getElementById('cv-logo-prev');
-  if (cv.logo && lp) { lp.src = cv.logo; lp.style.display = 'block'; var rm = document.getElementById('btn-cv-logo-rm'); if (rm) rm.style.display = 'inline-block'; }
+  if (cv.logo && lp) { lp.src = cv.logo; lp.style.display = 'block'; var r = document.getElementById('btn-cv-logo-rm'); if (r) r.style.display = 'inline-block'; }
   var wp = document.getElementById('cv-wallpaper-prev');
-  if (cv.wallpaper && wp) { wp.src = cv.wallpaper; wp.style.display = 'block'; var wrm = document.getElementById('btn-cv-wallpaper-rm'); if (wrm) wrm.style.display = 'inline-block'; }
+  if (cv.wallpaper && wp) { wp.src = cv.wallpaper; wp.style.display = 'block'; var wr = document.getElementById('btn-cv-wallpaper-rm'); if (wr) wr.style.display = 'inline-block'; }
   var st = document.getElementById('sum-text'); if (st) st.value = CUR_PROJECT.summary || '';
   var sa = document.getElementById('sum-appendix'); if (sa) sa.value = CUR_PROJECT.appendix || '';
 }
 document.getElementById('btn-cv-logo').onclick = function () { document.getElementById('cv-logo-input').click(); };
 document.getElementById('cv-logo-input').onchange = function () {
-  if (!this.files[0]) return; var r = new FileReader(); r.onload = function (e) { var lp = document.getElementById('cv-logo-prev'); lp.src = e.target.result; lp.style.display = 'block'; document.getElementById('btn-cv-logo-rm').style.display = 'inline-block'; }; r.readAsDataURL(this.files[0]);
+  if (!this.files[0]) return; var r = new FileReader(); r.onload = function (ev) { var lp = document.getElementById('cv-logo-prev'); lp.src = ev.target.result; lp.style.display = 'block'; document.getElementById('btn-cv-logo-rm').style.display = 'inline-block'; }; r.readAsDataURL(this.files[0]);
 };
 document.getElementById('btn-cv-logo-rm').onclick = function () { var lp = document.getElementById('cv-logo-prev'); lp.src = ''; lp.style.display = 'none'; this.style.display = 'none'; };
 document.getElementById('btn-cv-wallpaper').onclick = function () { document.getElementById('cv-wallpaper-input').click(); };
 document.getElementById('cv-wallpaper-input').onchange = function () {
-  if (!this.files[0]) return; var r = new FileReader(); r.onload = function (e) { var wp = document.getElementById('cv-wallpaper-prev'); wp.src = e.target.result; wp.style.display = 'block'; document.getElementById('btn-cv-wallpaper-rm').style.display = 'inline-block'; }; r.readAsDataURL(this.files[0]);
+  if (!this.files[0]) return; var r = new FileReader(); r.onload = function (ev) { var wp = document.getElementById('cv-wallpaper-prev'); wp.src = ev.target.result; wp.style.display = 'block'; document.getElementById('btn-cv-wallpaper-rm').style.display = 'inline-block'; }; r.readAsDataURL(this.files[0]);
 };
 document.getElementById('btn-cv-wallpaper-rm').onclick = function () { var wp = document.getElementById('cv-wallpaper-prev'); wp.src = ''; wp.style.display = 'none'; this.style.display = 'none'; };
 document.getElementById('btn-save-cover').onclick = function () {
   if (!CUR_PROJECT) return;
-  var logo = document.getElementById('cv-logo-prev');
-  var wallpaper = document.getElementById('cv-wallpaper-prev');
-  var cv = { projectTitle: document.getElementById('cv-title').value.trim(), siteAddress: document.getElementById('cv-address').value.trim(), logo: (logo && logo.style.display !== 'none') ? logo.src : null, wallpaper: (wallpaper && wallpaper.style.display !== 'none') ? wallpaper.src : null };
+  var lp = document.getElementById('cv-logo-prev'), wp = document.getElementById('cv-wallpaper-prev');
+  var cv = { projectTitle: document.getElementById('cv-title').value.trim(), siteAddress: document.getElementById('cv-address').value.trim(), logo: (lp && lp.style.display !== 'none') ? lp.src : null, wallpaper: (wp && wp.style.display !== 'none') ? wp.src : null };
   api('PUT', '/projects/' + CUR_PROJECT._id, { cover: cv }).then(function (p) { CUR_PROJECT = p; toast('Cover saved', 'ok'); }).catch(function () { toast('Failed', 'err'); });
 };
 document.getElementById('btn-save-sum').onclick = function () { if (!CUR_PROJECT) return; api('PUT', '/projects/' + CUR_PROJECT._id, { summary: document.getElementById('sum-text').value.trim() }).then(function () { toast('Summary saved', 'ok'); }).catch(function () { toast('Failed', 'err'); }); };
@@ -3000,19 +2997,18 @@ function loadExportTab() {
   if (!CUR_PROJECT) return;
   var contractors = [], categories = [];
   CUR_ITEMS.forEach(function (i) { if (i.contractor && contractors.indexOf(i.contractor) < 0) contractors.push(i.contractor); if (i.category && categories.indexOf(i.category) < 0) categories.push(i.category); });
-  var s = document.getElementById('exp-contractor-filter'); if (s) { s.innerHTML = '<option value="">All contractors</option>'; contractors.forEach(function (c) { s.innerHTML += '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }); }
-  var cs = document.getElementById('exp-category-filter'); if (cs) { cs.innerHTML = '<option value="">All categories</option>'; categories.sort().forEach(function (c) { cs.innerHTML += '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }); }
+  var sc = document.getElementById('exp-contractor-filter'); if (sc) { sc.innerHTML = '<option value="">All contractors</option>'; contractors.forEach(function (c) { sc.innerHTML += '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }); }
+  var scat = document.getElementById('exp-category-filter'); if (scat) { scat.innerHTML = '<option value="">All categories</option>'; categories.sort().forEach(function (c) { scat.innerHTML += '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }); }
 }
 document.getElementById('btn-export-word').onclick = function () {
   if (!CUR_PROJECT) return;
-  var logo = document.getElementById('cv-logo-prev');
-  var wallpaper = document.getElementById('cv-wallpaper-prev');
+  var lp = document.getElementById('cv-logo-prev'), wp = document.getElementById('cv-wallpaper-prev');
   var body = {
-    logo: (logo && logo.style.display !== 'none' && logo.src && logo.src.length > 10) ? logo.src : null,
-    wallpaper: (wallpaper && wallpaper.style.display !== 'none' && wallpaper.src && wallpaper.src.length > 10) ? wallpaper.src : null,
-    contractorFilter: document.getElementById('exp-contractor-filter') ? document.getElementById('exp-contractor-filter').value || null : null,
-    categoryFilter: document.getElementById('exp-category-filter') ? document.getElementById('exp-category-filter').value || null : null,
-    statusFilter: document.getElementById('exp-status-filter') ? document.getElementById('exp-status-filter').value || null : null
+    logo: (lp && lp.style.display !== 'none' && lp.src && lp.src.length > 10) ? lp.src : null,
+    wallpaper: (wp && wp.style.display !== 'none' && wp.src && wp.src.length > 10) ? wp.src : null,
+    contractorFilter: (document.getElementById('exp-contractor-filter') || {}).value || null,
+    categoryFilter: (document.getElementById('exp-category-filter') || {}).value || null,
+    statusFilter: (document.getElementById('exp-status-filter') || {}).value || null
   };
   loader(true, 'Generating Word report...');
   fetch(API + '/projects/' + CUR_PROJECT._id + '/export/word', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN }, body: JSON.stringify(body) })
@@ -3020,6 +3016,7 @@ document.getElementById('btn-export-word').onclick = function () {
     .then(function (blob) { loader(false); var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = (CUR_PROJECT.name || 'report').replace(/[^a-zA-Z0-9]/g, '_') + '_Inspection.docx'; a.click(); toast('Word report downloaded', 'ok'); })
     .catch(function (err) { loader(false); toast((err && err.error) || 'Export failed', 'err'); });
 };
+
 
 /* PREVENT DOUBLE-TAP ZOOM (but allow pinch zoom in viewer and annotation) */
 (function () {
