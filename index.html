@@ -916,7 +916,7 @@ select.fi{cursor:pointer}
     <div class="login-logo">
       <img src="logo.png" alt="MLA" class="login-logo-img"/>
       <div class="login-subtitle">Inspection</div>
-      <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:4px">v3.7</div>
+      <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:4px">v3.8</div>
     </div>
 
     <div class="server-status" id="server-status">
@@ -1321,7 +1321,7 @@ select.fi{cursor:pointer}
             <button class="btn btn-outline btn-sm" id="btn-about-exp-logo-rm" type="button" style="display:none;color:var(--red)">Remove</button>
           </div>
         </div>
-        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v3.7 — Phase 3+4 — Always MLA</div>
+        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v3.8 — Phase 3+4 — Always MLA</div>
       </div>
     </div>
 
@@ -3286,9 +3286,8 @@ function doExport(type) {
           var photoFields = ['photo', 'photoAfter', 'photoExtra'];
           var photoLabels = ['Before', 'After', 'Extra'];
           var hasAnyPhoto = false;
-          // LCOL=4800 DXA. Cell margins 60 DXA each side = 120 total.
-          // Usable = (4800-120) DXA / 20 = 234pt. Fill the full width.
-          var imgWidthPt = 234;
+          // LCOL=4800 DXA. No cell margins — image fills full column width = 4800/20 = 240pt
+          var imgWidthPt = 240;
           if (inclPhotos) {
             var filledPhotos = photoFields.filter(function(f) { return !!item[f]; }).length;
             var showLabel = filledPhotos > 1;
@@ -3336,15 +3335,15 @@ function doExport(type) {
                 children: [
                   new D.TableCell({
                     width: { size: LCOL, type: WidthType.DXA },
-                    borders: borderLightAll,
-                    shading: { fill: 'F7F7F7', type: 'clear' },
-                    margins: { top: 60, bottom: 60, left: 60, right: 60 },
+                    borders: { top: borderLight, bottom: borderLight, left: borderLight, right: borderNone },
+                    shading: { fill: 'FFFFFF', type: 'clear' },
+                    margins: { top: 0, bottom: 0, left: 0, right: 0 },
                     verticalAlign: VerticalAlign.TOP,
                     children: leftCellChildren
                   }),
                   new D.TableCell({
                     width: { size: RCOL, type: WidthType.DXA },
-                    borders: borderLightAll,
+                    borders: { top: borderLight, bottom: borderLight, left: borderNone, right: borderLight },
                     margins: { top: 180, bottom: 180, left: 220, right: 140 },
                     verticalAlign: VerticalAlign.TOP,
                     children: rightCellChildren
