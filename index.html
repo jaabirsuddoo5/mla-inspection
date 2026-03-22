@@ -1302,18 +1302,38 @@ select.fi{cursor:pointer}
     <div class="pv-section" id="pvs-about">
       <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:14px">
         <div class="about-logo-wrap"><img src="logo.png" alt="MLA"/><h2>MLA Inspection</h2><p>Professional Snagging &amp; Defect Management</p></div>
-        <div class="about-card"><h3>How to Use</h3><ul>
-          <li>Tap <strong>+ Add</strong> to create a snag item</li>
-          <li>Capture Before / After photos from your camera</li>
-          <li>Annotate photos with arrows, circles, and text</li>
-          <li>Upload floor plans and pin items to exact locations</li>
-          <li>Swipe cards right &rarr; Closed &nbsp;|&nbsp; left &rarr; In Progress</li>
-          <li>Group by Location, Category, Contractor, or Priority</li>
-          <li>Export A4 PDF or Word report with contractor filter</li>
-          <li>Invite collaborators to share a project</li>
+
+        <div class="about-card"><h3>📋 Tabs Guide</h3><ul>
+          <li><strong>Plan</strong> — Upload your floor plan and pin inspection items to exact locations</li>
+          <li><strong>Inspection</strong> — Create, view and manage all snag items</li>
+          <li><strong>Recycle</strong> — Items deleted in the last 24 hours (recoverable)</li>
+          <li><strong>Summary</strong> — Stats overview: open, in progress, closed, photos per visit</li>
+          <li><strong>Export</strong> — Generate A4 PDF or Word report with filters</li>
+          <li><strong>About</strong> — You are here 😄</li>
         </ul></div>
-        <div class="about-card"><h3>Export Logo</h3>
-          <p>Upload your company logo — appears on PDF/Word cover pages only.</p>
+
+        <div class="about-card"><h3>📍 Pins — How to Pin &amp; Unpin</h3><ul>
+          <li>Tap <strong>📍 Pin Mode</strong> button to enter pin mode</li>
+          <li>Tap anywhere on the plan to drop a pin — choose the item from the list</li>
+          <li><strong>To unpin:</strong> press and hold a pin for about 1 second, then confirm removal</li>
+          <li><em>Note: the server may be a little slow — please be patient after pinning or unpinning</em></li>
+        </ul></div>
+
+        <div class="about-card"><h3>🗺️ Plan Upload Tips</h3><ul>
+          <li><strong>Note:</strong> Upload your plan as an image file (JPG or PNG), not a PDF</li>
+          <li><strong>Pro tip:</strong> Print your plan to PDF in AutoCAD, then export as JPG before uploading — this gives you a clean, high-quality image</li>
+          <li>Aim for A4 half-page size for best fit on reports</li>
+        </ul></div>
+
+        <div class="about-card"><h3>📄 Export PDF Tips</h3><ul>
+          <li>After tapping <strong>Export PDF</strong>, a new tab opens with the report</li>
+          <li>Use your browser's <strong>Print</strong> function (or Ctrl+P / ⌘+P) to save as PDF</li>
+          <li>To close the PDF preview, close that browser tab — your app remains open in the original tab</li>
+          <li>Page numbers appear in the footer of each page</li>
+        </ul></div>
+
+        <div class="about-card"><h3>🏷️ Export Logo</h3>
+          <p>Upload your company logo — appears on PDF/Word cover pages only. If none uploaded, the MLA logo is used by default.</p>
           <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
             <img id="about-exp-logo-prev" style="width:56px;height:56px;border-radius:8px;object-fit:contain;background:var(--bg2);border:1px solid var(--line);display:none"/>
             <input type="file" id="about-exp-logo-input" accept="image/*" style="display:none"/>
@@ -1321,6 +1341,12 @@ select.fi{cursor:pointer}
             <button class="btn btn-outline btn-sm" id="btn-about-exp-logo-rm" type="button" style="display:none;color:var(--red)">Remove</button>
           </div>
         </div>
+
+        <div class="about-card" style="text-align:center;font-size:12px;color:var(--text3);font-style:italic">
+          <p>🔍 Remember: a good inspector never misses a defect...</p>
+          <p>...but a great inspector documents it properly! 📝✅</p>
+        </div>
+
         <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v4.1 — Phase 3+4 — Always MLA</div>
       </div>
     </div>
@@ -2885,8 +2911,34 @@ function renderPlanPins() {
     el.textContent = item.seq || '?';
     el.style.left = (pin.x * PLAN_SCALE + PLAN_OFFSET.x) + 'px';
     el.style.top = (pin.y * PLAN_SCALE + PLAN_OFFSET.y) + 'px';
-    el.title = 'INS-' + String(item.seq || 0).padStart(3, '0') + ': ' + (item.description || '');
-    el.addEventListener('click', function () { toast('INS-' + String(item.seq || 0).padStart(3, '0') + ': ' + (item.description || ''), 'ok'); });
+    el.title = 'Tap: view  |  Hold: unpin\nINS-' + String(item.seq || 0).padStart(3, '0') + ': ' + (item.description || '');
+    // Short tap — show info
+    var pressTimer = null;
+    var didLongPress = false;
+    var startUnpin = function (ev) {
+      ev.stopPropagation();
+      didLongPress = false;
+      pressTimer = setTimeout(function () {
+        didLongPress = true;
+        // Long press — unpin
+        if (confirm('Remove pin for INS-' + String(item.seq || 0).padStart(3, '0') + '?')) {
+          var newPins = (item.pins || []).filter(function (p) { return p.planId !== CUR_PLAN._id; });
+          api('PUT', '/items/' + item._id, { pins: newPins }).then(function () { toast('Pin removed', 'ok'); reloadItems(); setTimeout(renderPlanPins, 500); }).catch(function () { toast('Failed', 'err'); });
+        }
+      }, 600);
+    };
+    var cancelUnpin = function () { clearTimeout(pressTimer); };
+    var tapUnpin = function (ev) {
+      ev.stopPropagation();
+      clearTimeout(pressTimer);
+      if (!didLongPress) toast('INS-' + String(item.seq || 0).padStart(3, '0') + ': ' + (item.description || ''), 'ok');
+    };
+    el.addEventListener('mousedown', startUnpin);
+    el.addEventListener('touchstart', startUnpin, { passive: true });
+    el.addEventListener('mouseup', tapUnpin);
+    el.addEventListener('touchend', tapUnpin);
+    el.addEventListener('mouseleave', cancelUnpin);
+    el.addEventListener('touchcancel', cancelUnpin);
     wrap.appendChild(el);
   });
 }
