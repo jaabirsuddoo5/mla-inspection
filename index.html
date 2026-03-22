@@ -916,7 +916,7 @@ select.fi{cursor:pointer}
     <div class="login-logo">
       <img src="logo.png" alt="MLA" class="login-logo-img"/>
       <div class="login-subtitle">Inspection</div>
-      <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:4px">v3.9</div>
+      <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:4px">v4.0</div>
     </div>
 
     <div class="server-status" id="server-status">
@@ -1321,7 +1321,7 @@ select.fi{cursor:pointer}
             <button class="btn btn-outline btn-sm" id="btn-about-exp-logo-rm" type="button" style="display:none;color:var(--red)">Remove</button>
           </div>
         </div>
-        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v3.9 — Phase 3+4 — Always MLA</div>
+        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v4.0 — Phase 3+4 — Always MLA</div>
       </div>
     </div>
 
@@ -3296,7 +3296,7 @@ function doExport(type) {
               var imgRun = makeImgRun(item[field], imgWidthPt);
               if (!imgRun) return;
               // Image — zero after spacing, sits flush
-              leftCellChildren.push(p([imgRun], { spacing: { before: 0, after: 0 }, indent: { left: 0, right: 0 } }));
+              leftCellChildren.push(p([imgRun], { alignment: AlignmentType.CENTER, spacing: { before: 0, after: 0 }, indent: { left: 0, right: 0 } }));
               if (showLabel) {
                 leftCellChildren.push(p([t(photoLabels[fi].toUpperCase(), { size: 13, color: 'AAAAAA', bold: true, characterSpacing: 60 })], { spacing: { before: 40, after: 20 } }));
               }
@@ -3344,7 +3344,7 @@ function doExport(type) {
                   new D.TableCell({
                     width: { size: RCOL, type: WidthType.DXA },
                     borders: { top: borderLight, bottom: borderLight, left: borderNone, right: borderLight },
-                    margins: { top: 180, bottom: 180, left: 220, right: 140 },
+                    margins: { top: 180, bottom: 180, left: 360, right: 140 },
                     verticalAlign: VerticalAlign.TOP,
                     children: rightCellChildren
                   })
