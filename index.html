@@ -916,7 +916,7 @@ select.fi{cursor:pointer}
     <div class="login-logo">
       <img src="logo.png" alt="MLA" class="login-logo-img"/>
       <div class="login-subtitle">Inspection</div>
-      <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:4px">v4.0</div>
+      <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:4px">v4.1</div>
     </div>
 
     <div class="server-status" id="server-status">
@@ -1321,7 +1321,7 @@ select.fi{cursor:pointer}
             <button class="btn btn-outline btn-sm" id="btn-about-exp-logo-rm" type="button" style="display:none;color:var(--red)">Remove</button>
           </div>
         </div>
-        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v4.0 — Phase 3+4 — Always MLA</div>
+        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v4.1 — Phase 3+4 — Always MLA</div>
       </div>
     </div>
 
@@ -3178,8 +3178,12 @@ function doExport(type) {
         var logoData = EXPORT_LOGO || MLA_LOGO_B64;
         var logoType = imgType(logoData);
         var logoBuf = dataUrlToUint8(logoData);
-        // Logo dims: keep max 130pt wide, 45pt tall
-        var logoW = 130, logoH = 45;
+        // Logo dims: preserve aspect ratio, max 130pt wide, max 55pt tall — no stretch, no crop
+        var logoDims = getImgDims(logoBuf, logoType) || { w: 1568, h: 541 };
+        var logoRatio = logoDims.h / (logoDims.w || 1);
+        var logoW = 130;
+        var logoH = Math.round(logoW * logoRatio);
+        if (logoH > 55) { logoH = 55; logoW = Math.round(logoH / logoRatio); }
 
         // Tab stop helper for right-aligned text in same paragraph
         function tabRight(leftText, leftOpts, rightText, rightOpts, totalDxa) {
@@ -3224,7 +3228,8 @@ function doExport(type) {
 
         // ── HEADER (logo left, date+status right) for body pages ──
         var headerLogoRun;
-        try { headerLogoRun = new D.ImageRun({ data: logoBuf, transformation: { width: 80, height: 28 }, type: logoType }); } catch(e) { headerLogoRun = null; }
+        var headerLogoW = 80; var headerLogoH = Math.round(headerLogoW * logoRatio); if (headerLogoH > 28) { headerLogoH = 28; headerLogoW = Math.round(headerLogoH / logoRatio); }
+        try { headerLogoRun = new D.ImageRun({ data: logoBuf, transformation: { width: headerLogoW, height: headerLogoH }, type: logoType }); } catch(e) { headerLogoRun = null; }
         var headerChildren = headerLogoRun
           ? [ tabRight('', {}, genDate + '   ' + projectStatus + '   ' + revision, { size: 16, color: '999999' }, TW),
               p([headerLogoRun]) ]
