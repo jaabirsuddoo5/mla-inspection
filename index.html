@@ -916,7 +916,7 @@ select.fi{cursor:pointer}
     <div class="login-logo">
       <img src="logo.png" alt="MLA" class="login-logo-img"/>
       <div class="login-subtitle">Inspection</div>
-      <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:4px">v3.6</div>
+      <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:4px">v3.7</div>
     </div>
 
     <div class="server-status" id="server-status">
@@ -1321,7 +1321,7 @@ select.fi{cursor:pointer}
             <button class="btn btn-outline btn-sm" id="btn-about-exp-logo-rm" type="button" style="display:none;color:var(--red)">Remove</button>
           </div>
         </div>
-        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v3.6 — Phase 3+4 — Always MLA</div>
+        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v3.7 — Phase 3+4 — Always MLA</div>
       </div>
     </div>
 
@@ -3148,7 +3148,7 @@ function doExport(type) {
             var ratio = dims ? (dims.h / (dims.w || 1)) : 1;
             var w = maxWidthPt;
             var h = Math.round(w * ratio);
-            if (h > 220) { h = 220; w = Math.round(h / ratio); }
+            // No height cap — let portrait images be as tall as they need to be
             return new D.ImageRun({ data: buf, transformation: { width: w, height: h }, type: type });
           } catch(e) { return null; }
         }
@@ -3158,9 +3158,9 @@ function doExport(type) {
         var borderLight = { style: BorderStyle.SINGLE, size: 1, color: 'DDDDDD' };
         var borderLightAll = { top: borderLight, bottom: borderLight, left: borderLight, right: borderLight };
 
-        // A4 content width: 11906 - 2*1134 (1.5cm margins each side in DXA: 1cm=567) = ~9638
-        // Using 2cm margins each side: 11906 - 2*1134 = 9638 DXA. Left col = 4200, right col = 5438
-        var TW = 9638, LCOL = 4200, RCOL = 5438;
+        // A4 content width with 1000 DXA margins each side: 11906 - 2000 = 9906
+        // Left col wider for bigger photos: 4800, right col: 5106
+        var TW = 9906, LCOL = 4800, RCOL = 5106;
 
         var stColors = { open: 'D94141', in_progress: 'C78A20', closed: '2D8653' };
         var priColors = { low: '888888', medium: 'C78A20', high: 'D94141', critical: 'D94141' };
@@ -3286,8 +3286,9 @@ function doExport(type) {
           var photoFields = ['photo', 'photoAfter', 'photoExtra'];
           var photoLabels = ['Before', 'After', 'Extra'];
           var hasAnyPhoto = false;
-          // LCOL=4200 DXA = ~74mm. Cell margin 6pt each side. Max image = 148pt wide.
-          var imgWidthPt = 148;
+          // LCOL=4800 DXA. Cell margins 60 DXA each side = 120 total.
+          // Usable = (4800-120) DXA / 20 = 234pt. Fill the full width.
+          var imgWidthPt = 234;
           if (inclPhotos) {
             var filledPhotos = photoFields.filter(function(f) { return !!item[f]; }).length;
             var showLabel = filledPhotos > 1;
@@ -3354,7 +3355,7 @@ function doExport(type) {
           });
 
           bodyChildren.push(tbl);
-          bodyChildren.push(p([t('')], { spacing: { after: 80 } }));
+          bodyChildren.push(p([t('')], { spacing: { before: 0, after: 0, line: 240, lineRule: 'auto' } }));
         });
 
         sections.push({
