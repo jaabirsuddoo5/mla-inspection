@@ -916,7 +916,7 @@ select.fi{cursor:pointer}
     <div class="login-logo">
       <img src="logo.png" alt="MLA" class="login-logo-img"/>
       <div class="login-subtitle">Inspection</div>
-      <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:4px">v4.1</div>
+      <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:4px">v4.2</div>
     </div>
 
     <div class="server-status" id="server-status">
@@ -1347,7 +1347,7 @@ select.fi{cursor:pointer}
           <p>...but a great inspector documents it properly! 📝✅</p>
         </div>
 
-        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v4.1 — Phase 3+4 — Always MLA</div>
+        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v4.2 — Phase 3+4 — Always MLA</div>
       </div>
     </div>
 
@@ -2868,12 +2868,14 @@ function renderPlanTabs() {
 }
 function removePlan(plan) {
   if (!confirm('Remove plan "' + plan.name + '"? This cannot be undone.')) return;
-  api('DELETE', '/projects/' + CUR_PROJECT._id + '/plans/' + plan._id).then(function () {
+  api('DELETE', '/plans/' + plan._id).then(function () {
     toast('Plan removed', 'ok'); loadPlansTab();
   }).catch(function () { toast('Failed to remove plan', 'err'); });
 }
 function selectPlan(plan) {
   CUR_PLAN = plan;
+  // Always clear any lingering pins from a previous plan
+  document.getElementById('plan-canvas-wrap').querySelectorAll('.plan-pin').forEach(function(p) { p.remove(); });
   document.querySelectorAll('.plan-tab').forEach(function (t) { t.classList.toggle('on', t.textContent === plan.name); });
   if (plan.image) { document.getElementById('plan-empty').style.display = 'none'; renderPlanCanvas(plan); }
   else { document.getElementById('plan-empty').style.display = 'flex'; document.getElementById('plan-canvas').style.display = 'none'; }
@@ -2904,7 +2906,7 @@ function drawPlan() {
 function renderPlanPins() {
   var wrap = document.getElementById('plan-canvas-wrap');
   wrap.querySelectorAll('.plan-pin').forEach(function (p) { p.remove(); });
-  if (!CUR_PLAN) return;
+  if (!CUR_PLAN || !CUR_PLAN.image) return;
   CUR_ITEMS.filter(function (i) { return !i.deleted && i.pins && i.pins.some(function (pin) { return pin.planId === CUR_PLAN._id; }); }).forEach(function (item) {
     var pin = item.pins.find(function (p) { return p.planId === CUR_PLAN._id; }); if (!pin) return;
     var el = document.createElement('div'); el.className = 'plan-pin ' + (item.status || 'open');
