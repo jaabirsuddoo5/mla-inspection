@@ -916,7 +916,7 @@ select.fi{cursor:pointer}
     <div class="login-logo">
       <img src="logo.png" alt="MLA" class="login-logo-img"/>
       <div class="login-subtitle">Inspection</div>
-      <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:4px">v3.8</div>
+      <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:4px">v3.9</div>
     </div>
 
     <div class="server-status" id="server-status">
@@ -1321,7 +1321,7 @@ select.fi{cursor:pointer}
             <button class="btn btn-outline btn-sm" id="btn-about-exp-logo-rm" type="button" style="display:none;color:var(--red)">Remove</button>
           </div>
         </div>
-        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v3.8 — Phase 3+4 — Always MLA</div>
+        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v3.9 — Phase 3+4 — Always MLA</div>
       </div>
     </div>
 
@@ -3048,7 +3048,7 @@ function doExport(type) {
     var sumHtml = CUR_PROJECT.summary ? '<div style="page-break-after:always;padding:40px 40px 20px"><h2 style="font-size:16px;color:#4A4A4A;margin-bottom:12px;border-bottom:1px solid #ddd;padding-bottom:8px">Executive Summary</h2><p style="font-size:12px;line-height:1.8;color:#333">' + esc(CUR_PROJECT.summary) + '</p></div>' : '';
     var itemsHtml = '';
     var pdfPhotosOnPage = 0;
-    var PDF_PHOTOS_PER_PAGE = 4;
+    var PDF_PHOTOS_PER_PAGE = 3;
     items.forEach(function (item, idx) {
       var seq = 'INS_' + String(item.seq || 0).padStart(3, '0');
       var stColor = stC[item.status] || '#888';
@@ -3259,7 +3259,7 @@ function doExport(type) {
         // ── ITEM TABLES ──
         // Page break logic: track photos on current page, break when adding this item would exceed 4 photos
         var photosOnPage = 0;
-        var PHOTOS_PER_PAGE = 4;
+        var PHOTOS_PER_PAGE = 3;
 
         items.forEach(function (item, idx) {
           var seq = 'INS_' + String(item.seq || 0).padStart(3, '0');
