@@ -3138,7 +3138,8 @@ function doExport(type) {
         '<td style="vertical-align:top;padding:14px 16px">' + rightCell + '</td>' +
         '</tr></table>';
     });
-    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>@page{size:A4;margin:15mm}body{font-family:Arial,sans-serif;margin:0}table{page-break-inside:avoid}</style></head><body>' +
+    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>@page{size:A4;margin:15mm}body{font-family:Arial,sans-serif;margin:0}table{page-break-inside:avoid}#pdf-close-btn{position:fixed;top:14px;right:18px;z-index:9999;background:#D94141;color:#fff;border:none;border-radius:50%;width:40px;height:40px;font-size:22px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);line-height:1}@media print{#pdf-close-btn{display:none}}</style></head><body>' +
+      '<button id="pdf-close-btn" onclick="window.close()" title="Close PDF preview">\u00D7</button>' +
       coverHtml + sumHtml +
       '<div style="padding:20px 0"><h2 style="font-size:14px;color:#4A4A4A;margin-bottom:4px;font-weight:800">Observations &amp; Findings</h2><div style="font-size:10px;color:#999;margin-bottom:16px">' + items.length + ' items \u2014 Generated ' + new Date().toLocaleDateString() + '</div>' +
       itemsHtml + '</div></body></html>';
@@ -3303,7 +3304,109 @@ function doExport(type) {
           children: coverChildren.concat([p([new D.PageBreak()])])
         });
 
-        // ── BODY SECTION ──
+        // ── PLAN SECTION(S) — one page per plan that has an image and at least one pinned item ──
+        var plansWithImages = CUR_PLANS.filter(function(pl) { return !!pl.image; });
+        plansWithImages.forEach(function(pl) {
+          // Build composite: draw plan image + pins on offscreen canvas
+          var planImg = new Image();
+          planImg.src = pl.image;
+          // Canvas fits A4 content area roughly: 794 × 1123 px at 96dpi — use 760×540 (half A4 landscape-ish)
+          var PW = 760, PH = 540;
+          var oc = document.createElement('canvas');
+          oc.width = PW; oc.height = PH;
+          var ctx2 = oc.getContext('2d');
+          // Wait for image (it may already be cached)
+          var drawIt = function() {
+            ctx2.fillStyle = '#FFFFFF';
+            ctx2.fillRect(0, 0, PW, PH);
+            var scale = Math.min(PW / planImg.naturalWidth, PH / planImg.naturalHeight);
+            var dw = planImg.naturalWidth * scale, dh = planImg.naturalHeight * scale;
+            var ox = (PW - dw) / 2, oy = (PH - dh) / 2;
+            ctx2.drawImage(planImg, ox, oy, dw, dh);
+            // Draw pins
+            var pinColors = { open: '#D94141', in_progress: '#C78A20', closed: '#2D8653' };
+            CUR_ITEMS.filter(function(i) {
+              return !i.deleted && i.pins && i.pins.some(function(pin) { return pin.planId === pl._id; });
+            }).forEach(function(item) {
+              var pin = item.pins.find(function(p2) { return p2.planId === pl._id; });
+              if (!pin) return;
+              var px2 = ox + pin.x * scale;
+              var py2 = oy + pin.y * scale;
+              var r = 14;
+              ctx2.beginPath(); ctx2.arc(px2, py2, r, 0, 2*Math.PI);
+              ctx2.fillStyle = pinColors[item.status] || '#D94141';
+              ctx2.fill();
+              ctx2.strokeStyle = '#FFFFFF'; ctx2.lineWidth = 2; ctx2.stroke();
+              ctx2.fillStyle = '#FFFFFF';
+              ctx2.font = 'bold 11px Arial';
+              ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
+              ctx2.fillText(String(item.seq || '?'), px2, py2);
+            });
+          };
+          if (planImg.complete && planImg.naturalWidth) {
+            drawIt();
+          } else {
+            // image not cached — draw blank with note
+            ctx2.fillStyle = '#F5F5F5'; ctx2.fillRect(0, 0, PW, PH);
+            ctx2.fillStyle = '#999999'; ctx2.font = '16px Arial'; ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
+            ctx2.fillText('Plan: ' + pl.name, PW/2, PH/2);
+          }
+          var planDataUrl = oc.toDataURL('image/jpeg', 0.92);
+          var planBuf = dataUrlToUint8(planDataUrl);
+          var planDims = getImgDims(planBuf, 'jpg') || { w: PW, h: PH };
+          var planRatio = planDims.h / (planDims.w || 1);
+          var planImgW = TW / 20; // full content width in pt
+          var planImgH = Math.round(planImgW * planRatio);
+          var planImgRun = null;
+          try { planImgRun = new D.ImageRun({ data: planBuf, transformation: { width: planImgW, height: planImgH }, type: 'jpg' }); } catch(e) {}
+
+          // Legend below the plan image
+          var legendStatuses = ['open', 'in_progress', 'closed'];
+          var legendLabels = ['Open', 'In Progress', 'Closed'];
+          var legendColors2 = { open: 'D94141', in_progress: 'C78A20', closed: '2D8653' };
+
+          var planSectionChildren = [
+            p([t('Floor Plan: ' + pl.name, { size: 28, bold: true, color: '4A4A4A' })], { spacing: { before: 0, after: 240 } })
+          ];
+          if (planImgRun) {
+            planSectionChildren.push(p([planImgRun], { alignment: AlignmentType.CENTER, spacing: { before: 0, after: 240 } }));
+          }
+          // Pin legend
+          var legendRuns = [t('Pin Legend:  ', { size: 18, bold: true, color: '888888' })];
+          legendStatuses.forEach(function(st, si) {
+            var pinnedCount = CUR_ITEMS.filter(function(i) {
+              return !i.deleted && i.status === st && i.pins && i.pins.some(function(p2) { return p2.planId === pl._id; });
+            }).length;
+            legendRuns.push(t('\u25CF ', { size: 22, color: legendColors2[st], bold: true }));
+            legendRuns.push(t(legendLabels[si] + ' (' + pinnedCount + ')  ', { size: 18, color: '444444' }));
+          });
+          planSectionChildren.push(p(legendRuns, { spacing: { before: 0, after: 160 } }));
+
+          // Pinned item list for this plan
+          var pinnedItems = CUR_ITEMS.filter(function(i) {
+            return !i.deleted && i.pins && i.pins.some(function(p2) { return p2.planId === pl._id; });
+          }).sort(function(a,b) { return (a.seq||0)-(b.seq||0); });
+          if (pinnedItems.length) {
+            planSectionChildren.push(p([t('Pinned Items', { size: 20, bold: true, color: '666666' })], { spacing: { before: 120, after: 60 } }));
+            pinnedItems.forEach(function(item) {
+              var stC2 = stColors[item.status] || '888888';
+              planSectionChildren.push(p([
+                t('INS-' + String(item.seq||0).padStart(3,'0') + '  ', { size: 18, bold: true, color: 'AAAAAA' }),
+                t((item.description || '').substring(0,60), { size: 18, color: '222222' }),
+                t('  [' + (item.status||'').replace(/_/g,' ') + ']', { size: 16, color: stC2 })
+              ], { spacing: { after: 40 } }));
+            });
+          }
+
+          sections.push({
+            properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1400, right: 1000, bottom: 1400, left: 1000 } } },
+            headers: { default: docHeader },
+            footers: { default: docFooter },
+            children: planSectionChildren
+          });
+        });
+
+
         var bodyChildren = [];
 
         bodyChildren.push(p([t('Observations & Findings', { size: 36, bold: true, color: '4A4A4A' })], { spacing: { before: 0, after: 240 } }));
