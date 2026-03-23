@@ -820,6 +820,7 @@ select.fi{cursor:pointer}
 .exp-btn:active{transform:scale(0.98);opacity:0.85}
 .exp-btn-pdf{background:var(--red);color:#fff}
 .exp-btn-word{background:var(--blue);color:#fff}
+.exp-btn-onepp{background:linear-gradient(135deg,#6B21A8,#A855F7);color:#fff}
 .exp-btn svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2}
 
 /* ── STAT GRID (summary tab) ── */
@@ -916,7 +917,7 @@ select.fi{cursor:pointer}
     <div class="login-logo">
       <img src="logo.png" alt="MLA" class="login-logo-img"/>
       <div class="login-subtitle">Inspection</div>
-      <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:4px">v4.2</div>
+      <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:4px">v4.3</div>
     </div>
 
     <div class="server-status" id="server-status">
@@ -1295,6 +1296,7 @@ select.fi{cursor:pointer}
         </div>
         <button class="exp-btn exp-btn-pdf" id="btn-exp-pdf" type="button"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Export PDF (A4)</button>
         <button class="exp-btn exp-btn-word" id="btn-exp-word" type="button"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Export Word (A4)</button>
+        <button class="exp-btn exp-btn-onepp" id="btn-exp-onepp" type="button"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="9" rx="1"/><rect x="3" y="15" width="18" height="6" rx="1"/></svg> 📸 One Shot Report</button>
       </div>
     </div>
 
@@ -1347,7 +1349,7 @@ select.fi{cursor:pointer}
           <p>...but a great inspector documents it properly! 📝✅</p>
         </div>
 
-        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v4.2 — Phase 3+4 — Always MLA</div>
+        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v4.3 — Phase 3+4 — Always MLA</div>
       </div>
     </div>
 
@@ -3089,6 +3091,7 @@ function getExportData() {
 
 document.getElementById('btn-exp-pdf').onclick = function () { doExport('pdf'); };
 document.getElementById('btn-exp-word').onclick = function () { doExport('word'); };
+document.getElementById('btn-exp-onepp').onclick = function () { doExportOnePP(); };
 
 function doExport(type) {
   var ed = getExportData(), items = ed.items, inclPhotos = ed.inclPhotos;
@@ -3549,7 +3552,278 @@ function doExport(type) {
   }
 }
 
-/* PREVENT DOUBLE-TAP ZOOM (but allow pinch zoom in viewer and annotation) */
+function doExportOnePP() {
+  var ed = getExportData(), items = ed.items;
+  if (!items.length) { toast('No items to export', 'err'); return; }
+  var cv = CUR_PROJECT.cover || {}, title = cv.projectTitle || CUR_PROJECT.name, ref = CUR_PROJECT.ref || '', date = CUR_PROJECT.date || '', addr = cv.siteAddress || CUR_PROJECT.address || '';
+  loader(true, 'Preparing One Shot Report\u2026');
+  loadDocx(function () {
+    try {
+      var D = window.docx;
+      var BorderStyle = D.BorderStyle, WidthType = D.WidthType, AlignmentType = D.AlignmentType, VerticalAlign = D.VerticalAlign;
+
+      // ── shared helpers (same as doExport) ──
+      function dataUrlToUint8(dataUrl) {
+        var b64 = dataUrl.split(',')[1];
+        var bin = atob(b64), arr = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+        return arr;
+      }
+      function imgType(dataUrl) {
+        if (!dataUrl) return 'jpg';
+        var m = dataUrl.match(/^data:image\/([a-zA-Z+]+);/);
+        return m ? m[1].replace('jpeg','jpg') : 'jpg';
+      }
+      function getImgDims(buf, type) {
+        try {
+          if (type === 'png') {
+            var w = (buf[16]<<24|buf[17]<<16|buf[18]<<8|buf[19])>>>0;
+            var h = (buf[20]<<24|buf[21]<<16|buf[22]<<8|buf[23])>>>0;
+            return { w: w, h: h };
+          } else {
+            var i = 2;
+            while (i < buf.length - 8) {
+              if (buf[i] === 0xFF && (buf[i+1] === 0xC0 || buf[i+1] === 0xC2)) {
+                return { w: (buf[i+7]<<8)|buf[i+8], h: (buf[i+5]<<8)|buf[i+6] };
+              }
+              var len = (buf[i+2]<<8)|buf[i+3];
+              i += 2 + len;
+            }
+          }
+        } catch(e) {}
+        return null;
+      }
+      function makeImgRun(dataUrl, wPt) {
+        if (!dataUrl) return null;
+        try {
+          var buf = dataUrlToUint8(dataUrl);
+          var type = imgType(dataUrl);
+          var dims = getImgDims(buf, type);
+          var ratio = dims ? (dims.h / (dims.w || 1)) : 1;
+          var hPt = Math.round(wPt * ratio);
+          return new D.ImageRun({ data: buf, transformation: { width: wPt, height: hPt }, type: type });
+        } catch(e) { return null; }
+      }
+      function t(text, opts) {
+        return new D.TextRun(Object.assign({ text: String(text || ''), font: 'Arial', size: 20 }, opts || {}));
+      }
+      function p(children, opts) {
+        return new D.Paragraph(Object.assign({ children: Array.isArray(children) ? children : [children] }, opts || {}));
+      }
+
+      // ── logo ──
+      var MLA_LOGO_B64_OPP = document.querySelector('img[src="logo.png"]') ? null : null; // use same constant
+      var logoData = EXPORT_LOGO || MLA_LOGO_B64;
+      var logoType = imgType(logoData);
+      var logoBuf = dataUrlToUint8(logoData);
+      var logoDims = getImgDims(logoBuf, logoType) || { w: 1568, h: 541 };
+      var logoRatio = logoDims.h / (logoDims.w || 1);
+      var logoW = 110; var logoH = Math.round(logoW * logoRatio);
+      if (logoH > 48) { logoH = 48; logoW = Math.round(logoH / logoRatio); }
+
+      var borderNone = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' };
+      var borderLight = { style: BorderStyle.SINGLE, size: 1, color: 'DDDDDD' };
+      var stColors = { open: 'D94141', in_progress: 'C78A20', closed: '2D8653' };
+      var priColors = { low: '888888', medium: 'C78A20', high: 'D94141', critical: 'D94141' };
+
+      // A4 content with 1000 DXA margins each side: 9906 DXA total width
+      var TW = 9906; // total content width DXA
+      var TWpt = TW / 20; // 495.3 pt — full content width in pt
+
+      var genDate = new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+      var projectStatus = (CUR_PROJECT.status || 'draft').replace(/_/g,' ').replace(/\b\w/g, function(c){return c.toUpperCase();});
+
+      // ── COVER PAGE (reuse from doExport style) ──
+      var coverChildren = [];
+      var revision = 'Rev 1';
+      try {
+        var logoImgRun = new D.ImageRun({ data: logoBuf, transformation: { width: logoW, height: logoH }, type: logoType });
+        coverChildren.push(p([new D.TextRun({ text: 'Status: ' + projectStatus, font: 'Arial', size: 18, color: '888888' })], { alignment: AlignmentType.RIGHT }));
+        coverChildren.push(p([logoImgRun], { spacing: { before: 0, after: 0 } }));
+      } catch(e) {
+        coverChildren.push(p([t('MLA INSPECTION', { size: 24, bold: true, color: '4A4A4A' })]));
+      }
+      coverChildren.push(p([t('')], { border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: '4A4A4A', space: 1 } }, spacing: { before: 200, after: 0 } }));
+      coverChildren.push(p([t(title || 'Inspection Report', { size: 64, bold: true, color: '1A1A1A' })], { alignment: AlignmentType.CENTER, spacing: { before: 2400, after: 240 } }));
+      if (ref || date) coverChildren.push(p([t((ref||'') + (ref&&date?' \u2014 ':'') + (date||''), { size: 24, color: '888888' })], { alignment: AlignmentType.CENTER, spacing: { after: 120 } }));
+      if (addr) coverChildren.push(p([t(addr, { size: 20, color: 'AAAAAA' })], { alignment: AlignmentType.CENTER }));
+      coverChildren.push(p([t('')], { border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: 'CCCCCC', space: 1 } }, spacing: { before: 2800, after: 0 } }));
+      coverChildren.push(p([t(revision + '   \u2022   Generated: ' + genDate + '   \u2022   ' + items.length + ' items', { size: 18, color: '888888' })], { spacing: { before: 60 } }));
+
+      var sections = [];
+      sections.push({
+        properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1134, right: 1134, bottom: 1700, left: 1134 } }, titlePage: true },
+        children: coverChildren.concat([p([new D.PageBreak()])])
+      });
+
+      // ── ONE PAGE PER ITEM ──
+      items.forEach(function(item, idx) {
+        var seq = 'INS-' + String(item.seq || 0).padStart(3, '0');
+        var stColor = stColors[item.status] || '888888';
+        var priColor = priColors[item.priority] || '888888';
+        var photoList = [item.photo, item.photoAfter, item.photoExtra].filter(Boolean);
+        var hasPhotos = photoList.length > 0;
+
+        var pageChildren = [];
+
+        // ── HEADER ROW: logo left | INS-XXX right ──
+        var HCOL_L = 6000, HCOL_R = 3906;
+        var headerLogoRun = null;
+        try { headerLogoRun = new D.ImageRun({ data: logoBuf, transformation: { width: logoW, height: logoH }, type: logoType }); } catch(e) {}
+        var headerTbl = new D.Table({
+          width: { size: TW, type: WidthType.DXA },
+          columnWidths: [HCOL_L, HCOL_R],
+          borders: { top: borderNone, bottom: borderLight, left: borderNone, right: borderNone, insideH: borderNone, insideV: borderNone },
+          rows: [new D.TableRow({ children: [
+            new D.TableCell({
+              width: { size: HCOL_L, type: WidthType.DXA },
+              borders: { top: borderNone, bottom: borderNone, left: borderNone, right: borderNone },
+              margins: { top: 60, bottom: 60, left: 0, right: 0 },
+              children: [headerLogoRun ? p([headerLogoRun]) : p([t('MLA INSPECTION', { size: 22, bold: true, color: '4A4A4A' })])]
+            }),
+            new D.TableCell({
+              width: { size: HCOL_R, type: WidthType.DXA },
+              borders: { top: borderNone, bottom: borderNone, left: borderNone, right: borderNone },
+              margins: { top: 60, bottom: 60, left: 0, right: 0 },
+              verticalAlign: VerticalAlign.CENTER,
+              children: [p([t(seq, { size: 28, bold: true, color: stColor })], { alignment: AlignmentType.RIGHT })]
+            })
+          ]})]
+        });
+        pageChildren.push(headerTbl);
+        pageChildren.push(p([t('')], { spacing: { before: 0, after: 120 } }));
+
+        // ── PHOTO SECTION ──
+        if (hasPhotos) {
+          if (photoList.length === 1) {
+            // Single photo — full width
+            var imgRun = makeImgRun(photoList[0], TWpt);
+            if (imgRun) {
+              pageChildren.push(p([imgRun], { alignment: AlignmentType.CENTER, spacing: { before: 0, after: 0 } }));
+              if (item.date) pageChildren.push(p([t('Taken on: ' + item.date, { size: 16, color: '999999', italics: true })], { spacing: { before: 60, after: 200 } }));
+              else pageChildren.push(p([t('')], { spacing: { before: 0, after: 200 } }));
+            }
+          } else if (photoList.length === 2) {
+            // Two photos side by side
+            var halfPt = Math.floor(TWpt / 2) - 10;
+            var HCOL2 = Math.floor(TW / 2);
+            var imgR0 = makeImgRun(photoList[0], halfPt);
+            var imgR1 = makeImgRun(photoList[1], halfPt);
+            var twoPhotoRows = [];
+            if (imgR0 || imgR1) {
+              twoPhotoRows.push(new D.TableRow({ children: [
+                new D.TableCell({ width: { size: HCOL2, type: WidthType.DXA }, borders: { top: borderNone, bottom: borderNone, left: borderNone, right: borderNone }, margins: { top: 0, bottom: 0, left: 0, right: 60 }, children: [imgR0 ? p([imgR0], { alignment: AlignmentType.CENTER }) : p([t('')])] }),
+                new D.TableCell({ width: { size: HCOL2, type: WidthType.DXA }, borders: { top: borderNone, bottom: borderNone, left: borderNone, right: borderNone }, margins: { top: 0, bottom: 0, left: 60, right: 0 }, children: [imgR1 ? p([imgR1], { alignment: AlignmentType.CENTER }) : p([t('')])] })
+              ]}));
+            }
+            // Date row (individual dates or shared)
+            var dateR0 = item.date ? p([t('Taken on: ' + item.date, { size: 15, color: '999999', italics: true })], { alignment: AlignmentType.CENTER }) : p([t('')]);
+            twoPhotoRows.push(new D.TableRow({ children: [
+              new D.TableCell({ width: { size: HCOL2, type: WidthType.DXA }, borders: { top: borderNone, bottom: borderNone, left: borderNone, right: borderNone }, margins: { top: 40, bottom: 0, left: 0, right: 60 }, children: [dateR0] }),
+              new D.TableCell({ width: { size: HCOL2, type: WidthType.DXA }, borders: { top: borderNone, bottom: borderNone, left: borderNone, right: borderNone }, margins: { top: 40, bottom: 0, left: 60, right: 0 }, children: [dateR0] })
+            ]}));
+            pageChildren.push(new D.Table({ width: { size: TW, type: WidthType.DXA }, columnWidths: [HCOL2, HCOL2], borders: { top: borderNone, bottom: borderNone, left: borderNone, right: borderNone, insideH: borderNone, insideV: borderNone }, rows: twoPhotoRows }));
+            pageChildren.push(p([t('')], { spacing: { before: 0, after: 200 } }));
+          } else {
+            // 3 photos — before/after side by side, extra full width below
+            var halfPt3 = Math.floor(TWpt / 2) - 10;
+            var HCOL3 = Math.floor(TW / 2);
+            var imgR3a = makeImgRun(photoList[0], halfPt3);
+            var imgR3b = makeImgRun(photoList[1], halfPt3);
+            var imgR3c = makeImgRun(photoList[2], TWpt);
+            if (imgR3a || imgR3b) {
+              var rows3 = [new D.TableRow({ children: [
+                new D.TableCell({ width: { size: HCOL3, type: WidthType.DXA }, borders: { top: borderNone, bottom: borderNone, left: borderNone, right: borderNone }, margins: { top: 0, bottom: 0, left: 0, right: 60 }, children: [imgR3a ? p([imgR3a], { alignment: AlignmentType.CENTER }) : p([t('')])] }),
+                new D.TableCell({ width: { size: HCOL3, type: WidthType.DXA }, borders: { top: borderNone, bottom: borderNone, left: borderNone, right: borderNone }, margins: { top: 0, bottom: 0, left: 60, right: 0 }, children: [imgR3b ? p([imgR3b], { alignment: AlignmentType.CENTER }) : p([t('')])] })
+              ]})];
+              var dateRow3a = item.date ? p([t('Taken on: ' + item.date, { size: 15, color: '999999', italics: true })], { alignment: AlignmentType.CENTER }) : p([t('')]);
+              rows3.push(new D.TableRow({ children: [
+                new D.TableCell({ width: { size: HCOL3, type: WidthType.DXA }, borders: { top: borderNone, bottom: borderNone, left: borderNone, right: borderNone }, margins: { top: 40, bottom: 0, left: 0, right: 60 }, children: [dateRow3a] }),
+                new D.TableCell({ width: { size: HCOL3, type: WidthType.DXA }, borders: { top: borderNone, bottom: borderNone, left: borderNone, right: borderNone }, margins: { top: 40, bottom: 0, left: 60, right: 0 }, children: [dateRow3a] })
+              ]}));
+              pageChildren.push(new D.Table({ width: { size: TW, type: WidthType.DXA }, columnWidths: [HCOL3, HCOL3], borders: { top: borderNone, bottom: borderNone, left: borderNone, right: borderNone, insideH: borderNone, insideV: borderNone }, rows: rows3 }));
+              pageChildren.push(p([t('')], { spacing: { before: 120, after: 0 } }));
+            }
+            if (imgR3c) {
+              pageChildren.push(p([imgR3c], { alignment: AlignmentType.CENTER, spacing: { before: 0, after: 0 } }));
+              if (item.date) pageChildren.push(p([t('Taken on: ' + item.date, { size: 15, color: '999999', italics: true })], { alignment: AlignmentType.CENTER, spacing: { before: 60, after: 0 } }));
+            }
+            pageChildren.push(p([t('')], { spacing: { before: 0, after: 160 } }));
+          }
+        } else {
+          // No photo — placeholder note
+          pageChildren.push(new D.Table({
+            width: { size: TW, type: WidthType.DXA },
+            borders: { top: borderLight, bottom: borderLight, left: borderLight, right: borderLight, insideH: borderNone, insideV: borderNone },
+            rows: [new D.TableRow({ children: [new D.TableCell({
+              width: { size: TW, type: WidthType.DXA },
+              margins: { top: 600, bottom: 600, left: 200, right: 200 },
+              children: [p([t('\uD83D\uDCF7  No photo attached', { size: 22, color: 'BBBBBB', italics: true })], { alignment: AlignmentType.CENTER })]
+            })]})]
+          }));
+          pageChildren.push(p([t('')], { spacing: { before: 0, after: 200 } }));
+        }
+
+        // ── DETAILS BOX ──
+        function dr(label, value, valColor) {
+          return p([
+            t(label + '  ', { size: 18, bold: true, color: '888888' }),
+            t(value || '\u2014', { size: 18, color: valColor || '333333' })
+          ], { spacing: { after: 60 } });
+        }
+        var detailChildren = [
+          p([
+            t(seq + '  ', { size: 20, bold: true, color: 'AAAAAA' }),
+            t(item.description || '', { size: 26, bold: true, color: '1A1A1A' })
+          ], { spacing: { after: 160 } }),
+          dr('Status:', (item.status || '').replace(/_/g,' '), stColor),
+          dr('Priority:', item.priority, priColor),
+          dr('Category:', item.category),
+          dr('Location:', item.location),
+          dr('Contractor:', item.contractor),
+          dr('Visit:', String(item.visitNumber || 1)),
+          dr('Date:', item.date || date)
+        ];
+        pageChildren.push(new D.Table({
+          width: { size: TW, type: WidthType.DXA },
+          borders: { top: borderLight, bottom: borderLight, left: borderLight, right: borderLight, insideH: borderNone, insideV: borderNone },
+          rows: [new D.TableRow({ children: [new D.TableCell({
+            width: { size: TW, type: WidthType.DXA },
+            margins: { top: 180, bottom: 180, left: 220, right: 220 },
+            children: detailChildren
+          })]})]
+        }));
+
+        // Page break after every item except last
+        if (idx < items.length - 1) {
+          pageChildren.push(p([new D.PageBreak()]));
+        }
+
+        sections.push({
+          properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1000, right: 1000, bottom: 1200, left: 1000 } } },
+          footers: { default: new D.Footer({ children: [
+            p([
+              t('Page ' + (idx + 1) + ' of ' + items.length + '  \u2022  ' + (title || 'Inspection Report'), { size: 16, color: '999999' })
+            ], { alignment: AlignmentType.CENTER })
+          ]})},
+          children: pageChildren
+        });
+      });
+
+      var doc = new D.Document({ sections: sections });
+      D.Packer.toBlob(doc).then(function(blob) {
+        loader(false);
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = (title || 'report').replace(/[^a-zA-Z0-9]/g,'_') + '_one_shot.docx';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        toast('One Shot Report ready \uD83D\uDCF8', 'ok');
+      }).catch(function(e) { loader(false); toast('Export failed', 'err'); console.error(e); });
+    } catch(e) { loader(false); toast('Export failed', 'err'); console.error(e); }
+  });
+}
+
+
 (function () {
   var last = 0;
   document.addEventListener('touchend', function (e) {
