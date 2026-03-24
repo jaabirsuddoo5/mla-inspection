@@ -917,7 +917,7 @@ select.fi{cursor:pointer}
     <div class="login-logo">
       <img src="logo.png" alt="MLA" class="login-logo-img"/>
       <div class="login-subtitle">Inspection</div>
-      <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:4px">v4.6</div>
+      <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:4px">v4.7</div>
     </div>
 
     <div class="server-status" id="server-status">
@@ -1349,7 +1349,7 @@ select.fi{cursor:pointer}
           <p>...but a great inspector documents it properly! 📝✅</p>
         </div>
 
-        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v4.6 — Phase 3+4 — Always MLA</div>
+        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v4.7 — Phase 3+4 — Always MLA</div>
       </div>
     </div>
 
@@ -3235,12 +3235,12 @@ function doExport(type) {
         var logoData = EXPORT_LOGO || null;
         var logoType = logoData ? imgType(logoData) : null;
         var logoBuf = logoData ? dataUrlToUint8(logoData) : null;
-        // Logo dims: preserve aspect ratio, max 130pt wide, max 55pt tall — no stretch, no crop
+        // Logo dims: match One Shot Report sizing — no stretch, no crop
         var logoDims = (logoBuf && logoType) ? (getImgDims(logoBuf, logoType) || { w: 1568, h: 541 }) : null;
         var logoRatio = logoDims ? (logoDims.h / (logoDims.w || 1)) : 1;
-        var logoW = 130;
+        var logoW = 110;
         var logoH = Math.round(logoW * logoRatio);
-        if (logoDims && logoH > 55) { logoH = 55; logoW = Math.round(logoH / logoRatio); }
+        if (logoDims && logoH > 48) { logoH = 48; logoW = Math.round(logoH / logoRatio); }
 
         // Tab stop helper for right-aligned text in same paragraph
         function tabRight(leftText, leftOpts, rightText, rightOpts, totalDxa) {
@@ -3289,7 +3289,8 @@ function doExport(type) {
 
         // ── HEADER (logo left, date+status right) for body pages ──
         var headerLogoRun = null;
-        var headerLogoW = 80; var headerLogoH = Math.round(headerLogoW * logoRatio); if (logoDims && headerLogoH > 28) { headerLogoH = 28; headerLogoW = Math.round(headerLogoH / logoRatio); }
+        var headerLogoW = logoW;
+        var headerLogoH = logoH;
         if (logoBuf && logoType) {
           try { headerLogoRun = new D.ImageRun({ data: logoBuf, transformation: { width: headerLogoW, height: headerLogoH }, type: logoType }); } catch(e) { headerLogoRun = null; }
         }
