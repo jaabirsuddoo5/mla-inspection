@@ -917,7 +917,7 @@ select.fi{cursor:pointer}
     <div class="login-logo">
       <img src="logo.png" alt="MLA" class="login-logo-img"/>
       <div class="login-subtitle">Inspection</div>
-      <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:4px">v4.3</div>
+      <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:4px">v4.6</div>
     </div>
 
     <div class="server-status" id="server-status">
@@ -1335,7 +1335,7 @@ select.fi{cursor:pointer}
         </ul></div>
 
         <div class="about-card"><h3>🏷️ Export Logo</h3>
-          <p>Upload your company logo — appears on PDF/Word cover pages only. If none uploaded, the MLA logo is used by default.</p>
+          <p>Upload your company logo — appears on PDF/Word cover pages only. If none uploaded, export stays blank.</p>
           <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
             <img id="about-exp-logo-prev" style="width:56px;height:56px;border-radius:8px;object-fit:contain;background:var(--bg2);border:1px solid var(--line);display:none"/>
             <input type="file" id="about-exp-logo-input" accept="image/*" style="display:none"/>
@@ -1349,7 +1349,7 @@ select.fi{cursor:pointer}
           <p>...but a great inspector documents it properly! 📝✅</p>
         </div>
 
-        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v4.3 — Phase 3+4 — Always MLA</div>
+        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v4.6 — Phase 3+4 — Always MLA</div>
       </div>
     </div>
 
@@ -3068,7 +3068,7 @@ document.getElementById('btn-about-exp-logo-rm').onclick = function () {
   var prev = document.getElementById('about-exp-logo-prev');
   if (prev) { prev.src = ''; prev.style.display = 'none'; }
   this.style.display = 'none';
-  api('PUT', '/user/export-logo', { logo: null }).then(function () { toast('Logo removed \u2014 MLA default restored', 'ok'); }).catch(function () {});
+  api('PUT', '/user/export-logo', { logo: null }).then(function () { toast('Logo removed', 'ok'); }).catch(function () {});
 };
 
 function getExportData() {
@@ -3662,6 +3662,124 @@ function doExportOnePP() {
       sections.push({
         properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1134, right: 1134, bottom: 1700, left: 1134 } }, titlePage: true },
         children: coverChildren.concat([p([new D.PageBreak()])])
+      });
+
+      // ── PLAN SECTION(S) ──
+      var plansWithImages = CUR_PLANS.filter(function(pl) { return !!pl.image; });
+      plansWithImages.forEach(function(pl) {
+        var planImg = new Image();
+        planImg.src = pl.image;
+        var PW = 760, PH = 540;
+        var oc = document.createElement('canvas');
+        oc.width = PW; oc.height = PH;
+        var ctx2 = oc.getContext('2d');
+        var drawPlan = function() {
+          ctx2.fillStyle = '#FFFFFF';
+          ctx2.fillRect(0, 0, PW, PH);
+          var scale = Math.min(PW / planImg.naturalWidth, PH / planImg.naturalHeight);
+          var dw = planImg.naturalWidth * scale, dh = planImg.naturalHeight * scale;
+          var ox = (PW - dw) / 2, oy = (PH - dh) / 2;
+          ctx2.drawImage(planImg, ox, oy, dw, dh);
+          var pinColors = { open: '#D94141', in_progress: '#C78A20', closed: '#2D8653' };
+          CUR_ITEMS.filter(function(i) {
+            return !i.deleted && i.pins && i.pins.some(function(pin) { return pin.planId === pl._id; });
+          }).forEach(function(item) {
+            var pin = item.pins.find(function(p2) { return p2.planId === pl._id; });
+            if (!pin) return;
+            var px2 = ox + pin.x * scale;
+            var py2 = oy + pin.y * scale;
+            var r = 14;
+            ctx2.beginPath(); ctx2.arc(px2, py2, r, 0, 2*Math.PI);
+            ctx2.fillStyle = pinColors[item.status] || '#D94141';
+            ctx2.fill();
+            ctx2.strokeStyle = '#FFFFFF'; ctx2.lineWidth = 2; ctx2.stroke();
+            ctx2.fillStyle = '#FFFFFF';
+            ctx2.font = 'bold 11px Arial';
+            ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
+            ctx2.fillText(String(item.seq || '?'), px2, py2);
+          });
+        };
+        if (planImg.complete && planImg.naturalWidth) {
+          drawPlan();
+        } else {
+          ctx2.fillStyle = '#F5F5F5';
+          ctx2.fillRect(0, 0, PW, PH);
+          ctx2.fillStyle = '#999999';
+          ctx2.font = '16px Arial';
+          ctx2.textAlign = 'center';
+          ctx2.textBaseline = 'middle';
+          ctx2.fillText('Plan: ' + pl.name, PW / 2, PH / 2);
+        }
+        var planDataUrl = oc.toDataURL('image/jpeg', 0.92);
+        var planBuf = dataUrlToUint8(planDataUrl);
+        var planDims = getImgDims(planBuf, 'jpg') || { w: PW, h: PH };
+        var planRatio = planDims.h / (planDims.w || 1);
+        var planImgW = TWpt;
+        var planImgH = Math.round(planImgW * planRatio);
+        var planImgRun = null;
+        try { planImgRun = new D.ImageRun({ data: planBuf, transformation: { width: planImgW, height: planImgH }, type: 'jpg' }); } catch(e) {}
+
+        var headerLogoRunPlan = null;
+        if (logoBuf && logoType) { try { headerLogoRunPlan = new D.ImageRun({ data: logoBuf, transformation: { width: logoW, height: logoH }, type: logoType }); } catch(e) {} }
+        var planHeader = new D.Table({
+          width: { size: TW, type: WidthType.DXA },
+          columnWidths: [6000, 3906],
+          borders: { top: borderNone, bottom: borderLight, left: borderNone, right: borderNone, insideH: borderNone, insideV: borderNone },
+          rows: [new D.TableRow({ children: [
+            new D.TableCell({
+              width: { size: 6000, type: WidthType.DXA },
+              borders: { top: borderNone, bottom: borderNone, left: borderNone, right: borderNone },
+              margins: { top: 60, bottom: 60, left: 0, right: 0 },
+              children: [headerLogoRunPlan ? p([headerLogoRunPlan]) : p([t('MLA INSPECTION', { size: 22, bold: true, color: '4A4A4A' })])]
+            }),
+            new D.TableCell({
+              width: { size: 3906, type: WidthType.DXA },
+              borders: { top: borderNone, bottom: borderNone, left: borderNone, right: borderNone },
+              margins: { top: 60, bottom: 60, left: 0, right: 0 },
+              verticalAlign: VerticalAlign.CENTER,
+              children: [p([t('PLAN', { size: 24, bold: true, color: '4A4A4A' })], { alignment: AlignmentType.RIGHT })]
+            })
+          ]})]
+        });
+
+        var planChildren = [planHeader, p([t('')], { spacing: { before: 0, after: 120 } })];
+        planChildren.push(p([t('Floor Plan: ' + pl.name, { size: 28, bold: true, color: '4A4A4A' })], { spacing: { before: 0, after: 160 } }));
+        if (planImgRun) planChildren.push(p([planImgRun], { alignment: AlignmentType.CENTER, spacing: { before: 0, after: 180 } }));
+
+        var legendRuns = [t('Pin Legend:  ', { size: 18, bold: true, color: '888888' })];
+        ['open', 'in_progress', 'closed'].forEach(function(st, si) {
+          var names = ['Open', 'In Progress', 'Closed'];
+          var colors = { open: 'D94141', in_progress: 'C78A20', closed: '2D8653' };
+          var pinnedCount = CUR_ITEMS.filter(function(i) {
+            return !i.deleted && i.status === st && i.pins && i.pins.some(function(p2) { return p2.planId === pl._id; });
+          }).length;
+          legendRuns.push(t('\u25CF ', { size: 22, color: colors[st], bold: true }));
+          legendRuns.push(t(names[si] + ' (' + pinnedCount + ')  ', { size: 18, color: '444444' }));
+        });
+        planChildren.push(p(legendRuns, { spacing: { before: 0, after: 120 } }));
+
+        var pinnedItems = CUR_ITEMS.filter(function(i) {
+          return !i.deleted && i.pins && i.pins.some(function(p2) { return p2.planId === pl._id; });
+        }).sort(function(a, b) { return (a.seq || 0) - (b.seq || 0); });
+        if (pinnedItems.length) {
+          planChildren.push(p([t('Pinned Items', { size: 20, bold: true, color: '666666' })], { spacing: { before: 60, after: 40 } }));
+          pinnedItems.forEach(function(item) {
+            var stC2 = stColors[item.status] || '888888';
+            planChildren.push(p([
+              t('INS-' + String(item.seq || 0).padStart(3, '0') + '  ', { size: 18, bold: true, color: 'AAAAAA' }),
+              t((item.description || '').substring(0, 60), { size: 18, color: '222222' }),
+              t('  [' + (item.status || '').replace(/_/g, ' ') + ']', { size: 16, color: stC2 })
+            ], { spacing: { after: 40 } }));
+          });
+        }
+
+        sections.push({
+          properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1000, right: 1000, bottom: 1200, left: 1000 } } },
+          footers: { default: new D.Footer({ children: [
+            p([t(title || 'Inspection Report', { size: 16, color: '999999' })], { alignment: AlignmentType.CENTER })
+          ]})},
+          children: planChildren.concat([p([new D.PageBreak()])])
+        });
       });
 
       // ── ONE PAGE PER ITEM ──
