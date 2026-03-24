@@ -917,7 +917,7 @@ select.fi{cursor:pointer}
     <div class="login-logo">
       <img src="logo.png" alt="MLA" class="login-logo-img"/>
       <div class="login-subtitle">Inspection</div>
-      <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:4px">v4.4</div>
+      <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:4px">v4.3</div>
     </div>
 
     <div class="server-status" id="server-status">
@@ -1335,7 +1335,7 @@ select.fi{cursor:pointer}
         </ul></div>
 
         <div class="about-card"><h3>🏷️ Export Logo</h3>
-          <p>Upload your company logo — appears on PDF/Word cover pages only. If none is uploaded, the export will show no logo.</p>
+          <p>Upload your company logo — appears on PDF/Word cover pages only. If none uploaded, the MLA logo is used by default.</p>
           <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
             <img id="about-exp-logo-prev" style="width:56px;height:56px;border-radius:8px;object-fit:contain;background:var(--bg2);border:1px solid var(--line);display:none"/>
             <input type="file" id="about-exp-logo-input" accept="image/*" style="display:none"/>
@@ -1349,7 +1349,7 @@ select.fi{cursor:pointer}
           <p>...but a great inspector documents it properly! 📝✅</p>
         </div>
 
-        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v4.4 — Custom Logo Export</div>
+        <div style="font-size:10px;font-weight:700;color:var(--text4);text-align:center;padding:8px 0">MLA Inspection v4.3 — Phase 3+4 — Always MLA</div>
       </div>
     </div>
 
@@ -3068,7 +3068,7 @@ document.getElementById('btn-about-exp-logo-rm').onclick = function () {
   var prev = document.getElementById('about-exp-logo-prev');
   if (prev) { prev.src = ''; prev.style.display = 'none'; }
   this.style.display = 'none';
-  api('PUT', '/user/export-logo', { logo: null }).then(function () { toast('Logo removed', 'ok'); }).catch(function () {});
+  api('PUT', '/user/export-logo', { logo: null }).then(function () { toast('Logo removed \u2014 MLA default restored', 'ok'); }).catch(function () {});
 };
 
 function getExportData() {
@@ -3217,7 +3217,7 @@ function doExport(type) {
 
         // A4 content width with 1000 DXA margins each side: 11906 - 2000 = 9906
         // Left col wider for bigger photos: 4800, right col: 5106
-        var TW = 9906, LCOL = 4800, RCOL = 5106;
+        var TW = 9906, LCOL = 4500, RCOL = 5406;
 
         var stColors = { open: 'D94141', in_progress: 'C78A20', closed: '2D8653' };
         var priColors = { low: '888888', medium: 'C78A20', high: 'D94141', critical: 'D94141' };
@@ -3262,12 +3262,16 @@ function doExport(type) {
         var coverChildren = [];
 
         // Top: MLA/company logo left, project status right
-        try {
-          var logoImgRun = new D.ImageRun({ data: logoBuf, transformation: { width: logoW, height: logoH }, type: logoType });
+        if (logoBuf && logoType) {
+          try {
+            var logoImgRun = new D.ImageRun({ data: logoBuf, transformation: { width: logoW, height: logoH }, type: logoType });
+            coverChildren.push(tabRight('', {}, 'Status: ' + projectStatus, { size: 18, color: '888888' }, TW));
+            coverChildren.push(p([logoImgRun], { spacing: { before: 0, after: 0 } }));
+          } catch(e) {
+            coverChildren.push(tabRight('', {}, 'Status: ' + projectStatus, { size: 18, color: '888888' }, TW));
+          }
+        } else {
           coverChildren.push(tabRight('', {}, 'Status: ' + projectStatus, { size: 18, color: '888888' }, TW));
-          coverChildren.push(p([logoImgRun], { spacing: { before: 0, after: 0 } }));
-        } catch(e) {
-          coverChildren.push(tabRight('MLA INSPECTION', { size: 24, bold: true, color: '4A4A4A' }, 'Status: ' + projectStatus, { size: 18, color: '888888' }, TW));
         }
 
         // Divider line
@@ -3284,13 +3288,15 @@ function doExport(type) {
         coverChildren.push(p([t('Total Items: ' + items.length + '   \u2022   ' + projectStatus, { size: 18, color: '888888' })], { spacing: { before: 60, after: 0 } }));
 
         // ── HEADER (logo left, date+status right) for body pages ──
-        var headerLogoRun;
-        var headerLogoW = 80; var headerLogoH = Math.round(headerLogoW * logoRatio); if (headerLogoH > 28) { headerLogoH = 28; headerLogoW = Math.round(headerLogoH / logoRatio); }
-        try { headerLogoRun = new D.ImageRun({ data: logoBuf, transformation: { width: headerLogoW, height: headerLogoH }, type: logoType }); } catch(e) { headerLogoRun = null; }
+        var headerLogoRun = null;
+        var headerLogoW = 80; var headerLogoH = Math.round(headerLogoW * logoRatio); if (logoDims && headerLogoH > 28) { headerLogoH = 28; headerLogoW = Math.round(headerLogoH / logoRatio); }
+        if (logoBuf && logoType) {
+          try { headerLogoRun = new D.ImageRun({ data: logoBuf, transformation: { width: headerLogoW, height: headerLogoH }, type: logoType }); } catch(e) { headerLogoRun = null; }
+        }
         var headerChildren = headerLogoRun
           ? [ tabRight('', {}, genDate + '   ' + projectStatus + '   ' + revision, { size: 16, color: '999999' }, TW),
               p([headerLogoRun]) ]
-          : [ tabRight('MLA INSPECTION', { size: 18, bold: true, color: '4A4A4A' }, genDate + '   ' + projectStatus + '   ' + revision, { size: 16, color: '999999' }, TW) ];
+          : [ tabRight('', {}, genDate + '   ' + projectStatus + '   ' + revision, { size: 16, color: '999999' }, TW) ];
         var docHeader = new D.Header({ children: headerChildren });
 
         // ── FOOTER (page numbers) ──
@@ -3403,7 +3409,7 @@ function doExport(type) {
           }
 
           sections.push({
-            properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1400, right: 1000, bottom: 1400, left: 1000 } } },
+            properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 900, right: 900, bottom: 900, left: 900 } } },
             headers: { default: docHeader },
             footers: { default: docFooter },
             children: planSectionChildren
@@ -3451,7 +3457,7 @@ function doExport(type) {
           var photoLabels = ['Before', 'After', 'Extra'];
           var hasAnyPhoto = false;
           // LCOL=4800 DXA. No cell margins — image fills full column width = 4800/20 = 240pt
-          var imgWidthPt = 240;
+          var imgWidthPt = 205;
           if (inclPhotos) {
             var filledPhotos = photoFields.filter(function(f) { return !!item[f]; }).length;
             var showLabel = filledPhotos > 1;
@@ -3465,9 +3471,9 @@ function doExport(type) {
                 leftCellChildren.push(p([t(photoLabels[fi].toUpperCase(), { size: 13, color: 'AAAAAA', bold: true, characterSpacing: 60 })], { spacing: { before: 40, after: 20 } }));
               }
               if (item.date) {
-                leftCellChildren.push(p([t('Taken on: ' + item.date, { size: 12, color: 'CCCCCC' })], { spacing: { before: 0, after: showLabel ? 100 : 60 } }));
+                leftCellChildren.push(p([t('Taken on: ' + item.date, { size: 11, color: 'CCCCCC' })], { spacing: { before: 0, after: showLabel ? 70 : 40 } }));
               } else if (showLabel) {
-                leftCellChildren.push(p([t('')], { spacing: { before: 0, after: 80 } }));
+                leftCellChildren.push(p([t('')], { spacing: { before: 0, after: 50 } }));
               }
               hasAnyPhoto = true;
             });
@@ -3476,11 +3482,11 @@ function doExport(type) {
 
           // Right cell: details
           var dr = function(label, value, valColor) {
-            return p([t(label + '  ', { size: 18, bold: true, color: '888888' }), t(value, { size: 18, color: valColor || '333333' })], { spacing: { after: 60 } });
+            return p([t(label + '  ', { size: 16, bold: true, color: '888888' }), t(value, { size: 16, color: valColor || '333333' })], { spacing: { after: 35 } });
           };
           var rightCellChildren = [
-            p([t(seq, { size: 16, bold: true, color: 'AAAAAA', characterSpacing: 60 })], { spacing: { after: 80 } }),
-            p([t(item.description || '', { size: 28, bold: true, color: '1A1A1A' })], { spacing: { after: 240 } }),
+            p([t(seq, { size: 15, bold: true, color: 'AAAAAA', characterSpacing: 60 })], { spacing: { after: 50 } }),
+            p([t(item.description || '', { size: 24, bold: true, color: '1A1A1A' })], { spacing: { after: 140 } }),
             dr('Status:', (item.status || '').replace(/_/g, ' '), stColor),
             dr('Priority:', item.priority || '\u2014', priColor),
             dr('Category:', item.category || '\u2014'),
@@ -3495,7 +3501,7 @@ function doExport(type) {
             columnWidths: [LCOL, RCOL],
             borders: { top: borderLight, bottom: borderLight, left: borderLight, right: borderLight, insideH: borderLight, insideV: borderLight },
             rows: [
-              new D.TableRow({
+              new D.TableRow({ cantSplit: true,
                 children: [
                   new D.TableCell({
                     width: { size: LCOL, type: WidthType.DXA },
@@ -3508,7 +3514,7 @@ function doExport(type) {
                   new D.TableCell({
                     width: { size: RCOL, type: WidthType.DXA },
                     borders: { top: borderLight, bottom: borderLight, left: borderNone, right: borderLight },
-                    margins: { top: 180, bottom: 180, left: 360, right: 140 },
+                    margins: { top: 120, bottom: 120, left: 220, right: 120 },
                     verticalAlign: VerticalAlign.TOP,
                     children: rightCellChildren
                   })
@@ -3518,11 +3524,11 @@ function doExport(type) {
           });
 
           bodyChildren.push(tbl);
-          bodyChildren.push(p([t('')], { spacing: { before: 0, after: 0, line: 240, lineRule: 'auto' } }));
+          bodyChildren.push(p([t('')], { spacing: { before: 0, after: 40, line: 180, lineRule: 'auto' } }));
         });
 
         sections.push({
-          properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1400, right: 1000, bottom: 1400, left: 1000 } } },
+          properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 900, right: 900, bottom: 900, left: 900 } } },
           headers: { default: docHeader },
           footers: { default: docFooter },
           children: bodyChildren
@@ -3634,12 +3640,16 @@ function doExportOnePP() {
       // ── COVER PAGE (reuse from doExport style) ──
       var coverChildren = [];
       var revision = 'Rev 1';
-      try {
-        var logoImgRun = new D.ImageRun({ data: logoBuf, transformation: { width: logoW, height: logoH }, type: logoType });
+      if (logoBuf && logoType) {
+        try {
+          var logoImgRun = new D.ImageRun({ data: logoBuf, transformation: { width: logoW, height: logoH }, type: logoType });
+          coverChildren.push(p([new D.TextRun({ text: 'Status: ' + projectStatus, font: 'Arial', size: 18, color: '888888' })], { alignment: AlignmentType.RIGHT }));
+          coverChildren.push(p([logoImgRun], { spacing: { before: 0, after: 0 } }));
+        } catch(e) {
+          coverChildren.push(p([new D.TextRun({ text: 'Status: ' + projectStatus, font: 'Arial', size: 18, color: '888888' })], { alignment: AlignmentType.RIGHT }));
+        }
+      } else {
         coverChildren.push(p([new D.TextRun({ text: 'Status: ' + projectStatus, font: 'Arial', size: 18, color: '888888' })], { alignment: AlignmentType.RIGHT }));
-        coverChildren.push(p([logoImgRun], { spacing: { before: 0, after: 0 } }));
-      } catch(e) {
-        coverChildren.push(p([t('MLA INSPECTION', { size: 24, bold: true, color: '4A4A4A' })]));
       }
       coverChildren.push(p([t('')], { border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: '4A4A4A', space: 1 } }, spacing: { before: 200, after: 0 } }));
       coverChildren.push(p([t(title || 'Inspection Report', { size: 64, bold: true, color: '1A1A1A' })], { alignment: AlignmentType.CENTER, spacing: { before: 2400, after: 240 } }));
@@ -3667,7 +3677,7 @@ function doExportOnePP() {
         // ── HEADER ROW: logo left | INS-XXX right ──
         var HCOL_L = 6000, HCOL_R = 3906;
         var headerLogoRun = null;
-        try { headerLogoRun = new D.ImageRun({ data: logoBuf, transformation: { width: logoW, height: logoH }, type: logoType }); } catch(e) {}
+        if (logoBuf && logoType) { try { headerLogoRun = new D.ImageRun({ data: logoBuf, transformation: { width: logoW, height: logoH }, type: logoType }); } catch(e) {} }
         var headerTbl = new D.Table({
           width: { size: TW, type: WidthType.DXA },
           columnWidths: [HCOL_L, HCOL_R],
